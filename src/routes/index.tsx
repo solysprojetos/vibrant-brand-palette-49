@@ -7,6 +7,7 @@ import laughing from "@/assets/laughing.asset.json";
 import flowers from "@/assets/flowers.asset.json";
 import mirror from "@/assets/mirror.asset.json";
 import waving from "@/assets/waving.asset.json";
+import presidente from "@/assets/presidente.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
@@ -165,8 +166,16 @@ function Index() {
       {/* Gallery */}
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
+          <p className="eyebrow text-primary/70 text-center mb-4">Nossa presidente</p>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
-            <div className="col-span-2 row-span-2 aspect-square overflow-hidden rounded-3xl md:col-span-2 md:row-span-2">
+            <div className="col-span-2 row-span-2 aspect-[3/4] md:aspect-square overflow-hidden rounded-3xl relative">
+              <img src={presidente.url} alt="Presidente Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
+                <p className="eyebrow text-white/80">Presidente</p>
+                <p className="text-display text-2xl text-white italic mt-1">Mulheres Curadas</p>
+              </div>
+            </div>
+            <div className="aspect-square overflow-hidden rounded-3xl">
               <img src={hug.url} alt="Abraço" className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
             </div>
             <div className="aspect-square overflow-hidden rounded-3xl">
@@ -178,14 +187,10 @@ function Index() {
             <div className="aspect-square overflow-hidden rounded-3xl">
               <img src={waving.url} alt="Comunidade" className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
             </div>
-            <div className="aspect-square overflow-hidden rounded-3xl bg-[color:var(--rose-soft)] flex items-center justify-center p-8">
-              <p className="text-display italic text-2xl text-primary text-center leading-snug">
-                "Florescer em Cristo."
-              </p>
-            </div>
           </div>
         </div>
       </section>
+
 
       {/* Encontros / CTA */}
       <section id="encontros" className="py-28 md:py-36">
