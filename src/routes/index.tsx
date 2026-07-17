@@ -7,6 +7,7 @@ import laughing from "@/assets/laughing.asset.json";
 import flowers from "@/assets/flowers.asset.json";
 import mirror from "@/assets/mirror.asset.json";
 import waving from "@/assets/waving.asset.json";
+import presidente from "@/assets/presidente.asset.json";
 
 export const Route = createFileRoute("/")({
   component: Index,
