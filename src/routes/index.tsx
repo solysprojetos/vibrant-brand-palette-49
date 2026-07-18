@@ -194,22 +194,93 @@ function Index() {
 
       {/* Encontros / CTA */}
       <section id="encontros" className="py-28 md:py-36">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-primary px-8 py-20 text-center text-primary-foreground md:px-16">
-          <p className="eyebrow opacity-70">Encontros · Retiros · Comunidade</p>
-          <h2 className="mt-6 text-display text-5xl leading-tight md:text-7xl">
-            Venha florescer <br /> <span className="italic">com a gente.</span>
-          </h2>
-          <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed opacity-80">
-            Encontros presenciais, círculos de oração e uma comunidade online para caminhar junto
-            de outras mulheres que estão sendo curadas todos os dias.
-          </p>
-          <a
-            id="contato"
-            href="mailto:contato@mulherescuradas.com"
-            className="mt-10 inline-block rounded-full bg-primary-foreground px-10 py-4 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:opacity-90"
-          >
-            Quero participar
-          </a>
+        <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-primary px-8 py-20 text-primary-foreground md:px-16">
+          <div className="text-center">
+            <p className="eyebrow opacity-70">Encontros · Retiros · Comunidade</p>
+            <h2 className="mt-6 text-display text-5xl leading-tight md:text-7xl">
+              Venha florescer <br /> <span className="italic">com a gente.</span>
+            </h2>
+            <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed opacity-80">
+              Encontros presenciais, círculos de oração e uma comunidade online para caminhar junto
+              de outras mulheres que estão sendo curadas todos os dias.
+            </p>
+          </div>
+
+          <div id="inscricao" className="mx-auto mt-14 max-w-xl rounded-[2rem] bg-primary-foreground/95 p-8 text-foreground shadow-lg md:p-10">
+            <p className="eyebrow text-primary/70 text-center">Inscreva-se</p>
+            <h3 className="mt-3 text-center text-display text-3xl text-primary md:text-4xl">
+              Reserve seu <span className="italic">lugar.</span>
+            </h3>
+            <form
+              className="mt-8 space-y-5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const data = new FormData(form);
+                const nome = String(data.get("nome") || "");
+                const telefone = String(data.get("telefone") || "");
+                const email = String(data.get("email") || "");
+                const body = encodeURIComponent(
+                  `Nome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}`
+                );
+                window.location.href = `mailto:contato@mulherescuradas.com?subject=${encodeURIComponent(
+                  "Nova inscrição Mulheres Curadas"
+                )}&body=${body}`;
+              }}
+            >
+              <div>
+                <label htmlFor="nome" className="eyebrow text-primary/70">
+                  Nome completo
+                </label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  required
+                  maxLength={100}
+                  autoComplete="name"
+                  className="mt-2 w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]"
+                  placeholder="Seu nome"
+                />
+              </div>
+              <div>
+                <label htmlFor="telefone" className="eyebrow text-primary/70">
+                  Telefone
+                </label>
+                <input
+                  id="telefone"
+                  name="telefone"
+                  type="tel"
+                  required
+                  maxLength={30}
+                  autoComplete="tel"
+                  className="mt-2 w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="eyebrow text-primary/70">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  maxLength={255}
+                  autoComplete="email"
+                  className="mt-2 w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]"
+                  placeholder="voce@email.com"
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-4 w-full rounded-full bg-primary px-10 py-4 text-xs uppercase tracking-[0.3em] text-primary-foreground transition-all hover:opacity-90"
+              >
+                Quero Participar
+              </button>
+            </form>
+          </div>
         </div>
       </section>
 
