@@ -68,8 +68,8 @@ function Index() {
               <span className="italic text-[color:var(--rose-deep)]">Curadas</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-foreground/75 md:text-xl">
-              Mais do que um nome, um convite. Um espaço delicado para mulheres que encontraram
-              — ou ainda buscam — cura, força e propósito em sua caminhada de fé.
+              Mais do que um nome, um convite. Um espaço delicado para mulheres que encontraram,
+              ou ainda buscam, cura, força e propósito em sua caminhada de fé.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <a
