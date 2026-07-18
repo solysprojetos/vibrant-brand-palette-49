@@ -123,7 +123,7 @@ function Index() {
             </p>
             <p className="mt-6 text-lg leading-relaxed text-foreground/70">
               É um convite para viver a transformação, florescer em Cristo e refletir Sua graça
-              por onde passar — porque quem é curada, também cura.
+              por onde passar, porque quem é curada, também cura.
             </p>
             <div className="mt-10 flex items-center gap-4 text-primary">
               <img src={logoMonogram.url} alt="MC" className="h-14 w-auto" />
