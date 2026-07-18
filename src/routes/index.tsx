@@ -34,18 +34,18 @@ function Index() {
       {/* Nav */}
       <header className="absolute top-0 left-0 right-0 z-20">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-12">
-          <img src={logoMonogram.url} alt="MC" className="h-10 w-auto" />
+          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-10 w-auto md:h-12" />
           <nav className="hidden gap-10 text-xs uppercase tracking-[0.3em] text-foreground/70 md:flex">
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
             <a href="#pilares" className="hover:text-primary transition-colors">Pilares</a>
             <a href="#encontros" className="hover:text-primary transition-colors">Encontros</a>
-            <a href="#contato" className="hover:text-primary transition-colors">Contato</a>
+            <a href="#inscricao" className="hover:text-primary transition-colors">Inscrição</a>
           </nav>
           <a
-            href="#contato"
+            href="#inscricao"
             className="hidden rounded-full border border-primary/30 px-5 py-2 text-xs uppercase tracking-[0.25em] text-primary transition-all hover:bg-primary hover:text-primary-foreground md:inline-block"
           >
-            Participar
+            Inscreva-se
           </a>
         </div>
       </header>
