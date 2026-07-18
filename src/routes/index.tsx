@@ -34,18 +34,18 @@ function Index() {
       {/* Nav */}
       <header className="absolute top-0 left-0 right-0 z-20">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-12">
-          <img src={logoMonogram.url} alt="MC" className="h-10 w-auto" />
+          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-10 w-auto md:h-12" />
           <nav className="hidden gap-10 text-xs uppercase tracking-[0.3em] text-foreground/70 md:flex">
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
             <a href="#pilares" className="hover:text-primary transition-colors">Pilares</a>
             <a href="#encontros" className="hover:text-primary transition-colors">Encontros</a>
-            <a href="#contato" className="hover:text-primary transition-colors">Contato</a>
+            <a href="#inscricao" className="hover:text-primary transition-colors">Inscrição</a>
           </nav>
           <a
-            href="#contato"
+            href="#inscricao"
             className="hidden rounded-full border border-primary/30 px-5 py-2 text-xs uppercase tracking-[0.25em] text-primary transition-all hover:bg-primary hover:text-primary-foreground md:inline-block"
           >
-            Participar
+            Inscreva-se
           </a>
         </div>
       </header>
@@ -68,8 +68,8 @@ function Index() {
               <span className="italic text-[color:var(--rose-deep)]">Curadas</span>
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-foreground/75 md:text-xl">
-              Mais do que um nome, um convite. Um espaço delicado para mulheres que encontraram
-              — ou ainda buscam — cura, força e propósito em sua caminhada de fé.
+              Mais do que um nome, um convite. Um espaço delicado para mulheres que encontraram,
+              ou ainda buscam, cura, força e propósito em sua caminhada de fé.
             </p>
             <div className="mt-10 flex flex-wrap items-center gap-4">
               <a
@@ -123,7 +123,7 @@ function Index() {
             </p>
             <p className="mt-6 text-lg leading-relaxed text-foreground/70">
               É um convite para viver a transformação, florescer em Cristo e refletir Sua graça
-              por onde passar — porque quem é curada, também cura.
+              por onde passar, porque quem é curada, também cura.
             </p>
             <div className="mt-10 flex items-center gap-4 text-primary">
               <img src={logoMonogram.url} alt="MC" className="h-14 w-auto" />
@@ -166,12 +166,12 @@ function Index() {
       {/* Gallery */}
       <section className="py-24">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
-          <p className="eyebrow text-primary/70 text-center mb-4">Nossa presidente</p>
+          <p className="eyebrow text-primary/70 text-center mb-4">Momentos</p>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             <div className="col-span-2 row-span-2 aspect-[3/4] md:aspect-square overflow-hidden rounded-3xl relative">
-              <img src={presidente.url} alt="Presidente Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+              <img src={presidente.url} alt="Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
-                <p className="eyebrow text-white/80">Presidente</p>
+                <p className="eyebrow text-white/80">Momentos</p>
                 <p className="text-display text-2xl text-white italic mt-1">Mulheres Curadas</p>
               </div>
             </div>
@@ -194,22 +194,93 @@ function Index() {
 
       {/* Encontros / CTA */}
       <section id="encontros" className="py-28 md:py-36">
-        <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-primary px-8 py-20 text-center text-primary-foreground md:px-16">
-          <p className="eyebrow opacity-70">Encontros · Retiros · Comunidade</p>
-          <h2 className="mt-6 text-display text-5xl leading-tight md:text-7xl">
-            Venha florescer <br /> <span className="italic">com a gente.</span>
-          </h2>
-          <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed opacity-80">
-            Encontros presenciais, círculos de oração e uma comunidade online para caminhar junto
-            de outras mulheres que estão sendo curadas todos os dias.
-          </p>
-          <a
-            id="contato"
-            href="mailto:contato@mulherescuradas.com"
-            className="mt-10 inline-block rounded-full bg-primary-foreground px-10 py-4 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:opacity-90"
-          >
-            Quero participar
-          </a>
+        <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-primary px-8 py-20 text-primary-foreground md:px-16">
+          <div className="text-center">
+            <p className="eyebrow opacity-70">Encontros · Retiros · Comunidade</p>
+            <h2 className="mt-6 text-display text-5xl leading-tight md:text-7xl">
+              Venha florescer <br /> <span className="italic">com a gente.</span>
+            </h2>
+            <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed opacity-80">
+              Encontros presenciais, círculos de oração e uma comunidade online para caminhar junto
+              de outras mulheres que estão sendo curadas todos os dias.
+            </p>
+          </div>
+
+          <div id="inscricao" className="mx-auto mt-14 max-w-xl rounded-[2rem] bg-primary-foreground/95 p-8 text-foreground shadow-lg md:p-10">
+            <p className="eyebrow text-primary/70 text-center">Inscreva-se</p>
+            <h3 className="mt-3 text-center text-display text-3xl text-primary md:text-4xl">
+              Reserve seu <span className="italic">lugar.</span>
+            </h3>
+            <form
+              className="mt-8 space-y-5"
+              onSubmit={(e) => {
+                e.preventDefault();
+                const form = e.currentTarget;
+                const data = new FormData(form);
+                const nome = String(data.get("nome") || "");
+                const telefone = String(data.get("telefone") || "");
+                const email = String(data.get("email") || "");
+                const body = encodeURIComponent(
+                  `Nome: ${nome}\nTelefone: ${telefone}\nE-mail: ${email}`
+                );
+                window.location.href = `mailto:contato@mulherescuradas.com?subject=${encodeURIComponent(
+                  "Nova inscrição Mulheres Curadas"
+                )}&body=${body}`;
+              }}
+            >
+              <div>
+                <label htmlFor="nome" className="eyebrow text-primary/70">
+                  Nome completo
+                </label>
+                <input
+                  id="nome"
+                  name="nome"
+                  type="text"
+                  required
+                  maxLength={100}
+                  autoComplete="name"
+                  className="mt-2 w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]"
+                  placeholder="Seu nome"
+                />
+              </div>
+              <div>
+                <label htmlFor="telefone" className="eyebrow text-primary/70">
+                  Telefone
+                </label>
+                <input
+                  id="telefone"
+                  name="telefone"
+                  type="tel"
+                  required
+                  maxLength={30}
+                  autoComplete="tel"
+                  className="mt-2 w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]"
+                  placeholder="(00) 00000-0000"
+                />
+              </div>
+              <div>
+                <label htmlFor="email" className="eyebrow text-primary/70">
+                  E-mail
+                </label>
+                <input
+                  id="email"
+                  name="email"
+                  type="email"
+                  required
+                  maxLength={255}
+                  autoComplete="email"
+                  className="mt-2 w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]"
+                  placeholder="voce@email.com"
+                />
+              </div>
+              <button
+                type="submit"
+                className="mt-4 w-full rounded-full bg-primary px-10 py-4 text-xs uppercase tracking-[0.3em] text-primary-foreground transition-all hover:opacity-90"
+              >
+                Quero Participar
+              </button>
+            </form>
+          </div>
         </div>
       </section>
 
