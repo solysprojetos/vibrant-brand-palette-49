@@ -1,13 +1,19 @@
 import { createFileRoute } from "@tanstack/react-router";
 import logoWordmark from "@/assets/logo-wordmark.asset.json";
 import logoMonogram from "@/assets/logo-monogram.asset.json";
-import hug from "@/assets/hug.asset.json";
-import worship from "@/assets/worship.asset.json";
-import laughing from "@/assets/laughing.asset.json";
 import flowers from "@/assets/flowers.asset.json";
 import mirror from "@/assets/mirror.asset.json";
-import waving from "@/assets/waving.asset.json";
-import presidente from "@/assets/presidente.asset.json";
+import momento1 from "@/assets/momento-1.asset.json";
+import momento2 from "@/assets/momento-2.asset.json";
+import momento3 from "@/assets/momento-3.asset.json";
+import momento4 from "@/assets/momento-4.asset.json";
+import momento5 from "@/assets/momento-5.asset.json";
+import momento6 from "@/assets/momento-6.asset.json";
+import momento7 from "@/assets/momento-7.asset.json";
+import momento8 from "@/assets/momento-8.asset.json";
+
+const momentos = [momento2, momento3, momento4, momento5, momento6, momento7, momento8];
+
 
 export const Route = createFileRoute("/")({
   component: Index,
