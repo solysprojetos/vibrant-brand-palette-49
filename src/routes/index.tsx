@@ -169,27 +169,21 @@ function Index() {
           <p className="eyebrow text-primary/70 text-center mb-4">Momentos</p>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             <div className="col-span-2 row-span-2 aspect-[3/4] md:aspect-square overflow-hidden rounded-3xl relative">
-              <img src={presidente.url} alt="Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+              <img src={momento1.url} alt="Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
                 <p className="eyebrow text-white/80">Momentos</p>
                 <p className="text-display text-2xl text-white italic mt-1">Mulheres Curadas</p>
               </div>
             </div>
-            <div className="aspect-square overflow-hidden rounded-3xl">
-              <img src={hug.url} alt="Abraço" className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
-            </div>
-            <div className="aspect-square overflow-hidden rounded-3xl">
-              <img src={worship.url} alt="Adoração" className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
-            </div>
-            <div className="aspect-square overflow-hidden rounded-3xl">
-              <img src={laughing.url} alt="Riso" className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
-            </div>
-            <div className="aspect-square overflow-hidden rounded-3xl">
-              <img src={waving.url} alt="Comunidade" className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
-            </div>
+            {momentos.map((m, i) => (
+              <div key={i} className="aspect-square overflow-hidden rounded-3xl">
+                <img src={m.url} alt={`Momento ${i + 2}`} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+              </div>
+            ))}
           </div>
         </div>
       </section>
+
 
 
       {/* Encontros / CTA */}
