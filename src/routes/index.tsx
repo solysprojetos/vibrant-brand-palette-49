@@ -49,8 +49,8 @@ function Index() {
           <nav className="hidden gap-10 text-xs uppercase tracking-[0.3em] text-foreground/70 md:flex">
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
             <a href="#pilares" className="hover:text-primary transition-colors">Pilares</a>
+            <a href="#momentos" className="hover:text-primary transition-colors">Momentos</a>
             <a href="#encontros" className="hover:text-primary transition-colors">Encontros</a>
-            <a href="#inscricao" className="hover:text-primary transition-colors">Inscrição</a>
           </nav>
           <a
             href="#inscricao"
@@ -170,7 +170,7 @@ function Index() {
       </section>
 
       {/* Gallery */}
-      <section className="py-24">
+      <section id="momentos" className="py-24">
         <div className="mx-auto max-w-7xl px-6 md:px-12">
           <p className="eyebrow text-primary/70 text-center mb-4">Momentos</p>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
