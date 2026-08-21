@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import logoWordmark from "@/assets/logo-wordmark.asset.json";
-import logoMonogram from "@/assets/logo-monogram.asset.json";
+import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
+import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import flowers from "@/assets/flowers.asset.json";
 import mirror from "@/assets/mirror.asset.json";
 import momento1 from "@/assets/momento-1.asset.json";
@@ -40,7 +40,11 @@ function Index() {
       {/* Nav */}
       <header className="absolute top-0 left-0 right-0 z-20">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-12">
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-10 w-auto md:h-12" />
+          <a href="#" className="flex items-center gap-3">
+            <img src={logoMonogram.url} alt="Monograma MC" className="h-11 w-auto md:h-14" />
+            <span className="h-8 w-px bg-primary/15 md:h-10" />
+            <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-8 w-auto md:h-10" />
+          </a>
           <nav className="hidden gap-10 text-xs uppercase tracking-[0.3em] text-foreground/70 md:flex">
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
             <a href="#pilares" className="hover:text-primary transition-colors">Pilares</a>
@@ -106,8 +110,9 @@ function Index() {
 
       {/* Wordmark strip */}
       <section className="border-y border-primary/10 bg-[color:var(--rose-soft)]/30 py-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-center px-6">
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-16 w-auto md:h-24 opacity-90" />
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-6 px-6 md:flex-row md:gap-10">
+          <img src={logoMonogram.url} alt="Monograma MC" className="h-24 w-auto md:h-32" />
+          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-14 w-auto md:h-20 opacity-90" />
         </div>
       </section>
 
@@ -287,7 +292,10 @@ function Index() {
       {/* Footer */}
       <footer className="border-t border-primary/10 py-12">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row md:px-12">
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-10 w-auto opacity-80" />
+          <div className="flex items-center gap-4">
+            <img src={logoMonogram.url} alt="Monograma MC" className="h-14 w-auto opacity-90" />
+            <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-9 w-auto opacity-80" />
+          </div>
           <p className="eyebrow text-primary/60">Curadas para curar · MC</p>
           <p className="text-xs text-foreground/50">
             © {new Date().getFullYear()} Mulheres Curadas
