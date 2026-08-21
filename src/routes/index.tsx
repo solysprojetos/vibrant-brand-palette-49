@@ -113,14 +113,6 @@ function Index() {
         </div>
       </section>
 
-      {/* Wordmark strip */}
-      <section className="border-y border-primary/10 py-10">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-6 px-6 md:flex-row md:gap-10">
-          <img src={assetUrl(logoMonogram.url)} alt="Monograma MC" className="h-24 w-auto md:h-32" />
-          <img src={assetUrl(logoWordmark.url)} alt="Mulheres Curadas" className="h-14 w-auto md:h-20" />
-        </div>
-      </section>
-
       {/* Sobre */}
       <section id="sobre" className="py-28 md:py-36">
         <div className="mx-auto grid max-w-7xl grid-cols-1 gap-16 px-6 md:grid-cols-12 md:px-12">
@@ -141,9 +133,7 @@ function Index() {
               É um convite para viver a transformação, florescer em Cristo e refletir Sua graça
               por onde passar, porque quem é curada, também cura.
             </p>
-            <div className="mt-10 flex items-center gap-4 text-primary">
-              <img src={assetUrl(logoMonogram.url)} alt="MC" className="h-14 w-auto" />
-              <div className="h-px flex-1 bg-primary/20" />
+            <div className="mt-10 text-primary">
               <span className="eyebrow">Est. em fé</span>
             </div>
           </div>
