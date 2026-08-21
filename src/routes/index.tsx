@@ -40,7 +40,11 @@ function Index() {
       {/* Nav */}
       <header className="absolute top-0 left-0 right-0 z-20">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-12">
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-10 w-auto md:h-12" />
+          <a href="#" className="flex items-center gap-3">
+            <img src={logoMonogram.url} alt="Monograma MC" className="h-11 w-auto md:h-14" />
+            <span className="h-8 w-px bg-primary/15 md:h-10" />
+            <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-8 w-auto md:h-10" />
+          </a>
           <nav className="hidden gap-10 text-xs uppercase tracking-[0.3em] text-foreground/70 md:flex">
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
             <a href="#pilares" className="hover:text-primary transition-colors">Pilares</a>
