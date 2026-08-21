@@ -1,11 +1,10 @@
 {
   "version": 1,
   "asset_id": "038b029d-e4f2-4194-9335-50b01b328855",
-  "project_id": "1f22df6a-80cf-4182-8da0-41dc71992ef6",
-  "url": "/__l5e/assets-v1/038b029d-e4f2-4194-9335-50b01b328855/logo-monogram-v2.png",
-  "r2_key": "a/v1/1f22df6a-80cf-4182-8da0-41dc71992ef6/038b029d-e4f2-4194-9335-50b01b328855/logo-monogram-v2.png",
+  "url": "/imagens/logo-monogram-cropped.png",
   "original_filename": "logo-monogram-v2.png",
   "size": 37212,
   "content_type": "image/webp",
-  "created_at": "2026-08-21T12:49:41Z"
+  "created_at": "2026-08-21T12:49:41Z",
+  "note": "recorte do logo v1 (canvas original tinha ~95% de margem vazia); substituir pelo v2 exportado da Lovable quando disponivel"
 }
