@@ -50,7 +50,6 @@ function Index() {
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
             <a href="#pilares" className="hover:text-primary transition-colors">Pilares</a>
             <a href="#momentos" className="hover:text-primary transition-colors">Momentos</a>
-            <a href="#encontros" className="hover:text-primary transition-colors">Encontros</a>
           </nav>
           <a
             href="#inscricao"
