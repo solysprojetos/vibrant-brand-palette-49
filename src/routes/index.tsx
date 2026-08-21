@@ -267,7 +267,7 @@ function Index() {
               playsInline
               preload="metadata"
               poster={assetUrl("/imagens/encontros-capa.jpg")}
-              className="mx-auto w-full max-w-[20rem] rounded-3xl bg-foreground/5 shadow-sm md:max-w-[24rem]"
+              className="mx-auto block w-full max-w-[20rem] md:max-w-[24rem]"
             >
               <source src={assetUrl("/imagens/encontros.mp4")} type="video/mp4" />
               Seu navegador não consegue exibir este vídeo.
