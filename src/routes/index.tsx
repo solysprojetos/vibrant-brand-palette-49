@@ -158,6 +158,10 @@ function Index() {
           </div>
 
           <div className="relative md:col-span-5">
+            {/* Este wrapper ancora o circulo das flores na foto. Sem ele, o
+                "absolute -bottom" media a partir do fim da coluna inteira e,
+                com o video abaixo, o circulo caia sobre os controles dele. */}
+            <div className="relative">
             {/* A foto e 1000x1500 (2:3). Forcar 3/4 fazia o object-cover cortar
                 topo e base. Com a proporcao casada, nada e cortado. No celular
                 a moldura fica arredondada para a imagem aparecer inteira; do
@@ -171,8 +175,11 @@ function Index() {
             <div className="absolute -bottom-6 -left-4 aspect-square w-28 overflow-hidden rounded-full border-4 border-background md:-bottom-8 md:-left-8 md:w-40 md:border-8">
               <img src={assetUrl(flowers.url)} alt="Delicadeza" className="h-full w-full object-cover" />
             </div>
+            </div>
+
           </div>
         </div>
+
       </section>
 
       {/* Sobre */}
@@ -248,6 +255,23 @@ function Index() {
                 <img src={assetUrl(m.url)} alt={`Momento ${i + 2}`} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
               </div>
             ))}
+          </div>
+
+          {/* Video dos encontros, fechando a galeria. Sem autoplay: sao 8 MB,
+              e quem chega pelo celular so baixa se quiser assistir.
+              preload="metadata" traz so o cabecalho; a capa tem 46 KB. */}
+          <div className="mt-16 md:mt-20">
+            <p className="eyebrow mb-6 text-center text-primary/70">Veja como é</p>
+            <video
+              controls
+              playsInline
+              preload="metadata"
+              poster={assetUrl("/imagens/encontros-capa.jpg")}
+              className="mx-auto w-full max-w-[20rem] rounded-3xl bg-foreground/5 shadow-sm md:max-w-[24rem]"
+            >
+              <source src={assetUrl("/imagens/encontros.mp4")} type="video/mp4" />
+              Seu navegador não consegue exibir este vídeo.
+            </video>
           </div>
         </div>
       </section>
