@@ -5,8 +5,10 @@ import tailwindcss from "@tailwindcss/vite";
 import tsConfigPaths from "vite-tsconfig-paths";
 import { resolve } from "node:path";
 
-// GitHub Pages serves the site from /<repo>/, not from the domain root.
-// BASE_PATH lets the deploy workflow set that prefix; everywhere else it stays "/".
+// GitHub Pages serve o site em /<repo>/ ate um dominio proprio ser configurado;
+// a partir dai serve na raiz e redireciona o endereco github.io para o dominio.
+// O workflow passa em BASE_PATH o prefixo que o proprio Pages reporta, entao os
+// dois momentos ficam corretos — bastando um novo deploy apos o dominio entrar.
 const base = process.env.BASE_PATH ?? "/";
 
 export default defineConfig({
