@@ -165,7 +165,10 @@ function Index() {
             <div className="relative aspect-[2/3] overflow-hidden rounded-[2rem] md:rounded-full">
               <img src={assetUrl(mirror.url)} alt="Reflexo" className="h-full w-full object-cover" />
             </div>
-            <div className="absolute -bottom-8 -left-8 hidden aspect-square w-40 overflow-hidden rounded-full border-8 border-background md:block">
+            {/* Vinha hidden md:block, entao no celular esta foto nunca aparecia.
+                Agora aparece tambem, menor e com recuo mais curto, para nao
+                empurrar a pagina para fora da largura da tela. */}
+            <div className="absolute -bottom-6 -left-4 aspect-square w-28 overflow-hidden rounded-full border-4 border-background md:-bottom-8 md:-left-8 md:w-40 md:border-8">
               <img src={assetUrl(flowers.url)} alt="Delicadeza" className="h-full w-full object-cover" />
             </div>
           </div>
