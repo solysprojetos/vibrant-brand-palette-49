@@ -73,10 +73,14 @@ function Index() {
         <div className="mx-auto grid max-w-7xl grid-cols-1 items-center gap-16 px-6 md:grid-cols-12 md:px-12">
           <div className="md:col-span-7">
             <p className="eyebrow text-primary/80">Cura · Propósito · Transformação</p>
-            <h1 className="mt-6 text-display text-6xl leading-[0.95] tracking-tight text-primary md:text-8xl lg:text-9xl">
-              Mulheres
-              <br />
-              <span className="italic text-[color:var(--rose-deep)]">Curadas</span>
+            <h1 className="mt-6">
+              <span className="sr-only">Mulheres Curadas</span>
+              <img
+                src={assetUrl(logoWordmark.url)}
+                alt=""
+                aria-hidden="true"
+                className="w-full max-w-[26rem] md:max-w-[34rem] lg:max-w-[38rem]"
+              />
             </h1>
             <p className="mt-8 max-w-xl text-lg leading-relaxed text-foreground/75 md:text-xl">
               Mais do que um nome, um convite. Um espaço delicado para mulheres que encontraram,
