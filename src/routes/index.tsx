@@ -110,8 +110,9 @@ function Index() {
 
       {/* Wordmark strip */}
       <section className="border-y border-primary/10 bg-[color:var(--rose-soft)]/30 py-10">
-        <div className="mx-auto flex max-w-6xl items-center justify-center px-6">
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-16 w-auto md:h-24 opacity-90" />
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-6 px-6 md:flex-row md:gap-10">
+          <img src={logoMonogram.url} alt="Monograma MC" className="h-24 w-auto md:h-32" />
+          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-14 w-auto md:h-20 opacity-90" />
         </div>
       </section>
 
@@ -291,7 +292,10 @@ function Index() {
       {/* Footer */}
       <footer className="border-t border-primary/10 py-12">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row md:px-12">
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-10 w-auto opacity-80" />
+          <div className="flex items-center gap-4">
+            <img src={logoMonogram.url} alt="Monograma MC" className="h-14 w-auto opacity-90" />
+            <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-9 w-auto opacity-80" />
+          </div>
           <p className="eyebrow text-primary/60">Curadas para curar · MC</p>
           <p className="text-xs text-foreground/50">
             © {new Date().getFullYear()} Mulheres Curadas
