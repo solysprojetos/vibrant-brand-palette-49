@@ -290,7 +290,15 @@ function Index() {
             <img src={assetUrl(logoMonogram.url)} alt="Monograma MC" className="h-14 w-auto" />
             <img src={assetUrl(logoWordmark.url)} alt="Mulheres Curadas" className="h-9 w-auto" />
           </div>
-          <p className="eyebrow text-primary/60">Curadas para curar · MC</p>
+          <div className="flex flex-col items-center gap-2">
+            <p className="eyebrow text-primary/60">Curadas para curar · MC</p>
+            <a
+              href="mailto:contato@mulherescuradas.com"
+              className="text-sm text-primary underline-offset-4 transition-opacity hover:underline hover:opacity-80"
+            >
+              contato@mulherescuradas.com
+            </a>
+          </div>
           <p className="text-xs text-foreground/50">
             © {new Date().getFullYear()} Mulheres Curadas
           </p>
