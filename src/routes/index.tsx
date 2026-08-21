@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { assetUrl } from "@/lib/asset-url";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import flowers from "@/assets/flowers.asset.json";
@@ -41,9 +42,9 @@ function Index() {
       <header className="absolute top-0 left-0 right-0 z-20">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-6 md:px-12">
           <a href="#" className="flex items-center gap-3">
-            <img src={logoMonogram.url} alt="Monograma MC" className="h-11 w-auto md:h-14" />
+            <img src={assetUrl(logoMonogram.url)} alt="Monograma MC" className="h-11 w-auto md:h-14" />
             <span className="h-8 w-px bg-primary/15 md:h-10" />
-            <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-8 w-auto md:h-10" />
+            <img src={assetUrl(logoWordmark.url)} alt="Mulheres Curadas" className="h-8 w-auto md:h-10" />
           </a>
           <nav className="hidden gap-10 text-xs uppercase tracking-[0.3em] text-foreground/70 md:flex">
             <a href="#sobre" className="hover:text-primary transition-colors">Sobre</a>
@@ -99,10 +100,10 @@ function Index() {
 
           <div className="relative md:col-span-5">
             <div className="relative aspect-[3/4] overflow-hidden rounded-full">
-              <img src={mirror.url} alt="Reflexo" className="h-full w-full object-cover" />
+              <img src={assetUrl(mirror.url)} alt="Reflexo" className="h-full w-full object-cover" />
             </div>
             <div className="absolute -bottom-8 -left-8 hidden aspect-square w-40 overflow-hidden rounded-full border-8 border-background md:block">
-              <img src={flowers.url} alt="Delicadeza" className="h-full w-full object-cover" />
+              <img src={assetUrl(flowers.url)} alt="Delicadeza" className="h-full w-full object-cover" />
             </div>
           </div>
         </div>
@@ -111,8 +112,8 @@ function Index() {
       {/* Wordmark strip */}
       <section className="border-y border-primary/10 bg-[color:var(--rose-soft)]/30 py-10">
         <div className="mx-auto flex max-w-6xl flex-col items-center justify-center gap-6 px-6 md:flex-row md:gap-10">
-          <img src={logoMonogram.url} alt="Monograma MC" className="h-24 w-auto md:h-32" />
-          <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-14 w-auto md:h-20 opacity-90" />
+          <img src={assetUrl(logoMonogram.url)} alt="Monograma MC" className="h-24 w-auto md:h-32" />
+          <img src={assetUrl(logoWordmark.url)} alt="Mulheres Curadas" className="h-14 w-auto md:h-20 opacity-90" />
         </div>
       </section>
 
@@ -137,7 +138,7 @@ function Index() {
               por onde passar, porque quem é curada, também cura.
             </p>
             <div className="mt-10 flex items-center gap-4 text-primary">
-              <img src={logoMonogram.url} alt="MC" className="h-14 w-auto" />
+              <img src={assetUrl(logoMonogram.url)} alt="MC" className="h-14 w-auto" />
               <div className="h-px flex-1 bg-primary/20" />
               <span className="eyebrow">Est. em fé</span>
             </div>
@@ -180,7 +181,7 @@ function Index() {
           <p className="eyebrow text-primary/70 text-center mb-4">Momentos</p>
           <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
             <div className="col-span-2 row-span-2 aspect-[3/4] md:aspect-square overflow-hidden rounded-3xl relative">
-              <img src={momento1.url} alt="Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
+              <img src={assetUrl(momento1.url)} alt="Mulheres Curadas" className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105" />
               <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-6">
                 <p className="eyebrow text-white/80">Momentos</p>
                 <p className="text-display text-2xl text-white italic mt-1">Mulheres Curadas</p>
@@ -188,7 +189,7 @@ function Index() {
             </div>
             {momentos.map((m, i) => (
               <div key={i} className="aspect-square overflow-hidden rounded-3xl">
-                <img src={m.url} alt={`Momento ${i + 2}`} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
+                <img src={assetUrl(m.url)} alt={`Momento ${i + 2}`} className="h-full w-full object-cover transition-transform duration-700 hover:scale-105" />
               </div>
             ))}
           </div>
@@ -293,8 +294,8 @@ function Index() {
       <footer className="border-t border-primary/10 py-12">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-6 px-6 md:flex-row md:px-12">
           <div className="flex items-center gap-4">
-            <img src={logoMonogram.url} alt="Monograma MC" className="h-14 w-auto opacity-90" />
-            <img src={logoWordmark.url} alt="Mulheres Curadas" className="h-9 w-auto opacity-80" />
+            <img src={assetUrl(logoMonogram.url)} alt="Monograma MC" className="h-14 w-auto opacity-90" />
+            <img src={assetUrl(logoWordmark.url)} alt="Mulheres Curadas" className="h-9 w-auto opacity-80" />
           </div>
           <p className="eyebrow text-primary/60">Curadas para curar · MC</p>
           <p className="text-xs text-foreground/50">
