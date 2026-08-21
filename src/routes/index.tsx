@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import logoWordmark from "@/assets/logo-wordmark.asset.json";
-import logoMonogram from "@/assets/logo-monogram.asset.json";
+import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
+import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import flowers from "@/assets/flowers.asset.json";
 import mirror from "@/assets/mirror.asset.json";
 import momento1 from "@/assets/momento-1.asset.json";
