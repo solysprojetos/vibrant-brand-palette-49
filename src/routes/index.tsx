@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { assetUrl } from "@/lib/asset-url";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
@@ -36,6 +37,8 @@ const pillars = [
 ];
 
 function Index() {
+  const [menuAberto, setMenuAberto] = useState(false);
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       {/* Nav */}
@@ -57,7 +60,60 @@ function Index() {
           >
             Inscreva-se
           </a>
+
+          {/* Menu de celular: no desktop o <nav> acima ja da conta */}
+          <button
+            type="button"
+            aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+            aria-expanded={menuAberto}
+            aria-controls="menu-celular"
+            onClick={() => setMenuAberto((v) => !v)}
+            className="-mr-3 flex h-11 w-11 items-center justify-center text-primary md:hidden"
+          >
+            <span className="relative block h-4 w-6" aria-hidden="true">
+              <span
+                className={`absolute left-0 block h-px w-6 bg-current transition-transform duration-300 ${menuAberto ? "top-2 rotate-45" : "top-0"}`}
+              />
+              <span
+                className={`absolute left-0 top-2 block h-px w-6 bg-current transition-opacity duration-200 ${menuAberto ? "opacity-0" : "opacity-100"}`}
+              />
+              <span
+                className={`absolute left-0 block h-px w-6 bg-current transition-transform duration-300 ${menuAberto ? "top-2 -rotate-45" : "top-4"}`}
+              />
+            </span>
+          </button>
         </div>
+
+        {menuAberto && (
+          <nav
+            id="menu-celular"
+            className="border-t border-primary/10 bg-background/95 backdrop-blur md:hidden"
+          >
+            <div className="flex flex-col px-6 py-2">
+              {[
+                ["#sobre", "Sobre"],
+                ["#pilares", "Pilares"],
+                ["#momentos", "Momentos"],
+              ].map(([href, texto]) => (
+                <a
+                  key={href}
+                  href={href}
+                  onClick={() => setMenuAberto(false)}
+                  className="flex min-h-[44px] items-center text-xs uppercase tracking-[0.3em] text-foreground/70 transition-colors hover:text-primary"
+                >
+                  {texto}
+                </a>
+              ))}
+              <a
+                href="#inscricao"
+                onClick={() => setMenuAberto(false)}
+                className="my-3 flex min-h-[44px] items-center justify-center rounded-full bg-primary px-5 text-xs uppercase tracking-[0.25em] text-primary-foreground"
+              >
+                Inscreva-se
+              </a>
+            </div>
+          </nav>
+        )}
       </header>
 
       {/* Hero */}
@@ -94,7 +150,7 @@ function Index() {
               </a>
               <a
                 href="#sobre"
-                className="text-xs uppercase tracking-[0.3em] text-primary underline-offset-8 hover:underline"
+                className="inline-flex min-h-[44px] items-center text-xs uppercase tracking-[0.3em] text-primary underline-offset-8 hover:underline"
               >
                 Conheça a história
               </a>
@@ -102,7 +158,11 @@ function Index() {
           </div>
 
           <div className="relative md:col-span-5">
-            <div className="relative aspect-[3/4] overflow-hidden rounded-full">
+            {/* A foto e 1000x1500 (2:3). Forcar 3/4 fazia o object-cover cortar
+                topo e base. Com a proporcao casada, nada e cortado. No celular
+                a moldura fica arredondada para a imagem aparecer inteira; do
+                md: para cima volta a elipse do desenho original. */}
+            <div className="relative aspect-[2/3] overflow-hidden rounded-[2rem] md:rounded-full">
               <img src={assetUrl(mirror.url)} alt="Reflexo" className="h-full w-full object-cover" />
             </div>
             <div className="absolute -bottom-8 -left-8 hidden aspect-square w-40 overflow-hidden rounded-full border-8 border-background md:block">
@@ -294,7 +354,7 @@ function Index() {
             <p className="eyebrow text-primary/60">Curadas para curar · MC</p>
             <a
               href="mailto:contato@mulherescuradas.com"
-              className="text-sm text-primary underline-offset-4 transition-opacity hover:underline hover:opacity-80"
+              className="inline-flex min-h-[44px] items-center text-sm text-primary underline-offset-4 transition-opacity hover:underline hover:opacity-80"
             >
               contato@mulherescuradas.com
             </a>
