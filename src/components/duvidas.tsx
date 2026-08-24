@@ -53,7 +53,10 @@ export function Duvidas() {
                 value={`duvida-${i}`}
                 className="border-b border-primary/10"
               >
-                <AccordionTrigger className="py-6 text-left text-lg font-normal text-display text-primary hover:no-underline hover:opacity-80 [&>svg]:text-primary/70">
+                {/* O <h3> do acordeao ja aplica a fonte display, entao a pergunta
+                    sai em Cormorant sem classe extra — e o tailwind-merge
+                    descartaria "text-display" aqui, por conflitar com text-primary. */}
+                <AccordionTrigger className="py-6 text-left text-lg font-normal text-primary hover:no-underline hover:opacity-80 [&>svg]:text-primary/70">
                   {d.pergunta}
                 </AccordionTrigger>
                 <AccordionContent className="pb-6 pt-0">
