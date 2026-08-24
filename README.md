@@ -24,3 +24,33 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Atualizar o conteúdo do site
+
+As informações que mudam a cada encontro ficam em um arquivo só:
+**`src/config/conteudo.ts`**. Não é preciso mexer no layout para atualizá-las.
+
+| O que atualizar | Onde |
+| --- | --- |
+| Nome, data, horário, local, endereço, investimento, palavra, programação e vagas do próximo encontro | `proximoEncontro` |
+| Depoimentos das participantes (três espaços) | `depoimentos` |
+| Respostas das perguntas frequentes | `duvidas` |
+| Instagram, WhatsApp, endereço e Termos de Uso do rodapé | `contato` |
+| Serviço que recebe as inscrições | `ENDPOINT_INSCRICAO` |
+
+Campo deixado vazio (`""`) não inventa nada: a página mostra discretamente
+"Informações em breve" ou simplesmente não exibe aquele item.
+
+## Otimizar imagens novas
+
+As fotos ficam em `public/imagens`. Ao acrescentar uma foto nova, gere as
+cópias em AVIF/WebP que o site serve:
+
+```sh
+bun add -d sharp
+bun scripts/otimizar-imagens.mjs
+```
+
+O comando escreve em `public/imagens/otim/` e atualiza
+`src/lib/imagens-manifesto.json`. Os arquivos originais não são alterados —
+eles continuam servindo de reserva para navegadores antigos.

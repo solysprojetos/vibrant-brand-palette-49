@@ -40,10 +40,10 @@
   --radius: 0.5rem;
 
   /* Brand palette from Mulheres Curadas identity */
-  --cream: oklch(0.985 0.006 60);           /* #FBF7F2 */
-  --rose-soft: oklch(0.88 0.055 5);         /* soft blush pink #F4CFD8 */
-  --rose-deep: oklch(0.78 0.09 5);          /* deeper rose */
-  --clay: oklch(0.42 0.09 30);              /* burgundy/clay from MC monogram */
+  --cream: oklch(0.985 0.006 60); /* #FBF7F2 */
+  --rose-soft: oklch(0.88 0.055 5); /* soft blush pink #F4CFD8 */
+  --rose-deep: oklch(0.78 0.09 5); /* deeper rose */
+  --clay: oklch(0.42 0.09 30); /* burgundy/clay from MC monogram */
 
   --background: var(--cream);
   --foreground: oklch(0.28 0.03 20);
@@ -67,7 +67,9 @@
 }
 
 @layer base {
-  * { border-color: var(--color-border); }
+  * {
+    border-color: var(--color-border);
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
@@ -75,7 +77,10 @@
     font-weight: 300;
     letter-spacing: 0.01em;
   }
-  h1, h2, h3, h4 {
+  h1,
+  h2,
+  h3,
+  h4 {
     font-family: var(--font-display);
     font-weight: 400;
     letter-spacing: -0.01em;
@@ -93,4 +98,27 @@
   letter-spacing: 0.35em;
   font-size: 0.72rem;
   font-weight: 500;
+}
+
+@layer base {
+  html {
+    /* Os links do menu levam a secoes da propria pagina: a rolagem suave
+       deixa claro para onde a pagina foi. Quem pede menos animacao no
+       sistema continua com o salto direto. */
+    scroll-behavior: smooth;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Contorno visivel para quem navega pelo teclado, sem aparecer no clique
+     do mouse. Usa o rose da identidade, entao nao destoa do desenho. */
+  :where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+    outline: 2px solid var(--rose-deep);
+    outline-offset: 3px;
+    border-radius: var(--radius);
+  }
 }

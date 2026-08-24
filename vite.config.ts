@@ -22,7 +22,7 @@ export default defineConfig({
       server: { entry: "server" },
       // Emit a static index.html so the site can be hosted without a server.
       prerender: { enabled: true, crawlLinks: true },
-      pages: [{ path: "/" }],
+      pages: [{ path: "/" }, { path: "/politica-de-privacidade" }],
     }),
     viteReact(),
   ],

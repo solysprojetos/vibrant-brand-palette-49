@@ -1,0 +1,611 @@
+{
+  "/imagens/encontros-capa.jpg": {
+    "largura": 720,
+    "altura": 1280,
+    "original": "/imagens/encontros-capa.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/encontros-capa-360.avif",
+        "largura": 360,
+        "bytes": 9909
+      },
+      {
+        "url": "/imagens/otim/encontros-capa-480.avif",
+        "largura": 480,
+        "bytes": 12923
+      },
+      {
+        "url": "/imagens/otim/encontros-capa-720.avif",
+        "largura": 720,
+        "bytes": 22358
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/encontros-capa-360.webp",
+        "largura": 360,
+        "bytes": 11932
+      },
+      {
+        "url": "/imagens/otim/encontros-capa-480.webp",
+        "largura": 480,
+        "bytes": 16206
+      },
+      {
+        "url": "/imagens/otim/encontros-capa-720.webp",
+        "largura": 720,
+        "bytes": 26250
+      }
+    ]
+  },
+  "/imagens/flowers.jpg": {
+    "largura": 736,
+    "altura": 978,
+    "original": "/imagens/flowers.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/flowers-360.avif",
+        "largura": 360,
+        "bytes": 5118
+      },
+      {
+        "url": "/imagens/otim/flowers-480.avif",
+        "largura": 480,
+        "bytes": 7592
+      },
+      {
+        "url": "/imagens/otim/flowers-736.avif",
+        "largura": 736,
+        "bytes": 15157
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/flowers-360.webp",
+        "largura": 360,
+        "bytes": 5822
+      },
+      {
+        "url": "/imagens/otim/flowers-480.webp",
+        "largura": 480,
+        "bytes": 8814
+      },
+      {
+        "url": "/imagens/otim/flowers-736.webp",
+        "largura": 736,
+        "bytes": 17072
+      }
+    ]
+  },
+  "/imagens/mirror.jpg": {
+    "largura": 1000,
+    "altura": 1500,
+    "original": "/imagens/mirror.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/mirror-360.avif",
+        "largura": 360,
+        "bytes": 3885
+      },
+      {
+        "url": "/imagens/otim/mirror-480.avif",
+        "largura": 480,
+        "bytes": 5560
+      },
+      {
+        "url": "/imagens/otim/mirror-768.avif",
+        "largura": 768,
+        "bytes": 11551
+      },
+      {
+        "url": "/imagens/otim/mirror-1000.avif",
+        "largura": 1000,
+        "bytes": 19685
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/mirror-360.webp",
+        "largura": 360,
+        "bytes": 4920
+      },
+      {
+        "url": "/imagens/otim/mirror-480.webp",
+        "largura": 480,
+        "bytes": 7252
+      },
+      {
+        "url": "/imagens/otim/mirror-768.webp",
+        "largura": 768,
+        "bytes": 14438
+      },
+      {
+        "url": "/imagens/otim/mirror-1000.webp",
+        "largura": 1000,
+        "bytes": 25346
+      }
+    ]
+  },
+  "/imagens/momento-1.jpg": {
+    "largura": 1440,
+    "altura": 1920,
+    "original": "/imagens/momento-1.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-1-360.avif",
+        "largura": 360,
+        "bytes": 7517
+      },
+      {
+        "url": "/imagens/otim/momento-1-480.avif",
+        "largura": 480,
+        "bytes": 10924
+      },
+      {
+        "url": "/imagens/otim/momento-1-768.avif",
+        "largura": 768,
+        "bytes": 19139
+      },
+      {
+        "url": "/imagens/otim/momento-1-1024.avif",
+        "largura": 1024,
+        "bytes": 27160
+      },
+      {
+        "url": "/imagens/otim/momento-1-1440.avif",
+        "largura": 1440,
+        "bytes": 43047
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-1-360.webp",
+        "largura": 360,
+        "bytes": 9500
+      },
+      {
+        "url": "/imagens/otim/momento-1-480.webp",
+        "largura": 480,
+        "bytes": 13154
+      },
+      {
+        "url": "/imagens/otim/momento-1-768.webp",
+        "largura": 768,
+        "bytes": 23292
+      },
+      {
+        "url": "/imagens/otim/momento-1-1024.webp",
+        "largura": 1024,
+        "bytes": 33104
+      },
+      {
+        "url": "/imagens/otim/momento-1-1440.webp",
+        "largura": 1440,
+        "bytes": 52546
+      }
+    ]
+  },
+  "/imagens/momento-2.jpg": {
+    "largura": 1920,
+    "altura": 1280,
+    "original": "/imagens/momento-2.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-2-360.avif",
+        "largura": 360,
+        "bytes": 8754
+      },
+      {
+        "url": "/imagens/otim/momento-2-480.avif",
+        "largura": 480,
+        "bytes": 13622
+      },
+      {
+        "url": "/imagens/otim/momento-2-768.avif",
+        "largura": 768,
+        "bytes": 25904
+      },
+      {
+        "url": "/imagens/otim/momento-2-1024.avif",
+        "largura": 1024,
+        "bytes": 38114
+      },
+      {
+        "url": "/imagens/otim/momento-2-1440.avif",
+        "largura": 1440,
+        "bytes": 60760
+      },
+      {
+        "url": "/imagens/otim/momento-2-1920.avif",
+        "largura": 1920,
+        "bytes": 101024
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-2-360.webp",
+        "largura": 360,
+        "bytes": 11014
+      },
+      {
+        "url": "/imagens/otim/momento-2-480.webp",
+        "largura": 480,
+        "bytes": 17284
+      },
+      {
+        "url": "/imagens/otim/momento-2-768.webp",
+        "largura": 768,
+        "bytes": 32668
+      },
+      {
+        "url": "/imagens/otim/momento-2-1024.webp",
+        "largura": 1024,
+        "bytes": 47498
+      },
+      {
+        "url": "/imagens/otim/momento-2-1440.webp",
+        "largura": 1440,
+        "bytes": 72594
+      },
+      {
+        "url": "/imagens/otim/momento-2-1920.webp",
+        "largura": 1920,
+        "bytes": 102366
+      }
+    ]
+  },
+  "/imagens/momento-3.jpg": {
+    "largura": 1280,
+    "altura": 1920,
+    "original": "/imagens/momento-3.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-3-360.avif",
+        "largura": 360,
+        "bytes": 10330
+      },
+      {
+        "url": "/imagens/otim/momento-3-480.avif",
+        "largura": 480,
+        "bytes": 14309
+      },
+      {
+        "url": "/imagens/otim/momento-3-768.avif",
+        "largura": 768,
+        "bytes": 25247
+      },
+      {
+        "url": "/imagens/otim/momento-3-1024.avif",
+        "largura": 1024,
+        "bytes": 35726
+      },
+      {
+        "url": "/imagens/otim/momento-3-1280.avif",
+        "largura": 1280,
+        "bytes": 53274
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-3-360.webp",
+        "largura": 360,
+        "bytes": 12672
+      },
+      {
+        "url": "/imagens/otim/momento-3-480.webp",
+        "largura": 480,
+        "bytes": 17352
+      },
+      {
+        "url": "/imagens/otim/momento-3-768.webp",
+        "largura": 768,
+        "bytes": 29454
+      },
+      {
+        "url": "/imagens/otim/momento-3-1024.webp",
+        "largura": 1024,
+        "bytes": 40884
+      },
+      {
+        "url": "/imagens/otim/momento-3-1280.webp",
+        "largura": 1280,
+        "bytes": 56776
+      }
+    ]
+  },
+  "/imagens/momento-4.jpg": {
+    "largura": 1280,
+    "altura": 1920,
+    "original": "/imagens/momento-4.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-4-360.avif",
+        "largura": 360,
+        "bytes": 11119
+      },
+      {
+        "url": "/imagens/otim/momento-4-480.avif",
+        "largura": 480,
+        "bytes": 17501
+      },
+      {
+        "url": "/imagens/otim/momento-4-768.avif",
+        "largura": 768,
+        "bytes": 44047
+      },
+      {
+        "url": "/imagens/otim/momento-4-1024.avif",
+        "largura": 1024,
+        "bytes": 79089
+      },
+      {
+        "url": "/imagens/otim/momento-4-1280.avif",
+        "largura": 1280,
+        "bytes": 153035
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-4-360.webp",
+        "largura": 360,
+        "bytes": 12240
+      },
+      {
+        "url": "/imagens/otim/momento-4-480.webp",
+        "largura": 480,
+        "bytes": 18884
+      },
+      {
+        "url": "/imagens/otim/momento-4-768.webp",
+        "largura": 768,
+        "bytes": 44512
+      },
+      {
+        "url": "/imagens/otim/momento-4-1024.webp",
+        "largura": 1024,
+        "bytes": 77928
+      },
+      {
+        "url": "/imagens/otim/momento-4-1280.webp",
+        "largura": 1280,
+        "bytes": 124800
+      }
+    ]
+  },
+  "/imagens/momento-5.jpg": {
+    "largura": 1280,
+    "altura": 1920,
+    "original": "/imagens/momento-5.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-5-360.avif",
+        "largura": 360,
+        "bytes": 10740
+      },
+      {
+        "url": "/imagens/otim/momento-5-480.avif",
+        "largura": 480,
+        "bytes": 16807
+      },
+      {
+        "url": "/imagens/otim/momento-5-768.avif",
+        "largura": 768,
+        "bytes": 40051
+      },
+      {
+        "url": "/imagens/otim/momento-5-1024.avif",
+        "largura": 1024,
+        "bytes": 74092
+      },
+      {
+        "url": "/imagens/otim/momento-5-1280.avif",
+        "largura": 1280,
+        "bytes": 153355
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-5-360.webp",
+        "largura": 360,
+        "bytes": 12322
+      },
+      {
+        "url": "/imagens/otim/momento-5-480.webp",
+        "largura": 480,
+        "bytes": 19500
+      },
+      {
+        "url": "/imagens/otim/momento-5-768.webp",
+        "largura": 768,
+        "bytes": 44762
+      },
+      {
+        "url": "/imagens/otim/momento-5-1024.webp",
+        "largura": 1024,
+        "bytes": 77540
+      },
+      {
+        "url": "/imagens/otim/momento-5-1280.webp",
+        "largura": 1280,
+        "bytes": 126312
+      }
+    ]
+  },
+  "/imagens/momento-6.jpg": {
+    "largura": 1371,
+    "altura": 1920,
+    "original": "/imagens/momento-6.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-6-360.avif",
+        "largura": 360,
+        "bytes": 15612
+      },
+      {
+        "url": "/imagens/otim/momento-6-480.avif",
+        "largura": 480,
+        "bytes": 23256
+      },
+      {
+        "url": "/imagens/otim/momento-6-768.avif",
+        "largura": 768,
+        "bytes": 45821
+      },
+      {
+        "url": "/imagens/otim/momento-6-1024.avif",
+        "largura": 1024,
+        "bytes": 72858
+      },
+      {
+        "url": "/imagens/otim/momento-6-1371.avif",
+        "largura": 1371,
+        "bytes": 135565
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-6-360.webp",
+        "largura": 360,
+        "bytes": 22254
+      },
+      {
+        "url": "/imagens/otim/momento-6-480.webp",
+        "largura": 480,
+        "bytes": 31510
+      },
+      {
+        "url": "/imagens/otim/momento-6-768.webp",
+        "largura": 768,
+        "bytes": 56752
+      },
+      {
+        "url": "/imagens/otim/momento-6-1024.webp",
+        "largura": 1024,
+        "bytes": 82902
+      },
+      {
+        "url": "/imagens/otim/momento-6-1371.webp",
+        "largura": 1371,
+        "bytes": 131670
+      }
+    ]
+  },
+  "/imagens/momento-7.jpg": {
+    "largura": 1280,
+    "altura": 1920,
+    "original": "/imagens/momento-7.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-7-360.avif",
+        "largura": 360,
+        "bytes": 10081
+      },
+      {
+        "url": "/imagens/otim/momento-7-480.avif",
+        "largura": 480,
+        "bytes": 14252
+      },
+      {
+        "url": "/imagens/otim/momento-7-768.avif",
+        "largura": 768,
+        "bytes": 28270
+      },
+      {
+        "url": "/imagens/otim/momento-7-1024.avif",
+        "largura": 1024,
+        "bytes": 46470
+      },
+      {
+        "url": "/imagens/otim/momento-7-1280.avif",
+        "largura": 1280,
+        "bytes": 87165
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-7-360.webp",
+        "largura": 360,
+        "bytes": 12068
+      },
+      {
+        "url": "/imagens/otim/momento-7-480.webp",
+        "largura": 480,
+        "bytes": 17044
+      },
+      {
+        "url": "/imagens/otim/momento-7-768.webp",
+        "largura": 768,
+        "bytes": 31876
+      },
+      {
+        "url": "/imagens/otim/momento-7-1024.webp",
+        "largura": 1024,
+        "bytes": 47660
+      },
+      {
+        "url": "/imagens/otim/momento-7-1280.webp",
+        "largura": 1280,
+        "bytes": 73794
+      }
+    ]
+  },
+  "/imagens/momento-8.jpg": {
+    "largura": 1280,
+    "altura": 1920,
+    "original": "/imagens/momento-8.jpg",
+    "avif": [
+      {
+        "url": "/imagens/otim/momento-8-360.avif",
+        "largura": 360,
+        "bytes": 12092
+      },
+      {
+        "url": "/imagens/otim/momento-8-480.avif",
+        "largura": 480,
+        "bytes": 19078
+      },
+      {
+        "url": "/imagens/otim/momento-8-768.avif",
+        "largura": 768,
+        "bytes": 47719
+      },
+      {
+        "url": "/imagens/otim/momento-8-1024.avif",
+        "largura": 1024,
+        "bytes": 95384
+      },
+      {
+        "url": "/imagens/otim/momento-8-1280.avif",
+        "largura": 1280,
+        "bytes": 192013
+      }
+    ],
+    "webp": [
+      {
+        "url": "/imagens/otim/momento-8-360.webp",
+        "largura": 360,
+        "bytes": 13418
+      },
+      {
+        "url": "/imagens/otim/momento-8-480.webp",
+        "largura": 480,
+        "bytes": 22366
+      },
+      {
+        "url": "/imagens/otim/momento-8-768.webp",
+        "largura": 768,
+        "bytes": 58812
+      },
+      {
+        "url": "/imagens/otim/momento-8-1024.webp",
+        "largura": 1024,
+        "bytes": 105804
+      },
+      {
+        "url": "/imagens/otim/momento-8-1280.webp",
+        "largura": 1280,
+        "bytes": 173374
+      }
+    ]
+  }
+}
