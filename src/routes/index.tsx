@@ -6,7 +6,6 @@ import { ImagemResponsiva } from "@/components/imagem-responsiva";
 import { ProximoEncontro } from "@/components/proximo-encontro";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
-import { FormularioInscricao } from "@/components/formulario-inscricao";
 import { SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
@@ -123,7 +122,7 @@ function dadosEstruturados() {
             price: /gratuit/i.test(e.investimento)
               ? "0"
               : (e.investimento.match(/[\d.,]+/)?.[0] ?? e.investimento),
-            url: `${SITE_URL}/#inscricao`,
+            url: `${SITE_URL}/inscricao/`,
             availability: "https://schema.org/InStock",
           },
         }
@@ -190,12 +189,12 @@ function Index() {
             ))}
           </nav>
 
-          <a
-            href="#inscricao"
+          <Link
+            to="/inscricao"
             className="hidden rounded-full border border-primary/30 px-3 py-2 text-[0.6rem] whitespace-nowrap uppercase tracking-[0.12em] text-primary transition-all hover:bg-primary hover:text-primary-foreground lg:inline-block xl:px-5 xl:text-[0.68rem] xl:tracking-[0.18em]"
           >
             Inscreva-se
-          </a>
+          </Link>
 
           {/* Menu de celular: no desktop o <nav> acima ja da conta */}
           <button
@@ -237,13 +236,13 @@ function Index() {
                   {texto}
                 </a>
               ))}
-              <a
-                href="#inscricao"
+              <Link
+                to="/inscricao"
                 onClick={() => setMenuAberto(false)}
                 className="my-3 flex min-h-[44px] items-center justify-center rounded-full bg-primary px-5 text-xs uppercase tracking-[0.25em] text-primary-foreground"
               >
                 Inscreva-se
-              </a>
+              </Link>
             </div>
           </nav>
         )}
@@ -436,15 +435,17 @@ function Index() {
 
             <ProximoEncontro />
 
-            <div
-              id="inscricao"
-              className="mx-auto mt-14 max-w-xl scroll-mt-24 rounded-[2rem] bg-primary-foreground/95 p-8 text-foreground shadow-lg md:p-10"
-            >
-              <p className="eyebrow text-primary/80 text-center">Inscreva-se</p>
-              <h3 className="mt-3 text-center text-display text-3xl text-primary md:text-4xl">
-                Reserve seu <span className="italic">lugar.</span>
-              </h3>
-              <FormularioInscricao />
+            {/* A inscricao vive na sua propria pagina (/inscricao), que tem
+              endereco curto para mandar no WhatsApp e no Instagram. Aqui fica
+              so o convite, para o formulario existir num lugar so. */}
+            <div id="inscricao" className="mt-14 scroll-mt-24 text-center">
+              <Link
+                to="/inscricao"
+                className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary-foreground px-8 py-4 text-[0.68rem] sm:px-12 sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.3em] text-primary transition-all hover:opacity-90"
+              >
+                Fazer minha inscrição
+              </Link>
+              <p className="mt-5 text-sm opacity-70">Leva menos de um minuto.</p>
             </div>
           </div>
         </section>

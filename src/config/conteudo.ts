@@ -98,7 +98,7 @@ export const duvidas: Duvida[] = [
   {
     pergunta: "Preciso fazer inscrição?",
     resposta:
-      "Sim. A inscrição é feita pelo formulário desta página, no botão “Garantir minha vaga”.",
+      "Sim. A inscrição é feita na página de inscrição, pelo botão “Fazer minha inscrição”.",
   },
   {
     pergunta: "Posso levar uma convidada?",

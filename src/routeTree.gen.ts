@@ -10,11 +10,17 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as InscricaoRouteImport } from './routes/inscricao'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const InscricaoRoute = InscricaoRouteImport.update({
+  id: '/inscricao',
+  path: '/inscricao',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
@@ -25,27 +31,31 @@ const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/inscricao': typeof InscricaoRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/inscricao': typeof InscricaoRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/inscricao': typeof InscricaoRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/politica-de-privacidade'
+  fullPaths: '/' | '/inscricao' | '/politica-de-privacidade'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/politica-de-privacidade'
-  id: '__root__' | '/' | '/politica-de-privacidade'
+  to: '/' | '/inscricao' | '/politica-de-privacidade'
+  id: '__root__' | '/' | '/inscricao' | '/politica-de-privacidade'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  InscricaoRoute: typeof InscricaoRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
 }
 
@@ -56,6 +66,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/inscricao': {
+      id: '/inscricao'
+      path: '/inscricao'
+      fullPath: '/inscricao'
+      preLoaderRoute: typeof InscricaoRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/politica-de-privacidade': {
@@ -70,6 +87,7 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  InscricaoRoute: InscricaoRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
 }
 export const routeTree = rootRouteImport

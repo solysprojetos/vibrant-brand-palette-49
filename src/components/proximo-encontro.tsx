@@ -1,3 +1,4 @@
+import { Link } from "@tanstack/react-router";
 import { CalendarDays, Clock, MapPin, Ticket, BookOpen, Users } from "lucide-react";
 import { EM_BREVE, proximoEncontro } from "@/config/conteudo";
 
@@ -97,12 +98,12 @@ export function ProximoEncontro() {
       )}
 
       <div className="mt-10 text-center">
-        <a
-          href="#inscricao"
+        <Link
+          to="/inscricao"
           className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary-foreground px-6 py-4 text-[0.68rem] sm:px-8 sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.3em] text-primary transition-all hover:opacity-90"
         >
           Garantir minha vaga
-        </a>
+        </Link>
       </div>
     </div>
   );

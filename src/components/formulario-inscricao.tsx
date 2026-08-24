@@ -6,11 +6,13 @@ import { ENDPOINT_INSCRICAO, contato } from "@/config/conteudo";
 /**
  * Formulario de inscricao.
  *
- * Os campos sao os mesmos de sempre (nome, telefone e e-mail) e a integracao
- * tambem: sem ENDPOINT_INSCRICAO configurado, a inscricao segue saindo por
- * e-mail para contato@mulherescuradas.com, como ja era. O que mudou e o
- * funcionamento em volta: mascara de telefone, validacao, estado de envio,
- * mensagens de retorno, trava contra envio repetido e consentimento LGPD.
+ * Campos: nome completo (guardado em maiusculas), telefone (so digitos, com
+ * mascara), e-mail, se frequenta igreja e, quando sim, o nome dela.
+ *
+ * A integracao segue a mesma: sem ENDPOINT_INSCRICAO configurado, a inscricao
+ * sai por e-mail para contato@mulherescuradas.com. Em volta ficam a validacao,
+ * o estado de envio, as mensagens de retorno, a trava contra envio repetido e
+ * o consentimento LGPD.
  */
 
 const CAMPO =
@@ -28,16 +30,31 @@ export function mascaraTelefone(valor: string): string {
   return `(${d.slice(0, 2)}) ${d.slice(2, 7)}-${d.slice(7)}`;
 }
 
+/**
+ * Nome sempre em maiusculas, como a organizacao pede para a lista de presenca.
+ * O locale pt-BR trata os acentos: "joão" vira "JOÃO", nao "JOAO".
+ */
+export function maiusculas(valor: string): string {
+  return valor.toLocaleUpperCase("pt-BR");
+}
+
 export function emailValido(valor: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(valor.trim());
 }
 
-type Erros = Partial<Record<"nome" | "telefone" | "email" | "consentimento", string>>;
+type Erros = Partial<
+  Record<"nome" | "telefone" | "email" | "igreja" | "nomeIgreja" | "consentimento", string>
+>;
+
+/** Vazio enquanto a visitante nao responde: assim nada vem marcado por padrao. */
+type Igreja = "" | "sim" | "nao";
 
 function validar(dados: {
   nome: string;
   telefone: string;
   email: string;
+  igreja: Igreja;
+  nomeIgreja: string;
   consentimento: boolean;
 }): Erros {
   const erros: Erros = {};
@@ -48,6 +65,11 @@ function validar(dados: {
   if (digitos.length < 10) erros.telefone = "Informe o DDD e o número, como (11) 90000-0000.";
 
   if (!emailValido(dados.email)) erros.email = "Confira seu e-mail: parece faltar algo.";
+
+  if (!dados.igreja) erros.igreja = "Escolha uma das opções.";
+
+  if (dados.igreja === "sim" && dados.nomeIgreja.trim().length < 2)
+    erros.nomeIgreja = "Escreva o nome da sua igreja.";
 
   if (!dados.consentimento)
     erros.consentimento = "Precisamos da sua autorização para entrar em contato.";
@@ -62,6 +84,8 @@ export function FormularioInscricao() {
   const [nome, setNome] = useState("");
   const [telefone, setTelefone] = useState("");
   const [email, setEmail] = useState("");
+  const [igreja, setIgreja] = useState<Igreja>("");
+  const [nomeIgreja, setNomeIgreja] = useState("");
   const [consentimento, setConsentimento] = useState(false);
   const [erros, setErros] = useState<Erros>({});
   const [estado, setEstado] = useState<Estado>("parado");
@@ -71,11 +95,19 @@ export function FormularioInscricao() {
   // Trava sincrona: o clique duplo chega antes do React re-renderizar o botao.
   const enviando = useRef(false);
 
-  const enviarPorEmail = (dados: { nome: string; telefone: string; email: string }) => {
+  const enviarPorEmail = (dados: {
+    nome: string;
+    telefone: string;
+    email: string;
+    igreja: Igreja;
+    nomeIgreja: string;
+  }) => {
     const corpo = [
       `Nome: ${dados.nome}`,
       `Telefone: ${dados.telefone}`,
       `E-mail: ${dados.email}`,
+      `Frequenta igreja: ${dados.igreja === "sim" ? "Sim" : "Não"}`,
+      ...(dados.igreja === "sim" ? [`Igreja: ${dados.nomeIgreja}`] : []),
       "",
       "Autorizo o uso dos meus dados exclusivamente para contato e organização dos encontros Mulheres Curadas.",
     ].join("\n");
@@ -96,6 +128,8 @@ export function FormularioInscricao() {
       nome: nome.trim(),
       telefone: telefone.trim(),
       email: email.trim(),
+      igreja,
+      nomeIgreja: igreja === "sim" ? nomeIgreja.trim() : "",
       consentimento,
     };
     const encontrados = validar(dados);
@@ -119,6 +153,8 @@ export function FormularioInscricao() {
             nome: dados.nome,
             telefone: dados.telefone,
             email: dados.email,
+            frequentaIgreja: dados.igreja === "sim",
+            igreja: dados.nomeIgreja,
             consentimento: true,
             origem: "site Mulheres Curadas",
           }),
@@ -141,13 +177,18 @@ export function FormularioInscricao() {
     setNome("");
     setTelefone("");
     setEmail("");
+    setIgreja("");
+    setNomeIgreja("");
     setConsentimento(false);
     setErros({});
     setEstado("parado");
   };
 
   if (estado === "enviado") {
-    const primeiroNome = nome.trim().split(/\s+/)[0];
+    // O nome fica em maiusculas no cadastro, mas na saudacao soaria como grito:
+    // aqui ele volta com so a inicial maiuscula.
+    const bruto = nome.trim().split(/\s+/)[0] ?? "";
+    const primeiroNome = bruto ? bruto[0] + bruto.slice(1).toLocaleLowerCase("pt-BR") : "";
 
     return (
       <div className="mt-8 text-center" role="status" aria-live="polite">
@@ -209,12 +250,12 @@ export function FormularioInscricao() {
           maxLength={100}
           autoComplete="name"
           value={nome}
-          onChange={(e) => setNome(e.target.value)}
+          onChange={(e) => setNome(maiusculas(e.target.value))}
           disabled={ocupado}
           aria-invalid={Boolean(erros.nome)}
           aria-describedby={erros.nome ? `${id}-nome-erro` : undefined}
           className={`${CAMPO} ${erros.nome ? CAMPO_INVALIDO : ""}`}
-          placeholder="Seu nome"
+          placeholder="SEU NOME COMPLETO"
         />
         {erros.nome && (
           <p id={`${id}-nome-erro`} className="mt-2 pl-6 text-sm text-destructive">
@@ -275,6 +316,80 @@ export function FormularioInscricao() {
           </p>
         )}
       </div>
+
+      {/* Vinculo com igreja. O <fieldset> agrupa as duas opcoes para o leitor de
+        tela anunciar a pergunta junto de cada alternativa. O campo com o nome
+        da igreja so aparece — e so e exigido — depois do "sim". */}
+      <fieldset>
+        <legend className="eyebrow text-primary/80">Você frequenta alguma igreja?</legend>
+        <div
+          id={`${id}-igreja`}
+          tabIndex={-1}
+          className="mt-3 flex gap-3"
+          aria-describedby={erros.igreja ? `${id}-igreja-erro` : undefined}
+        >
+          {(
+            [
+              ["sim", "Sim"],
+              ["nao", "Não"],
+            ] as const
+          ).map(([valor, rotulo]) => (
+            <label
+              key={valor}
+              className={`flex min-h-[44px] flex-1 cursor-pointer items-center justify-center gap-2 rounded-full border px-6 text-sm transition-colors has-[:focus-visible]:ring-2 has-[:focus-visible]:ring-[color:var(--rose-soft)] ${
+                igreja === valor
+                  ? "border-primary bg-primary text-primary-foreground"
+                  : `bg-background text-foreground/70 hover:border-primary/40 ${
+                      erros.igreja ? "border-destructive/60" : "border-primary/20"
+                    }`
+              }`}
+            >
+              <input
+                type="radio"
+                name="igreja"
+                value={valor}
+                checked={igreja === valor}
+                onChange={() => setIgreja(valor)}
+                disabled={ocupado}
+                className="sr-only"
+              />
+              {rotulo}
+            </label>
+          ))}
+        </div>
+        {erros.igreja && (
+          <p id={`${id}-igreja-erro`} className="mt-2 pl-6 text-sm text-destructive">
+            {erros.igreja}
+          </p>
+        )}
+      </fieldset>
+
+      {igreja === "sim" && (
+        <div>
+          <label htmlFor={`${id}-nomeIgreja`} className="eyebrow text-primary/80">
+            Qual o nome da igreja?
+          </label>
+          <input
+            id={`${id}-nomeIgreja`}
+            name="nomeIgreja"
+            type="text"
+            required
+            maxLength={100}
+            value={nomeIgreja}
+            onChange={(e) => setNomeIgreja(e.target.value)}
+            disabled={ocupado}
+            aria-invalid={Boolean(erros.nomeIgreja)}
+            aria-describedby={erros.nomeIgreja ? `${id}-nomeIgreja-erro` : undefined}
+            className={`${CAMPO} ${erros.nomeIgreja ? CAMPO_INVALIDO : ""}`}
+            placeholder="Nome da sua igreja"
+          />
+          {erros.nomeIgreja && (
+            <p id={`${id}-nomeIgreja-erro`} className="mt-2 pl-6 text-sm text-destructive">
+              {erros.nomeIgreja}
+            </p>
+          )}
+        </div>
+      )}
 
       <div className="pt-1">
         <div className="flex items-start gap-3">
