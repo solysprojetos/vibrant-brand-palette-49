@@ -295,8 +295,7 @@ function Index() {
 
             <div className="relative md:col-span-5">
               {/* Este wrapper ancora o circulo das flores na foto. Sem ele, o
-                "absolute -bottom" media a partir do fim da coluna inteira e,
-                com o video abaixo, o circulo caia sobre os controles dele. */}
+                "absolute -bottom" mediria a partir do fim da coluna inteira. */}
               <div className="relative">
                 {/* A foto e 1000x1500 (2:3). Forcar 3/4 fazia o object-cover cortar
                 topo e base. Com a proporcao casada, nada e cortado. No celular
@@ -414,44 +413,6 @@ function Index() {
                   />
                 </div>
               ))}
-            </div>
-
-            {/* Video dos encontros, fechando a galeria. Sem autoplay: sao 8 MB,
-              e quem chega pelo celular so baixa se quiser assistir.
-              preload="metadata" traz so o cabecalho; a capa tem 46 KB.
-              O video e vertical: no computador ele divide a linha com um
-              convite curto, para nao sobrar tanto espaco vazio ao lado. */}
-            <div className="mt-16 md:mt-20">
-              <p className="eyebrow mb-6 text-center text-primary/80 md:hidden">Veja como é</p>
-              <div className="mx-auto grid max-w-4xl grid-cols-1 items-center gap-10 md:grid-cols-2 md:gap-14">
-                <video
-                  controls
-                  playsInline
-                  preload="metadata"
-                  width={720}
-                  height={1280}
-                  aria-label="Vídeo com cenas dos encontros Mulheres Curadas"
-                  poster={assetUrl("/imagens/encontros-capa.jpg")}
-                  className="mx-auto block h-auto w-full max-w-[20rem] md:max-w-[19rem]"
-                >
-                  <source src={assetUrl("/imagens/encontros.mp4")} type="video/mp4" />
-                  Seu navegador não consegue exibir este vídeo.
-                </video>
-
-                <div className="hidden md:block">
-                  <p className="eyebrow text-primary/80">Veja como é</p>
-                  <p className="mt-6 text-xl leading-relaxed text-foreground/80">
-                    Um pouco do que se vive em cada encontro: oração, abraço, palavra e mulheres
-                    florescendo juntas.
-                  </p>
-                  <a
-                    href="#inscricao"
-                    className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-8 py-4 text-xs uppercase tracking-[0.3em] text-primary-foreground transition-all hover:opacity-90"
-                  >
-                    Garantir minha vaga
-                  </a>
-                </div>
-              </div>
             </div>
           </div>
         </section>
