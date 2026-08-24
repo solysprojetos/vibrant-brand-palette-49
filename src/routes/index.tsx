@@ -3,7 +3,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { Instagram, MessageCircle, MapPin } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { ImagemResponsiva } from "@/components/imagem-responsiva";
-import { ProximoEncontro } from "@/components/proximo-encontro";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
 import { SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
@@ -42,7 +41,6 @@ const navegacao = [
   ["#pilares", "Pilares"],
   ["#momentos", "Momentos"],
   ["#depoimentos", "Depoimentos"],
-  ["#proximo-encontro", "Próximo encontro"],
   ["#duvidas", "Dúvidas"],
   ["#contato", "Contato"],
 ];
@@ -102,7 +100,7 @@ function dadosEstruturados() {
     startDate: e.dataISO,
     eventAttendanceMode: "https://schema.org/OfflineEventAttendanceMode",
     eventStatus: "https://schema.org/EventScheduled",
-    url: `${SITE_URL}/#proximo-encontro`,
+    url: `${SITE_URL}/inscricao/`,
     image: `${SITE_URL}/imagens/og-capa.jpg`,
     organizer: { "@type": "Organization", name: "Mulheres Curadas", url: `${SITE_URL}/` },
     ...(e.local.trim()
@@ -432,8 +430,6 @@ function Index() {
                 junto de outras mulheres que estão sendo curadas todos os dias.
               </p>
             </div>
-
-            <ProximoEncontro />
 
             {/* A inscricao vive na sua propria pagina (/inscricao), que tem
               endereco curto para mandar no WhatsApp e no Instagram. Aqui fica
