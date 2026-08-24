@@ -146,9 +146,14 @@ export function FormularioInscricao() {
 
     try {
       if (ENDPOINT_INSCRICAO) {
+        // O corpo e JSON, mas o cabecalho vai como text/plain de proposito:
+        // com application/json o navegador manda antes um OPTIONS de
+        // verificacao, que o Apps Script nao responde — e a inscricao falharia
+        // sem nunca chegar la. Como text/plain o envio e direto. Quem le do
+        // outro lado ja trata o corpo como JSON.
         const resposta = await fetch(ENDPOINT_INSCRICAO, {
           method: "POST",
-          headers: { "Content-Type": "application/json", Accept: "application/json" },
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
           body: JSON.stringify({
             nome: dados.nome,
             telefone: dados.telefone,
@@ -199,8 +204,9 @@ export function FormularioInscricao() {
               Inscrição realizada com <span className="italic">sucesso.</span>
             </h4>
             <p className="mt-4 text-base leading-relaxed text-foreground/70">
-              Que alegria ter você com a gente{primeiroNome ? `, ${primeiroNome}` : ""}! Recebemos
-              seus dados e entraremos em contato pelo telefone ou e-mail informados.
+              Que alegria ter você com a gente{primeiroNome ? `, ${primeiroNome}` : ""}! Enviamos
+              para o seu e-mail o QR code que confirma sua presença no dia do encontro. Guarde essa
+              mensagem — é só mostrá-la na entrada.
             </p>
           </>
         ) : (

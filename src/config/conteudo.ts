@@ -146,8 +146,13 @@ export const SITE_URL = "https://www.mulherescuradas.com";
  * que ela toca em "enviar" no proprio aplicativo.
  *
  * Para que os dados fiquem registrados sozinhos, cole aqui o endereco de um
- * servico de formulario que aceite POST em JSON (Formspree, Getform, Basin,
- * n8n, Apps Script...). O e-mail continua valendo como reserva se o envio
- * falhar. Ex.: "https://formspree.io/f/xxxxxxxx"
+ * servico que aceite POST com o corpo em JSON. O caminho montado para este
+ * site esta em scripts/inscricoes/: uma planilha do Google que grava cada
+ * inscricao, manda para a inscrita o e-mail com o QR code do ingresso e
+ * confirma a presenca quando esse QR e lido no dia do encontro. O README de
+ * la tem o passo a passo; ao final ele entrega um endereco terminado em
+ * /exec, que e o que entra aqui.
+ *
+ * Ex.: "https://script.google.com/macros/s/AKfy.../exec"
  */
 export const ENDPOINT_INSCRICAO = "";

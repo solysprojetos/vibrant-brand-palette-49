@@ -16,6 +16,16 @@ import { SITE_URL, contato } from "@/config/conteudo";
 /** Data da ultima revisao deste texto. Atualize ao editar a politica. */
 const ATUALIZADA_EM = "24 de agosto de 2026";
 
+/**
+ * Este texto descreve o site como ele esta hoje: o formulario abre o
+ * aplicativo de e-mail da visitante, e nada e guardado em servico de
+ * terceiro. Ao preencher ENDPOINT_INSCRICAO em src/config/conteudo.ts —
+ * ligando a planilha do Google descrita em scripts/inscricoes/ — passe por
+ * aqui antes de publicar: as inscricoes passam a ser gravadas e enviadas pelo
+ * Google (Planilhas e Gmail), o que muda "Com quem compartilhamos", e o QR
+ * code de presenca passa a registrar a data em que voce entrou no encontro.
+ */
+
 export const Route = createFileRoute("/politica-de-privacidade")({
   component: PoliticaDePrivacidade,
   head: () => ({
@@ -95,8 +105,12 @@ function PoliticaDePrivacidade() {
 
         <Secao titulo="Quais dados coletamos">
           <p>
-            Somente os que você mesma escreve no formulário de inscrição desta página:{" "}
-            <strong>nome completo, telefone e e-mail</strong>.
+            Somente os que você mesma escreve no formulário de inscrição:{" "}
+            <strong>
+              nome completo, telefone, e-mail, se você frequenta alguma igreja e, em caso
+              afirmativo, o nome dela
+            </strong>
+            .
           </p>
           <p>
             O site não pede documentos, endereço residencial nem dados de pagamento, e não coleta
