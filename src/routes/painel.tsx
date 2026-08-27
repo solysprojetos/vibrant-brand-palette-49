@@ -541,11 +541,13 @@ function Painel() {
                       >
                         {vencedora.nome}
                       </h2>
-                      {!sorteando && (
-                        <p className="mt-4 text-lg tracking-[0.18em] opacity-80">
-                          {vencedora.codigo}
-                        </p>
-                      )}
+                      {/* Nome e numero do ingresso giram juntos na roleta e
+                        ficam juntos no resultado, como no bilhete fisico. */}
+                      <p
+                        className={`mt-4 text-xl tracking-[0.18em] md:text-2xl ${sorteando ? "opacity-50" : "opacity-90"}`}
+                      >
+                        Ingresso {vencedora.codigo}
+                      </p>
                     </div>
                   ) : (
                     <h2 className="mt-8 text-display text-4xl leading-tight opacity-80 md:text-5xl">
