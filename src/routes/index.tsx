@@ -426,8 +426,7 @@ function Index() {
                 Venha florescer <br /> <span className="italic">com a gente.</span>
               </h2>
               <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed opacity-80">
-                Encontros presenciais, círculos de oração e uma comunidade online para caminhar
-                junto de outras mulheres que estão sendo curadas todos os dias.
+                Em breve nosso encontro.
               </p>
             </div>
 
