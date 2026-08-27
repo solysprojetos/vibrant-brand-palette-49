@@ -22,8 +22,22 @@ function gerarCodigo(): string {
   return `MC-${letras.slice(0, 4)}-${letras.slice(4, 8)}`;
 }
 
+/** Endereco do site, para o QR levar a pagina que da baixa na presenca. */
+const SITE = Deno.env.get("SITE_URL") ?? "https://www.mulherescuradas.com";
+
+/**
+ * O QR guarda o endereco da baixa de presenca, e nao so o codigo.
+ *
+ * Assim a camera comum do celular — a nativa, sem aplicativo nenhum — abre a
+ * pagina de check-in ja com o ingresso identificado. A barra no fim de
+ * "/checkin/" evita o desvio que o GitHub Pages faria sem ela.
+ */
+function urlDoCheckin(codigo: string): string {
+  return `${SITE}/checkin/?c=${encodeURIComponent(codigo)}`;
+}
+
 function urlDoQr(codigo: string): string {
-  return `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=${encodeURIComponent(codigo)}`;
+  return `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=${encodeURIComponent(urlDoCheckin(codigo))}`;
 }
 
 function escapar(texto: string): string {

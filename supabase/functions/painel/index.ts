@@ -111,16 +111,26 @@ Deno.serve(async (req) => {
       if (typeof codigo !== "string" || !codigo.trim()) {
         return json({ erro: "Informe o código do ingresso." }, 400);
       }
+      const alvo = codigo.trim().toUpperCase();
+
+      // Le antes de gravar: so assim da para dizer que o ingresso ja tinha
+      // sido lido, em vez de deduzir isso pela hora que voltou.
+      const { data: antes } = await supabase
+        .from("inscricoes")
+        .select("checkin_em")
+        .eq("codigo", alvo)
+        .maybeSingle();
+
       const { data, error } = await supabase
         .from("inscricoes")
         .update({ checkin_em: acao === "checkin" ? new Date().toISOString() : null })
-        .eq("codigo", codigo.trim().toUpperCase())
+        .eq("codigo", alvo)
         .select("id, nome, codigo, checkin_em")
         .maybeSingle();
 
       if (error) throw error;
       if (!data) return json({ erro: "Código não encontrado." }, 404);
-      return json({ ok: true, inscricao: data });
+      return json({ ok: true, inscricao: data, jaEstava: Boolean(antes?.checkin_em) });
     }
 
     const { data, error } = await supabase
