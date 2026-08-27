@@ -14,16 +14,14 @@ import { SITE_URL, contato } from "@/config/conteudo";
  */
 
 /** Data da ultima revisao deste texto. Atualize ao editar a politica. */
-const ATUALIZADA_EM = "24 de agosto de 2026";
+const ATUALIZADA_EM = "27 de agosto de 2026";
 
 /**
- * Este texto descreve o site como ele esta hoje: o formulario abre o
- * aplicativo de e-mail da visitante, e nada e guardado em servico de
- * terceiro. Ao preencher ENDPOINT_INSCRICAO em src/config/conteudo.ts —
- * ligando a planilha do Google descrita em scripts/inscricoes/ — passe por
- * aqui antes de publicar: as inscricoes passam a ser gravadas e enviadas pelo
- * Google (Planilhas e Gmail), o que muda "Com quem compartilhamos", e o QR
- * code de presenca passa a registrar a data em que voce entrou no encontro.
+ * Este texto descreve o site como ele esta hoje: a inscricao e gravada no
+ * banco do Supabase e o e-mail de confirmacao com o QR code sai pelo Resend.
+ * Se ENDPOINT_INSCRICAO (src/config/conteudo.ts) for esvaziado ou trocado por
+ * outro servico, passe por aqui antes de publicar — "Com quem compartilhamos"
+ * precisa acompanhar o caminho real dos dados.
  */
 
 export const Route = createFileRoute("/politica-de-privacidade")({
@@ -140,7 +138,11 @@ function PoliticaDePrivacidade() {
 
         <Secao titulo="Com quem compartilhamos">
           <p>
-            Com ninguém. As inscrições chegam apenas à equipe do Mulheres Curadas, no endereço{" "}
+            Sua inscrição fica guardada no Supabase, serviço que hospeda nosso banco de dados, e o
+            e-mail de confirmação com o QR code é entregue pelo Resend, serviço de envio de
+            mensagens. Nenhum dos dois usa seus dados para outra finalidade, e nada é vendido ou
+            repassado para publicidade. Fora isso, as inscrições chegam apenas à equipe do Mulheres
+            Curadas, no endereço{" "}
             <a
               href={`mailto:${contato.email}`}
               className="text-primary underline underline-offset-4 hover:opacity-80"

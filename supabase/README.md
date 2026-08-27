@@ -1,0 +1,66 @@
+# Inscrições no Supabase
+
+Projeto: `vdjovchltmyhuvlwxzwr` (https://vdjovchltmyhuvlwxzwr.supabase.co)
+
+## O que existe aqui
+
+- `migrations/20260827000000_cria_inscricoes.sql` — a tabela `public.inscricoes`.
+- `functions/inscricao/index.ts` — a Edge Function que o formulário do site chama.
+
+## Como funciona
+
+1. A visitante envia o formulário (`src/components/formulario-inscricao.tsx`).
+2. O site faz `POST` em `https://vdjovchltmyhuvlwxzwr.supabase.co/functions/v1/inscricao`.
+3. A função valida os dados, grava uma linha em `public.inscricoes` com um código
+   curto de ingresso (ex.: `MC-K7QW-3PZT`) e manda o e-mail de confirmação.
+4. O e-mail traz o QR code desse código e o código escrito por extenso, caso a
+   imagem não carregue no aplicativo de e-mail.
+
+## Por que o banco fica leve
+
+A tabela guarda **só texto curto**: nome, telefone, e-mail, igreja e o código do
+ingresso. O QR code **não é salvo** — nem imagem, nem base64, nem PDF. Ele é
+desenhado na hora do envio, a partir do código, por
+`api.qrserver.com`. Uma inscrição ocupa poucas centenas de bytes; mil inscrições
+não chegam a 1 MB.
+
+Há um índice único por e-mail: se a mesma pessoa se inscrever de novo, a linha
+não duplica — o código do ingresso continua o mesmo e o e-mail é só reenviado.
+
+## Segurança
+
+RLS está ativo e a tabela **não tem nenhuma política**, então as chaves públicas
+(anon/publishable) não leem nem escrevem nada. Só a Edge Function grava, usando a
+`service_role` que o próprio runtime injeta.
+
+## Segredos a configurar
+
+No painel: **Edge Functions → inscricao → Secrets**.
+
+| Segredo                                                                                     | Obrigatório             | Para que serve                                                                                       |
+| ------------------------------------------------------------------------------------------- | ----------------------- | ---------------------------------------------------------------------------------------------------- |
+| `RESEND_API_KEY`                                                                            | sim, para o e-mail sair | chave da conta em https://resend.com                                                                 |
+| `EMAIL_REMETENTE`                                                                           | recomendado             | ex.: `Mulheres Curadas <contato@mulherescuradas.com>` (o domínio precisa estar verificado no Resend) |
+| `EMAIL_CONTATO`                                                                             | opcional                | endereço de resposta                                                                                 |
+| `ENCONTRO_NOME`, `ENCONTRO_DATA`, `ENCONTRO_HORARIO`, `ENCONTRO_LOCAL`, `ENCONTRO_ENDERECO` | opcional                | aparecem no rodapé do e-mail; o que estiver vazio simplesmente não aparece                           |
+
+Sem `RESEND_API_KEY` a inscrição **continua sendo gravada** — só o e-mail não
+sai, e isso fica registrado nos logs da função (`email_enviado_em` fica nulo).
+
+## Conferir as inscrições
+
+No painel: **Table Editor → inscricoes**, ou no SQL Editor:
+
+```sql
+select criado_em, nome, telefone, email, igreja, codigo, email_enviado_em, checkin_em
+from public.inscricoes
+order by criado_em desc;
+```
+
+## Presença no dia do encontro
+
+O QR code lido na entrada devolve o código do ingresso. Para dar baixa:
+
+```sql
+update public.inscricoes set checkin_em = now() where codigo = 'MC-XXXX-XXXX';
+```

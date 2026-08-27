@@ -140,19 +140,17 @@ export const SITE_URL = "https://www.mulherescuradas.com";
 /**
  * Destino das inscricoes.
  *
- * Vazio (como esta hoje) = o formulario segue usando a integracao atual do
- * site: abre o aplicativo de e-mail da visitante com a inscricao preenchida
- * para contato@mulherescuradas.com. Nesse caminho a inscricao so chega depois
- * que ela toca em "enviar" no proprio aplicativo.
+ * Vazio = o formulario volta a abrir o aplicativo de e-mail da visitante com
+ * a inscricao preenchida para contato@mulherescuradas.com; nesse caminho a
+ * inscricao so chega depois que ela toca em "enviar" por la.
  *
- * Para que os dados fiquem registrados sozinhos, cole aqui o endereco de um
- * servico que aceite POST com o corpo em JSON. O caminho montado para este
- * site esta em scripts/inscricoes/: uma planilha do Google que grava cada
- * inscricao, manda para a inscrita o e-mail com o QR code do ingresso e
- * confirma a presenca quando esse QR e lido no dia do encontro. O README de
- * la tem o passo a passo; ao final ele entrega um endereco terminado em
- * /exec, que e o que entra aqui.
+ * Hoje esse endereco aponta para a Edge Function "inscricao" do Supabase
+ * (supabase/functions/inscricao/): ela grava a inscricao na tabela
+ * public.inscricoes e envia para a inscrita o e-mail de confirmacao com o QR
+ * code do ingresso. O banco guarda so texto — o QR nao e armazenado, e
+ * desenhado a partir do codigo do ingresso na hora do envio.
  *
- * Ex.: "https://script.google.com/macros/s/AKfy.../exec"
+ * Para deixar de usar o Supabase, basta trocar por outro endereco que aceite
+ * POST com JSON, ou apagar o valor para voltar ao caminho por e-mail.
  */
-export const ENDPOINT_INSCRICAO = "";
+export const ENDPOINT_INSCRICAO = "https://vdjovchltmyhuvlwxzwr.supabase.co/functions/v1/inscricao";
