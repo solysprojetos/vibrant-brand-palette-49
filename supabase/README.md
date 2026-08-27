@@ -6,6 +6,7 @@ Projeto: `vdjovchltmyhuvlwxzwr` (https://vdjovchltmyhuvlwxzwr.supabase.co)
 
 - `migrations/20260827000000_cria_inscricoes.sql` — a tabela `public.inscricoes`.
 - `functions/inscricao/index.ts` — a Edge Function que o formulário do site chama.
+- `functions/painel/index.ts` — a Edge Function que serve o painel de inscrições.
 
 ## Como funciona
 
@@ -47,9 +48,24 @@ No painel: **Edge Functions → inscricao → Secrets**.
 Sem `RESEND_API_KEY` a inscrição **continua sendo gravada** — só o e-mail não
 sai, e isso fica registrado nos logs da função (`email_enviado_em` fica nulo).
 
-## Conferir as inscrições
+## Painel de inscrições (a página `/painel`)
 
-No painel: **Table Editor → inscricoes**, ou no SQL Editor:
+O endereço `https://SEU-SITE/painel` mostra a lista de inscritas: nome, contato,
+igreja, código do ingresso, se o e-mail saiu e a presença. Tem busca, botão para
+baixar a planilha (CSV que abre no Excel) e um botão por linha para marcar
+presença no dia do encontro.
+
+A página não fala com o banco; ela chama a função `painel`, que exige a senha em
+todo pedido. Configure o segredo **`PAINEL_SENHA`** em _Edge Functions → painel →
+Secrets_ — enquanto ele não existir, o painel avisa que ainda não tem senha e não
+mostra nada. Use uma senha longa, só sua.
+
+A página fica fora dos buscadores (`noindex, nofollow`) e não há link para ela em
+lugar nenhum do site; a senha digitada some quando você fecha a aba.
+
+## Conferir as inscrições pelo painel do Supabase
+
+Se preferir ver direto no banco: **Table Editor → inscricoes**, ou no SQL Editor:
 
 ```sql
 select criado_em, nome, telefone, email, igreja, codigo, email_enviado_em, checkin_em

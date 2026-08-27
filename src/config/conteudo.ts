@@ -154,3 +154,12 @@ export const SITE_URL = "https://www.mulherescuradas.com";
  * POST com JSON, ou apagar o valor para voltar ao caminho por e-mail.
  */
 export const ENDPOINT_INSCRICAO = "https://vdjovchltmyhuvlwxzwr.supabase.co/functions/v1/inscricao";
+
+/**
+ * Endereco do painel de inscricoes (a pagina /painel).
+ *
+ * Aponta para a Edge Function "painel", que le a tabela e da baixa na
+ * presenca. Ela so responde a quem manda a senha do painel — o segredo
+ * PAINEL_SENHA, configurado na propria funcao no Supabase.
+ */
+export const ENDPOINT_PAINEL = "https://vdjovchltmyhuvlwxzwr.supabase.co/functions/v1/painel";
