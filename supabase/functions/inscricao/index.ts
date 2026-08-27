@@ -59,10 +59,12 @@ function saudacaoDe(nome: string): string {
 
 function corpoDoEmail(nome: string, codigo: string): string {
   const saudacao = saudacaoDe(nome);
+  // Data e horario confirmados pela organizacao; os segredos ENCONTRO_*
+  // continuam podendo sobrescrever qualquer linha sem mexer no codigo.
   const encontro = [
     Deno.env.get("ENCONTRO_NOME"),
-    Deno.env.get("ENCONTRO_DATA"),
-    Deno.env.get("ENCONTRO_HORARIO"),
+    Deno.env.get("ENCONTRO_DATA") ?? "2 de novembro de 2026, segunda-feira",
+    Deno.env.get("ENCONTRO_HORARIO") ?? "às 18h30",
     Deno.env.get("ENCONTRO_LOCAL"),
     Deno.env.get("ENCONTRO_ENDERECO"),
   ].filter((linha): linha is string => Boolean(linha && linha.trim()));
