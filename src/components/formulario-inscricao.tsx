@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, MailOpen } from "lucide-react";
-import { ENDPOINT_INSCRICAO, contato } from "@/config/conteudo";
+import { ENDPOINT_INSCRICAO, SITE_URL, contato } from "@/config/conteudo";
 
 /**
  * Formulario de inscricao.
@@ -89,6 +89,9 @@ export function FormularioInscricao() {
   const [consentimento, setConsentimento] = useState(false);
   const [erros, setErros] = useState<Erros>({});
   const [estado, setEstado] = useState<Estado>("parado");
+  // Codigo do ingresso devolvido pela inscricao: com ele a visitante ja leva o
+  // QR na tela, sem depender do e-mail chegar.
+  const [codigo, setCodigo] = useState("");
   // Guarda o mailto do ultimo envio, para a visitante poder abrir de novo
   // caso o aplicativo de e-mail nao tenha aberto na primeira vez.
   const ultimoMailto = useRef("");
@@ -165,6 +168,8 @@ export function FormularioInscricao() {
           }),
         });
         if (!resposta.ok) throw new Error(`Resposta ${resposta.status}`);
+        const retorno = await resposta.json().catch(() => ({}));
+        if (typeof retorno.codigo === "string") setCodigo(retorno.codigo);
       } else {
         enviarPorEmail(dados);
       }
@@ -186,6 +191,7 @@ export function FormularioInscricao() {
     setNomeIgreja("");
     setConsentimento(false);
     setErros({});
+    setCodigo("");
     setEstado("parado");
   };
 
@@ -204,10 +210,31 @@ export function FormularioInscricao() {
               Inscrição realizada com <span className="italic">sucesso.</span>
             </h4>
             <p className="mt-4 text-base leading-relaxed text-foreground/70">
-              Que alegria ter você com a gente{primeiroNome ? `, ${primeiroNome}` : ""}! Enviamos
-              para o seu e-mail o QR code que confirma sua presença no dia do encontro. Guarde essa
-              mensagem — é só mostrá-la na entrada.
+              Que alegria ter você com a gente{primeiroNome ? `, ${primeiroNome}` : ""}! Este é o QR
+              code que confirma sua presença no dia do encontro.
             </p>
+
+            {/* O QR aparece aqui na hora, e nao so no e-mail: assim a visitante
+              ja sai com o ingresso, mesmo que a mensagem demore ou caia no
+              spam. E a mesma imagem que vai por e-mail. */}
+            {codigo && (
+              <>
+                <img
+                  src={`https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=${encodeURIComponent(
+                    `${SITE_URL}/checkin/?c=${codigo}`,
+                  )}`}
+                  alt={`QR code do seu ingresso: ${codigo}`}
+                  width={220}
+                  height={220}
+                  className="mx-auto mt-6 rounded-2xl border border-primary/10"
+                />
+                <p className="mt-3 text-lg tracking-[0.18em] text-primary">{codigo}</p>
+                <p className="mt-2 text-sm leading-relaxed text-foreground/60">
+                  Tire um print desta tela ou salve a imagem. Também enviamos tudo para o seu e-mail
+                  — se não encontrar, basta apresentar este código na entrada.
+                </p>
+              </>
+            )}
           </>
         ) : (
           <>
