@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Download, Loader2, RefreshCw, Search } from "lucide-react";
+import { ArrowLeft, Download, Gift, Loader2, RefreshCw, Search } from "lucide-react";
 import { ENDPOINT_PAINEL, SITE_URL } from "@/config/conteudo";
 
 /**
@@ -139,6 +139,12 @@ function Painel() {
   const [autenticado, setAutenticado] = useState(false);
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [busca, setBusca] = useState("");
+  // Sorteio do dia: quem ja ganhou nao volta para o globo ate fechar o painel.
+  const [sorteioAberto, setSorteioAberto] = useState(false);
+  const [apenasPresentes, setApenasPresentes] = useState(true);
+  const [vencedora, setVencedora] = useState<Inscricao | null>(null);
+  const [sorteando, setSorteando] = useState(false);
+  const [jaSorteadas, setJaSorteadas] = useState<Set<string>>(new Set());
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -201,6 +207,42 @@ function Painel() {
     } catch (falha) {
       setErro(falha instanceof Error ? falha.message : "Não foi possível salvar a presença.");
     }
+  };
+
+  /** Sorteia com o gerador criptografico, sem vicio de arredondamento. */
+  const sortear = () => {
+    const globo = inscricoes.filter(
+      (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
+    );
+    if (globo.length === 0) {
+      setVencedora(null);
+      return;
+    }
+
+    setSorteando(true);
+    setVencedora(null);
+
+    // Suspense de sorteio: nomes passam rapido antes de parar na escolhida.
+    let passos = 0;
+    const total = 18;
+    const roda = () => {
+      const indice = crypto.getRandomValues(new Uint32Array(1))[0] % globo.length;
+      const escolhida = globo[indice];
+      setVencedora(escolhida);
+      passos += 1;
+      if (passos < total) {
+        setTimeout(roda, 60 + passos * 14);
+      } else {
+        setSorteando(false);
+        setJaSorteadas((atual) => new Set(atual).add(escolhida.id));
+      }
+    };
+    roda();
+  };
+
+  const abrirSorteio = () => {
+    setVencedora(null);
+    setSorteioAberto(true);
   };
 
   const sair = () => {
@@ -290,6 +332,14 @@ function Painel() {
             </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
+            <button
+              type="button"
+              onClick={abrirSorteio}
+              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-primary/20 px-5 text-xs uppercase tracking-[0.2em] text-primary transition-colors hover:border-primary/50"
+            >
+              <Gift aria-hidden="true" className="h-4 w-4" />
+              Sorteio
+            </button>
             <button
               type="button"
               onClick={() => void carregar(senha)}
@@ -465,6 +515,91 @@ function Painel() {
           </div>
         )}
       </main>
+
+      {/* Tela do sorteio: cobre tudo e mostra o nome grande, para projetar. */}
+      {sorteioAberto && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sorteio"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-primary px-6 text-primary-foreground"
+        >
+          <div className="w-full max-w-2xl text-center">
+            <p className="eyebrow opacity-70">Sorteio · Mulheres Curadas</p>
+
+            {(() => {
+              const globo = inscricoes.filter(
+                (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
+              );
+              const participantes = globo.length + (vencedora && !sorteando ? 1 : 0);
+              return (
+                <>
+                  {vencedora ? (
+                    <div aria-live="polite">
+                      <h2
+                        className={`mt-8 text-display text-4xl leading-tight md:text-6xl ${sorteando ? "opacity-60" : ""}`}
+                      >
+                        {vencedora.nome}
+                      </h2>
+                      {!sorteando && (
+                        <p className="mt-4 text-lg tracking-[0.18em] opacity-80">
+                          {vencedora.codigo}
+                        </p>
+                      )}
+                    </div>
+                  ) : (
+                    <h2 className="mt-8 text-display text-4xl leading-tight opacity-80 md:text-5xl">
+                      {participantes === 0
+                        ? apenasPresentes
+                          ? "Ninguém no globo ainda: marque as presenças ou inclua todas."
+                          : "Todas já foram sorteadas."
+                        : `${participantes} participante${participantes === 1 ? "" : "s"} no globo.`}
+                    </h2>
+                  )}
+
+                  <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={sortear}
+                      disabled={sorteando || globo.length === 0}
+                      className="inline-flex min-h-[52px] items-center gap-3 rounded-full bg-primary-foreground px-10 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <Gift aria-hidden="true" className="h-4 w-4" />
+                      {sorteando ? "Sorteando…" : vencedora ? "Sortear outra" : "Sortear"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setSorteioAberto(false)}
+                      disabled={sorteando}
+                      className="min-h-[52px] rounded-full border border-primary-foreground/40 px-8 text-xs uppercase tracking-[0.2em] transition-colors hover:border-primary-foreground disabled:opacity-60"
+                    >
+                      Fechar
+                    </button>
+                  </div>
+
+                  <label className="mt-10 inline-flex min-h-[44px] cursor-pointer items-center gap-3 text-sm opacity-80">
+                    <input
+                      type="checkbox"
+                      checked={apenasPresentes}
+                      onChange={(e) => setApenasPresentes(e.target.checked)}
+                      disabled={sorteando}
+                      className="h-4 w-4 accent-[color:var(--rose-soft)]"
+                    />
+                    Sortear só entre as presentes (com check-in)
+                  </label>
+
+                  {jaSorteadas.size > 0 && (
+                    <p className="mt-3 text-xs opacity-60">
+                      {jaSorteadas.size} já sorteada{jaSorteadas.size === 1 ? "" : "s"} — não voltam
+                      ao globo até recarregar a página.
+                    </p>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
