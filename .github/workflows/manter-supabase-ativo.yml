@@ -1,0 +1,33 @@
+# Mantem o projeto do Supabase acordado.
+#
+# No plano gratuito o Supabase pausa projetos que passam ~7 dias sem nenhum
+# acesso; pausado, o formulario de inscricao para de gravar ate alguem
+# restaurar no painel. Este robo visita o banco a cada 2 dias, entao a pausa
+# nunca chega perto de acontecer.
+#
+# A chave usada aqui e a publishable (publica por definicao — e a mesma que
+# qualquer visitante do site poderia ver). Ela nao le nem escreve nada na
+# tabela de inscricoes, que tem RLS ligado sem politicas.
+name: Manter Supabase ativo
+
+on:
+  schedule:
+    # A cada 2 dias, 9h12 UTC. Minuto quebrado de proposito: a fila do
+    # GitHub atrasa os horarios cheios, concorridos demais.
+    - cron: "12 9 */2 * *"
+  workflow_dispatch:
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Visita o banco e a funcao de inscricao
+        run: |
+          # REST do banco: conta como atividade de API e de banco.
+          curl -sS -o /dev/null -w "REST %{http_code}\n" \
+            "https://vdjovchltmyhuvlwxzwr.supabase.co/rest/v1/" \
+            -H "apikey: sb_publishable_wLOjg2iczMMuH55bjjXLDw_zEBiQRYN"
+
+          # Edge Function: um OPTIONS de CORS, sem gravar nada.
+          curl -sS -o /dev/null -w "FUNCAO %{http_code}\n" -X OPTIONS \
+            "https://vdjovchltmyhuvlwxzwr.supabase.co/functions/v1/inscricao"
