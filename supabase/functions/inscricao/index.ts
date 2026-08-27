@@ -51,13 +51,20 @@ function emailValido(valor: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(valor);
 }
 
-function corpoDoEmail(nome: string, codigo: string): string {
+/** Primeiro nome com so a inicial maiuscula: o cadastro guarda tudo em caixa alta. */
+function saudacaoDe(nome: string): string {
   const primeiro = nome.trim().split(/\s+/)[0] ?? "";
-  const saudacao = primeiro ? primeiro[0] + primeiro.slice(1).toLocaleLowerCase("pt-BR") : "";
+  return primeiro ? primeiro[0] + primeiro.slice(1).toLocaleLowerCase("pt-BR") : "";
+}
+
+function corpoDoEmail(nome: string, codigo: string): string {
+  const saudacao = saudacaoDe(nome);
+  // Data e horario confirmados pela organizacao; os segredos ENCONTRO_*
+  // continuam podendo sobrescrever qualquer linha sem mexer no codigo.
   const encontro = [
     Deno.env.get("ENCONTRO_NOME"),
-    Deno.env.get("ENCONTRO_DATA"),
-    Deno.env.get("ENCONTRO_HORARIO"),
+    Deno.env.get("ENCONTRO_DATA") ?? "2 de novembro de 2026, segunda-feira",
+    Deno.env.get("ENCONTRO_HORARIO") ?? "às 18h30",
     Deno.env.get("ENCONTRO_LOCAL"),
     Deno.env.get("ENCONTRO_ENDERECO"),
   ].filter((linha): linha is string => Boolean(linha && linha.trim()));
@@ -93,8 +100,15 @@ function corpoDoEmail(nome: string, codigo: string): string {
 </body></html>`;
 }
 
+/**
+ * Chave do Resend embutida na versao publicada, como a senha do painel: no
+ * repositorio ela fica vazia de proposito, porque ele e publico. O segredo
+ * RESEND_API_KEY tem prioridade quando existir.
+ */
+const RESEND_EMBUTIDA = "";
+
 async function enviarEmail(para: string, nome: string, codigo: string): Promise<boolean> {
-  const chave = Deno.env.get("RESEND_API_KEY");
+  const chave = Deno.env.get("RESEND_API_KEY") || RESEND_EMBUTIDA;
   if (!chave) {
     console.warn("RESEND_API_KEY ausente: inscricao salva, e-mail nao enviado.");
     return false;
@@ -104,7 +118,7 @@ async function enviarEmail(para: string, nome: string, codigo: string): Promise<
     method: "POST",
     headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" },
     body: JSON.stringify({
-      from: Deno.env.get("EMAIL_REMETENTE") ?? "Mulheres Curadas <onboarding@resend.dev>",
+      from: Deno.env.get("EMAIL_REMETENTE") ?? "Mulheres Curadas <contato@mulherescuradas.com>",
       to: [para],
       reply_to: Deno.env.get("EMAIL_CONTATO") ?? undefined,
       subject: "Sua inscrição está confirmada — Mulheres Curadas",
@@ -140,9 +154,6 @@ async function enviarWhatsapp(telefone: string, nome: string, codigo: string): P
   const digitos = telefone.replace(/\D/g, "");
   const destino = digitos.startsWith("55") ? digitos : `55${digitos}`;
 
-  const primeiro = nome.trim().split(/\s+/)[0] ?? "";
-  const saudacao = primeiro ? primeiro[0] + primeiro.slice(1).toLocaleLowerCase("pt-BR") : "";
-
   const resposta = await fetch(`https://graph.facebook.com/v21.0/${numeroRemetente}/messages`, {
     method: "POST",
     headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
@@ -157,7 +168,7 @@ async function enviarWhatsapp(telefone: string, nome: string, codigo: string): P
           {
             type: "body",
             parameters: [
-              { type: "text", text: saudacao },
+              { type: "text", text: saudacaoDe(nome) },
               { type: "text", text: codigo },
               { type: "text", text: urlDoQr(codigo) },
             ],
@@ -215,7 +226,7 @@ Deno.serve(async (req) => {
     );
 
     // Se a pessoa se inscrever de novo, o ingresso continua sendo o mesmo:
-    // o codigo antigo e mantido e o e-mail e so reenviado.
+    // o codigo antigo e mantido e as mensagens sao so reenviadas.
     const { data: existente } = await supabase
       .from("inscricoes")
       .select("id, codigo, nome")
