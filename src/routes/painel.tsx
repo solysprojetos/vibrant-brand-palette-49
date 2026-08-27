@@ -174,8 +174,14 @@ function Painel() {
             void carregar(senha);
           }}
         >
-          <p className="eyebrow text-primary/80">Mulheres Curadas</p>
-          <h1 className="mt-4 text-display text-3xl text-primary">Painel de inscrições</h1>
+          <p translate="no" className="eyebrow text-primary/80">
+            Mulheres Curadas
+          </p>
+          {/* translate="no" impede o tradutor do navegador de reescrever o
+            titulo — ele chegou a trocar "inscricoes" por "indicacoes". */}
+          <h1 translate="no" className="mt-4 text-display text-3xl text-primary">
+            Painel de inscrições
+          </h1>
           <label htmlFor="senha" className="sr-only">
             Senha do painel
           </label>
@@ -230,8 +236,12 @@ function Painel() {
       <header className="border-b border-primary/10">
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-12">
           <div>
-            <p className="eyebrow text-primary/80">Mulheres Curadas</p>
-            <h1 className="mt-1 text-display text-2xl text-primary">Inscrições</h1>
+            <p translate="no" className="eyebrow text-primary/80">
+              Mulheres Curadas
+            </p>
+            <h1 translate="no" className="mt-1 text-display text-2xl text-primary">
+              Inscrições
+            </h1>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <button
