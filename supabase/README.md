@@ -75,7 +75,17 @@ order by criado_em desc;
 
 ## Presença no dia do encontro
 
-O QR code lido na entrada devolve o código do ingresso. Para dar baixa:
+O QR code do e-mail guarda o endereço `https://www.mulherescuradas.com/checkin/?c=CODIGO`.
+Apontar a câmera comum do celular — a nativa, sem aplicativo nenhum — abre essa
+página, que pede a senha do painel na primeira leitura e confirma a presença.
+A senha fica guardada no aparelho, então as leituras seguintes confirmam
+sozinhas; o botão "Sair" do painel apaga.
+
+Ler o mesmo ingresso duas vezes não duplica nada: a página avisa que aquele
+ingresso já tinha sido lido.
+
+Dá para dar baixa também pelo painel, no botão "Marcar presença" de cada linha,
+ou direto no banco:
 
 ```sql
 update public.inscricoes set checkin_em = now() where codigo = 'MC-XXXX-XXXX';
