@@ -75,10 +75,6 @@ function Inscricao() {
           <h1 className="mt-4 text-display text-4xl leading-tight text-primary md:text-5xl">
             Reserve seu <span className="italic">lugar.</span>
           </h1>
-          <p className="mx-auto mt-5 max-w-md text-base leading-relaxed text-foreground/70">
-            Preencha seus dados abaixo e entraremos em contato com todas as informações do encontro.
-          </p>
-
           {/* So aparece quando a data estiver cadastrada em src/config/conteudo.ts. */}
           {proximoEncontro.data && (
             <p className="mt-6 inline-flex items-center rounded-full bg-[color:var(--rose-soft)]/30 px-6 py-2 text-sm text-primary">
