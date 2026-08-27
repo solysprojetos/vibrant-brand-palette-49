@@ -104,11 +104,18 @@ function Painel() {
   const [erro, setErro] = useState("");
 
   const chamar = useCallback(async (senhaUsada: string, corpo: Record<string, unknown>) => {
-    const resposta = await fetch(ENDPOINT_PAINEL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json", "x-senha": senhaUsada },
-      body: JSON.stringify(corpo),
-    });
+    let resposta: Response;
+    try {
+      resposta = await fetch(ENDPOINT_PAINEL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-senha": senhaUsada },
+        body: JSON.stringify(corpo),
+      });
+    } catch {
+      // Sem internet, ou o servico fora do ar, o navegador so diz
+      // "Failed to fetch". Aqui isso vira uma frase que explica o que houve.
+      throw new Error("Não conseguimos falar com o servidor. Verifique sua conexão.");
+    }
     const dados = await resposta.json().catch(() => ({}));
     if (!resposta.ok) throw new Error(dados.erro ?? `Resposta ${resposta.status}`);
     return dados;
