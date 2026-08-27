@@ -136,7 +136,7 @@ Deno.serve(async (req) => {
     const { data, error } = await supabase
       .from("inscricoes")
       .select(
-        "id, criado_em, nome, telefone, email, frequenta_igreja, igreja, codigo, email_enviado_em, checkin_em",
+        "id, criado_em, nome, telefone, email, frequenta_igreja, igreja, codigo, email_enviado_em, whatsapp_enviado_em, checkin_em",
       )
       .order("criado_em", { ascending: false })
       .limit(2000);
