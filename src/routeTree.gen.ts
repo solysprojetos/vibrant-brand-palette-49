@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as InscricaoRouteImport } from './routes/inscricao'
+import { Route as PainelRouteImport } from './routes/painel'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const InscricaoRoute = InscricaoRouteImport.update({
   path: '/inscricao',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PainelRoute = PainelRouteImport.update({
+  id: '/painel',
+  path: '/painel',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
   id: '/politica-de-privacidade',
   path: '/politica-de-privacidade',
@@ -32,30 +38,34 @@ const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/inscricao': typeof InscricaoRoute
+  '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/inscricao': typeof InscricaoRoute
+  '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/inscricao': typeof InscricaoRoute
+  '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/inscricao' | '/politica-de-privacidade'
+  fullPaths: '/' | '/inscricao' | '/painel' | '/politica-de-privacidade'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/inscricao' | '/politica-de-privacidade'
-  id: '__root__' | '/' | '/inscricao' | '/politica-de-privacidade'
+  to: '/' | '/inscricao' | '/painel' | '/politica-de-privacidade'
+  id: '__root__' | '/' | '/inscricao' | '/painel' | '/politica-de-privacidade'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   InscricaoRoute: typeof InscricaoRoute
+  PainelRoute: typeof PainelRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof InscricaoRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/painel': {
+      id: '/painel'
+      path: '/painel'
+      fullPath: '/painel'
+      preLoaderRoute: typeof PainelRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/politica-de-privacidade': {
       id: '/politica-de-privacidade'
       path: '/politica-de-privacidade'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   InscricaoRoute: InscricaoRoute,
+  PainelRoute: PainelRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
 }
 export const routeTree = rootRouteImport
