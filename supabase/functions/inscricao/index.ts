@@ -93,8 +93,15 @@ function corpoDoEmail(nome: string, codigo: string): string {
 </body></html>`;
 }
 
+/**
+ * Chave do Resend embutida na versao publicada, como a senha do painel: aqui
+ * no repositorio fica vazia de proposito, porque ele e publico. O segredo
+ * RESEND_API_KEY tem prioridade quando existir.
+ */
+const RESEND_EMBUTIDA = "";
+
 async function enviarEmail(para: string, nome: string, codigo: string): Promise<boolean> {
-  const chave = Deno.env.get("RESEND_API_KEY");
+  const chave = Deno.env.get("RESEND_API_KEY") || RESEND_EMBUTIDA;
   if (!chave) {
     console.warn("RESEND_API_KEY ausente: inscricao salva, e-mail nao enviado.");
     return false;
