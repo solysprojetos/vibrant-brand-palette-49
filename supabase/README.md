@@ -70,6 +70,30 @@ mostra nada. Use uma senha longa, só sua.
 A página fica fora dos buscadores (`noindex, nofollow`) e não há link para ela em
 lugar nenhum do site; a senha digitada some quando você fecha a aba.
 
+## WhatsApp
+
+O envio usa a API oficial da Meta (WhatsApp Cloud API). Quem nunca escreveu
+para o número da organização só pode ser abordado por um **modelo de mensagem
+aprovado** — não dá para mandar texto livre. O modelo precisa ter três campos
+no corpo, nesta ordem:
+
+1. primeiro nome
+2. código do ingresso
+3. endereço do QR code
+
+Exemplo de corpo para cadastrar na Meta:
+
+```
+Oi, {{1}}! Sua inscrição no Mulheres Curadas está confirmada.
+Seu ingresso: {{2}}
+QR code: {{3}}
+Guarde esta mensagem — é só apresentar o QR code na entrada.
+```
+
+Sem os três segredos configurados a função nem tenta enviar, e a inscrição
+segue normal. Se o envio falhar, o motivo fica nos logs da função e
+`whatsapp_enviado_em` continua nulo — o painel mostra "WhatsApp não enviado".
+
 ## Conferir as inscrições pelo painel do Supabase
 
 Se preferir ver direto no banco: **Table Editor → inscricoes**, ou no SQL Editor:

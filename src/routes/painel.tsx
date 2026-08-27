@@ -22,6 +22,7 @@ type Inscricao = {
   igreja: string | null;
   codigo: string;
   email_enviado_em: string | null;
+  whatsapp_enviado_em: string | null;
   checkin_em: string | null;
 };
 
@@ -92,6 +93,7 @@ function baixarCsv(inscricoes: Inscricao[]): void {
     "Igreja",
     "Codigo",
     "E-mail enviado",
+    "WhatsApp enviado",
     "Presenca",
   ];
   const linhas = inscricoes.map((i) =>
@@ -104,6 +106,7 @@ function baixarCsv(inscricoes: Inscricao[]): void {
       i.igreja ?? "",
       i.codigo,
       formatarData(i.email_enviado_em),
+      formatarData(i.whatsapp_enviado_em),
       formatarData(i.checkin_em),
     ]
       .map(campoCsv)
@@ -413,6 +416,10 @@ function Painel() {
                       <br />
                       <span className="text-xs text-foreground/50">
                         {inscricao.email_enviado_em ? "E-mail enviado" : "E-mail não enviado"}
+                        {" · "}
+                        {inscricao.whatsapp_enviado_em
+                          ? "WhatsApp enviado"
+                          : "WhatsApp não enviado"}
                       </span>
                       {/* Atalhos para mandar o ingresso na mao: abrem o
                         WhatsApp e o programa de e-mail com tudo escrito. */}

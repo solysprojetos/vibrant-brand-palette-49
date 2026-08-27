@@ -119,6 +119,61 @@ async function enviarEmail(para: string, nome: string, codigo: string): Promise<
   return true;
 }
 
+/**
+ * Manda o ingresso pelo WhatsApp, pela API oficial da Meta.
+ *
+ * So funciona com uma conta WhatsApp Business aprovada e um modelo de mensagem
+ * ("template") ja liberado pela Meta — quem nunca escreveu para o numero da
+ * organizacao so pode ser abordado por um modelo aprovado. Sem os segredos
+ * configurados, a funcao nao tenta nada e a inscricao segue normal.
+ *
+ * O modelo precisa ter tres campos no corpo, nesta ordem: primeiro nome,
+ * codigo do ingresso e o endereco do QR code.
+ */
+async function enviarWhatsapp(telefone: string, nome: string, codigo: string): Promise<boolean> {
+  const token = Deno.env.get("WHATSAPP_TOKEN");
+  const numeroRemetente = Deno.env.get("WHATSAPP_PHONE_ID");
+  const modelo = Deno.env.get("WHATSAPP_TEMPLATE");
+  if (!token || !numeroRemetente || !modelo) return false;
+
+  // A Meta quer so digitos, com o codigo do pais na frente.
+  const digitos = telefone.replace(/\D/g, "");
+  const destino = digitos.startsWith("55") ? digitos : `55${digitos}`;
+
+  const primeiro = nome.trim().split(/\s+/)[0] ?? "";
+  const saudacao = primeiro ? primeiro[0] + primeiro.slice(1).toLocaleLowerCase("pt-BR") : "";
+
+  const resposta = await fetch(`https://graph.facebook.com/v21.0/${numeroRemetente}/messages`, {
+    method: "POST",
+    headers: { Authorization: `Bearer ${token}`, "Content-Type": "application/json" },
+    body: JSON.stringify({
+      messaging_product: "whatsapp",
+      to: destino,
+      type: "template",
+      template: {
+        name: modelo,
+        language: { code: Deno.env.get("WHATSAPP_IDIOMA") ?? "pt_BR" },
+        components: [
+          {
+            type: "body",
+            parameters: [
+              { type: "text", text: saudacao },
+              { type: "text", text: codigo },
+              { type: "text", text: urlDoQr(codigo) },
+            ],
+          },
+        ],
+      },
+    }),
+  });
+
+  if (!resposta.ok) {
+    console.error("WhatsApp recusou o envio:", resposta.status, await resposta.text());
+    return false;
+  }
+  return true;
+}
+
 Deno.serve(async (req) => {
   if (req.method === "OPTIONS") return new Response("ok", { headers: CORS });
   if (req.method !== "POST") {
@@ -191,17 +246,38 @@ Deno.serve(async (req) => {
       id = data.id;
     }
 
-    const enviado = await enviarEmail(email, nome || (existente?.nome as string) || "", codigo!);
-    if (enviado) {
+    const nomeFinal = nome || (existente?.nome as string) || "";
+
+    // Os dois envios correm juntos, e um erro em qualquer um deles nao derruba
+    // a inscricao — que ja esta gravada a esta altura.
+    const [enviado, enviadoZap] = await Promise.all([
+      enviarEmail(email, nomeFinal, codigo!).catch((erro) => {
+        console.error("Falha ao enviar o e-mail:", erro);
+        return false;
+      }),
+      enviarWhatsapp(telefone, nomeFinal, codigo!).catch((erro) => {
+        console.error("Falha ao enviar o WhatsApp:", erro);
+        return false;
+      }),
+    ]);
+
+    const agora = new Date().toISOString();
+    if (enviado || enviadoZap) {
       await supabase
         .from("inscricoes")
-        .update({ email_enviado_em: new Date().toISOString() })
+        .update({
+          ...(enviado ? { email_enviado_em: agora } : {}),
+          ...(enviadoZap ? { whatsapp_enviado_em: agora } : {}),
+        })
         .eq("id", id!);
     }
 
-    return new Response(JSON.stringify({ ok: true, codigo, emailEnviado: enviado }), {
-      headers: { ...CORS, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ ok: true, codigo, emailEnviado: enviado, whatsappEnviado: enviadoZap }),
+      {
+        headers: { ...CORS, "Content-Type": "application/json" },
+      },
+    );
   } catch (erro) {
     console.error(erro);
     return new Response(JSON.stringify({ erro: "Não foi possível concluir a inscrição." }), {
