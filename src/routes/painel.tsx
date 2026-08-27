@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, Download, Loader2, RefreshCw, Search } from "lucide-react";
-import { ENDPOINT_PAINEL } from "@/config/conteudo";
+import { ENDPOINT_PAINEL, SITE_URL } from "@/config/conteudo";
 
 /**
  * Painel de inscricoes — a lista de quem se inscreveu.
@@ -29,6 +29,42 @@ const CHAVE_SENHA = "mc-painel-senha";
 
 const CAMPO =
   "w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]";
+
+/**
+ * Mensagem do ingresso, para mandar na mao enquanto o envio automatico nao
+ * esta ligado (ou para reenviar a quem perdeu o e-mail).
+ *
+ * O QR nao viaja como imagem: vai o endereco que desenha o mesmo QR do e-mail,
+ * apontando para a pagina de baixa de presenca.
+ */
+function mensagemDoIngresso(inscricao: Inscricao): string {
+  const checkin = `${SITE_URL}/checkin/?c=${encodeURIComponent(inscricao.codigo)}`;
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=${encodeURIComponent(checkin)}`;
+  const bruto = inscricao.nome.trim().split(/\s+/)[0] ?? "";
+  const primeiro = bruto ? bruto[0] + bruto.slice(1).toLocaleLowerCase("pt-BR") : "";
+
+  return [
+    `Oi${primeiro ? `, ${primeiro}` : ""}! Sua inscrição no Mulheres Curadas está confirmada.`,
+    "",
+    `Seu ingresso: ${inscricao.codigo}`,
+    `QR code: ${qr}`,
+    "",
+    "Guarde esta mensagem — é só apresentar o QR code na entrada do encontro.",
+  ].join("\n");
+}
+
+/** wa.me exige o numero com o codigo do pais e so digitos. */
+function linkWhatsapp(inscricao: Inscricao): string {
+  const digitos = inscricao.telefone.replace(/\D/g, "");
+  const numero = digitos.startsWith("55") ? digitos : `55${digitos}`;
+  return `https://wa.me/${numero}?text=${encodeURIComponent(mensagemDoIngresso(inscricao))}`;
+}
+
+function linkEmail(inscricao: Inscricao): string {
+  return `mailto:${inscricao.email}?subject=${encodeURIComponent(
+    "Seu ingresso — Mulheres Curadas",
+  )}&body=${encodeURIComponent(mensagemDoIngresso(inscricao))}`;
+}
 
 function formatarData(valor: string | null): string {
   if (!valor) return "—";
@@ -377,6 +413,24 @@ function Painel() {
                       <br />
                       <span className="text-xs text-foreground/50">
                         {inscricao.email_enviado_em ? "E-mail enviado" : "E-mail não enviado"}
+                      </span>
+                      {/* Atalhos para mandar o ingresso na mao: abrem o
+                        WhatsApp e o programa de e-mail com tudo escrito. */}
+                      <span className="mt-2 flex gap-3 text-xs">
+                        <a
+                          href={linkWhatsapp(inscricao)}
+                          target="_blank"
+                          rel="noopener"
+                          className="text-primary underline underline-offset-4 hover:opacity-80"
+                        >
+                          WhatsApp
+                        </a>
+                        <a
+                          href={linkEmail(inscricao)}
+                          className="text-primary underline underline-offset-4 hover:opacity-80"
+                        >
+                          E-mail
+                        </a>
                       </span>
                     </td>
                     <td className="px-5 py-4 align-top">

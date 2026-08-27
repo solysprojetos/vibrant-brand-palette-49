@@ -34,6 +34,13 @@ RLS está ativo e a tabela **não tem nenhuma política**, então as chaves púb
 (anon/publishable) não leem nem escrevem nada. Só a Edge Function grava, usando a
 `service_role` que o próprio runtime injeta.
 
+## Enquanto o envio automático não está ligado
+
+Cada linha do painel traz dois atalhos, **WhatsApp** e **E-mail**, que abrem o
+aplicativo com a mensagem do ingresso já escrita: saudação, código e o endereço
+que desenha o mesmo QR code do e-mail. Serve também para reenviar a quem apagou
+a mensagem. Nada disso depende de chave nenhuma.
+
 ## Segredos a configurar
 
 No painel: **Edge Functions → inscricao → Secrets**.
