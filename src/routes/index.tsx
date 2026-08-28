@@ -18,6 +18,7 @@ import momento5 from "@/assets/momento-5.asset.json";
 import momento6 from "@/assets/momento-6.asset.json";
 import momento7 from "@/assets/momento-7.asset.json";
 import momento8 from "@/assets/momento-8.asset.json";
+import momento9 from "@/assets/momento-9.asset.json";
 
 // As descricoes acompanham cada foto para que quem usa leitor de tela ouca o
 // que esta na imagem, e nao apenas "Momento 3".
@@ -32,6 +33,10 @@ const momentos = [
   { asset: momento6, alt: "Participantes de pé, cantando juntas no salão do encontro" },
   { asset: momento7, alt: "Participante de olhos fechados, com a mão sobre o coração" },
   { asset: momento8, alt: "Participante em oração, à mesa, durante o encontro" },
+  {
+    asset: momento9,
+    alt: "Participantes de pé entre as mesas, de olhos fechados e mãos sobre o coração",
+  },
 ];
 
 // Um lugar so para os links do menu: o menu do computador e o do celular leem
