@@ -77,7 +77,7 @@ function Inscricao() {
           </h1>
           {/* So aparece quando a data estiver cadastrada em src/config/conteudo.ts. */}
           {proximoEncontro.data && (
-            <div className="mt-8 inline-flex flex-col items-center gap-1 rounded-[2rem] bg-[color:var(--rose-soft)]/30 px-10 py-5">
+            <div className="mt-8 inline-flex flex-col items-center gap-1">
               <span className="eyebrow text-primary/70">Próximo encontro</span>
               <span className="text-display text-2xl leading-snug text-primary italic md:text-3xl">
                 {proximoEncontro.data}
