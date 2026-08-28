@@ -41,7 +41,7 @@ export type ProximoEncontro = {
 
 export const proximoEncontro: ProximoEncontro = {
   nome: "",
-  data: "2 de novembro de 2026, segunda-feira",
+  data: "9 de novembro de 2026, segunda-feira",
   horario: "às 18h30",
   local: "",
   endereco: "",
@@ -49,7 +49,7 @@ export const proximoEncontro: ProximoEncontro = {
   palavraCom: "",
   programacao: [],
   vagas: "",
-  dataISO: "2026-11-02T18:30:00-03:00",
+  dataISO: "2026-11-09T18:30:00-03:00",
 };
 
 export type Depoimento = {
