@@ -455,7 +455,7 @@ function Index() {
                   <p className="mt-5 text-sm opacity-70">Leva menos de um minuto.</p>
                 </>
               ) : (
-                <p className="eyebrow opacity-70">Inscrições em breve</p>
+                <p className="eyebrow text-sm tracking-[0.3em] opacity-80">Em breve inscrições</p>
               )}
             </div>
           </div>
