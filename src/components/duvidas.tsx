@@ -4,14 +4,14 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
-import { EM_BREVE, duvidas, proximoEncontro } from "@/config/conteudo";
+import { EM_BREVE, INSCRICOES_ABERTAS, duvidas, proximoEncontro } from "@/config/conteudo";
 
 /**
  * Perguntas frequentes, em acordeao discreto.
  *
- * As respostas vem de src/config/conteudo.ts. Duas delas se montam sozinhas a
- * partir dos dados do proximo encontro, para nao precisarem ser atualizadas em
- * dois lugares. Resposta vazia mostra "Informacoes em breve" — nada e suposto.
+ * As respostas vem de src/config/conteudo.ts. Tres delas se montam sozinhas a
+ * partir dos dados do proximo encontro e de INSCRICOES_ABERTAS, para nao
+ * precisarem ser atualizadas em dois lugares. Resposta vazia mostra "Informacoes em breve" — nada e suposto.
  */
 function respostaDe(pergunta: string, resposta: string): string {
   if (resposta.trim()) return resposta;
@@ -20,6 +20,12 @@ function respostaDe(pergunta: string, resposta: string): string {
     return /gratuit/i.test(proximoEncontro.investimento)
       ? "Sim. O próximo encontro é gratuito."
       : `Investimento do próximo encontro: ${proximoEncontro.investimento}.`;
+  }
+
+  if (pergunta === "Preciso fazer inscrição?") {
+    return INSCRICOES_ABERTAS
+      ? "Sim. A inscrição é feita na página de inscrição, pelo botão “Fazer minha inscrição”."
+      : "Sim. As inscrições ainda não estão abertas — assim que forem liberadas, o formulário aparece aqui no site.";
   }
 
   if (pergunta === "Onde acontecerá o próximo encontro?") {

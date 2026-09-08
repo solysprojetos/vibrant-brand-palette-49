@@ -12,6 +12,16 @@
 /** Texto exibido quando um campo ainda nao foi preenchido. */
 export const EM_BREVE = "Informações em breve";
 
+/**
+ * Inscricoes abertas?
+ *
+ * Enquanto for false, o formulario da pagina /inscricao e os botoes
+ * "Inscreva-se" / "Fazer minha inscricao" da pagina inicial ficam
+ * escondidos, e no lugar deles aparece um aviso de "em breve". Basta trocar
+ * para true quando as inscricoes forem liberadas — nada mais precisa mudar.
+ */
+export const INSCRICOES_ABERTAS = false;
+
 export type ProximoEncontro = {
   /** Nome do encontro. Ex.: "Encontro Mulheres Curadas — 3a edicao" */
   nome: string;
@@ -39,17 +49,20 @@ export type ProximoEncontro = {
   dataISO: string;
 };
 
+// Data, horario e dataISO foram retirados por enquanto (eram
+// "9 de novembro de 2026, segunda-feira", "às 18h30" e
+// "2026-11-09T18:30:00-03:00"). Preencha de novo quando for para divulgar.
 export const proximoEncontro: ProximoEncontro = {
   nome: "",
-  data: "9 de novembro de 2026, segunda-feira",
-  horario: "às 18h30",
+  data: "",
+  horario: "",
   local: "",
   endereco: "",
   investimento: "",
   palavraCom: "",
   programacao: [],
   vagas: "",
-  dataISO: "2026-11-09T18:30:00-03:00",
+  dataISO: "",
 };
 
 export type Depoimento = {
@@ -97,8 +110,9 @@ export const duvidas: Duvida[] = [
   },
   {
     pergunta: "Preciso fazer inscrição?",
-    resposta:
-      "Sim. A inscrição é feita na página de inscrição, pelo botão “Fazer minha inscrição”.",
+    // Montada a partir de INSCRICOES_ABERTAS (veja src/components/duvidas.tsx).
+    // Preencha aqui so se quiser um texto diferente.
+    resposta: "",
   },
   {
     pergunta: "Posso levar uma convidada?",

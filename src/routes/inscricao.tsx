@@ -2,7 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { FormularioInscricao } from "@/components/formulario-inscricao";
-import { SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
+import { INSCRICOES_ABERTAS, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 
@@ -13,6 +13,10 @@ import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
  * — /inscricao — levando direto ao formulario, sem a visitante percorrer a
  * pagina inteira antes. O formulario e o mesmo componente da home, entao os
  * campos e a validacao nunca ficam diferentes entre os dois lugares.
+ *
+ * Enquanto INSCRICOES_ABERTAS (src/config/conteudo.ts) for false, a pagina
+ * continua no ar — o endereco pode ja ter sido compartilhado — mas mostra um
+ * aviso de "em breve" no lugar do formulario.
  */
 
 const DESCRICAO =
@@ -24,7 +28,7 @@ export const Route = createFileRoute("/inscricao")({
     meta: [
       { title: "Inscrição — Mulheres Curadas" },
       { name: "description", content: DESCRICAO },
-      { name: "robots", content: "index, follow" },
+      { name: "robots", content: INSCRICOES_ABERTAS ? "index, follow" : "noindex, follow" },
       { property: "og:title", content: "Inscrição — Mulheres Curadas" },
       { property: "og:description", content: DESCRICAO },
       { property: "og:url", content: `${SITE_URL}/inscricao/` },
@@ -90,7 +94,17 @@ function Inscricao() {
         </div>
 
         <div className="mt-10 rounded-[2rem] border border-primary/10 bg-primary-foreground/60 p-6 shadow-sm md:p-10">
-          <FormularioInscricao />
+          {INSCRICOES_ABERTAS ? (
+            <FormularioInscricao />
+          ) : (
+            <div className="text-center">
+              <p className="eyebrow text-primary/80">Inscrições em breve</p>
+              <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-foreground/70">
+                As inscrições para o próximo encontro ainda não estão abertas. Assim que forem
+                liberadas, o formulário aparece aqui.
+              </p>
+            </div>
+          )}
         </div>
 
         <p className="mt-10 text-center text-sm leading-relaxed text-foreground/60">
