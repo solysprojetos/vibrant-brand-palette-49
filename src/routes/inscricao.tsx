@@ -11,7 +11,7 @@ import {
   contato,
   proximoEncontro,
 } from "@/config/conteudo";
-import { textoDasVagas, useVagas } from "@/lib/vagas";
+import { useVagas } from "@/lib/vagas";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 
@@ -90,13 +90,36 @@ function Inscricao() {
           <h1 className="text-display text-4xl leading-tight text-primary md:text-5xl">
             Reserve seu <span className="italic">lugar.</span>
           </h1>
-          <p className="mt-3 text-base leading-relaxed text-foreground/80">
-            {proximoEncontro.data ? `${proximoEncontro.data}, ${proximoEncontro.horario}.` : ""}
-            {proximoEncontro.local && ` ${proximoEncontro.local} — ${proximoEncontro.endereco}.`}
-            {INSCRICOES_ABERTAS && (
-              <> {esgotado ? "Vagas esgotadas." : `${textoDasVagas(vagas, LIMITE_INSCRICOES)}.`}</>
+          <dl className="mx-auto mt-4 grid max-w-sm grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-left text-base leading-relaxed text-foreground/80 lg:mx-0 lg:max-w-none">
+            {proximoEncontro.data && (
+              <>
+                <dt className="font-semibold text-primary">Data</dt>
+                <dd>
+                  {proximoEncontro.data}, {proximoEncontro.horario}
+                </dd>
+              </>
             )}
-          </p>
+            {proximoEncontro.local && (
+              <>
+                <dt className="font-semibold text-primary">Local</dt>
+                <dd>{proximoEncontro.local}</dd>
+                <dt className="font-semibold text-primary">Endereço</dt>
+                <dd>{proximoEncontro.endereco}</dd>
+              </>
+            )}
+            {INSCRICOES_ABERTAS && (
+              <>
+                <dt className="font-semibold text-primary">Vagas</dt>
+                <dd>
+                  {esgotado
+                    ? "Esgotadas"
+                    : vagas.restantes === null
+                      ? `${vagas.limite ?? LIMITE_INSCRICOES}`
+                      : `Restam ${vagas.restantes} de ${vagas.limite ?? LIMITE_INSCRICOES}`}
+                </dd>
+              </>
+            )}
+          </dl>
         </div>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">

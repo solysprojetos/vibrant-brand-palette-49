@@ -14,7 +14,7 @@ import {
   contato,
   proximoEncontro,
 } from "@/config/conteudo";
-import { textoDasVagas, useVagas } from "@/lib/vagas";
+import { useVagas } from "@/lib/vagas";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import flowers from "@/assets/flowers.asset.json";
@@ -475,26 +475,32 @@ function Index() {
                   Venha florescer <br className="lg:hidden" />
                   <span className="italic">com a gente.</span>
                 </h2>
-                <p className="mt-4 text-balance text-base leading-relaxed text-foreground/80">
-                  9 de novembro, às 18h30, na {proximoEncontro.local}.
+                <dl className="mx-auto mt-5 grid max-w-sm grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-left text-base leading-relaxed text-foreground/80 lg:mx-0 lg:max-w-none">
+                  <dt className="font-semibold text-primary">Data</dt>
+                  <dd>9 de novembro, às 18h30</dd>
+                  <dt className="font-semibold text-primary">Local</dt>
+                  <dd>{proximoEncontro.local}</dd>
+                  <dt className="font-semibold text-primary">Endereço</dt>
+                  <dd>{proximoEncontro.endereco}</dd>
                   {INSCRICOES_ABERTAS && (
                     <>
-                      {" "}
-                      {esgotado
-                        ? "Vagas esgotadas."
-                        : `${textoDasVagas(vagas, LIMITE_INSCRICOES)}.`}
+                      <dt className="font-semibold text-primary">Vagas</dt>
+                      <dd>
+                        {esgotado
+                          ? "Esgotadas"
+                          : vagas.restantes === null
+                            ? `${vagas.limite ?? LIMITE_INSCRICOES}`
+                            : `Restam ${vagas.restantes} de ${vagas.limite ?? LIMITE_INSCRICOES}`}
+                      </dd>
                     </>
                   )}
-                </p>
-                <p className="mt-1 text-balance text-base leading-relaxed text-foreground/80">
-                  {proximoEncontro.endereco}
-                </p>
-                <p className="mt-2 text-balance text-base leading-relaxed text-foreground/80">
+                </dl>
+                <p className="mt-5 text-base leading-relaxed text-foreground/80">
                   {!INSCRICOES_ABERTAS
                     ? "Em breve inscrições."
                     : esgotado
                       ? "As vagas deste encontro esgotaram. Obrigada pelo carinho — fique de olho nas próximas datas."
-                      : "Garanta seu lugar no próximo encontro. É simples:"}
+                      : "Garanta seu lugar. É simples:"}
                 </p>
 
                 {/* A inscricao vive na sua propria pagina (/inscricao), que tem
