@@ -1,7 +1,23 @@
 import { useCallback, useEffect, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, Download, Gift, Loader2, RefreshCw, Search } from "lucide-react";
-import { ENDPOINT_PAINEL, SITE_URL } from "@/config/conteudo";
+import {
+  ArrowLeft,
+  Download,
+  ExternalLink,
+  Gift,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Menu,
+  RefreshCw,
+  ScanLine,
+  Search,
+  Users,
+  X,
+} from "lucide-react";
+import { ENDPOINT_PAINEL, INSCRICOES_ABERTAS, SITE_URL, proximoEncontro } from "@/config/conteudo";
+import { assetUrl } from "@/lib/asset-url";
+import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 
 /**
  * Painel de inscricoes — a lista de quem se inscreveu.
@@ -25,6 +41,8 @@ type Inscricao = {
   whatsapp_enviado_em: string | null;
   checkin_em: string | null;
 };
+
+type Aba = "visao" | "inscricoes";
 
 const CHAVE_SENHA = "mc-painel-senha";
 
@@ -139,6 +157,8 @@ function Painel() {
   const [autenticado, setAutenticado] = useState(false);
   const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
   const [busca, setBusca] = useState("");
+  const [aba, setAba] = useState<Aba>("visao");
+  const [menuAberto, setMenuAberto] = useState(false);
   // Sorteio do dia: quem ja ganhou nao volta para o globo ate fechar o painel.
   const [sorteioAberto, setSorteioAberto] = useState(false);
   const [apenasPresentes, setApenasPresentes] = useState(true);
@@ -318,33 +338,81 @@ function Painel() {
       )
     : inscricoes;
   const presentes = inscricoes.filter((i) => i.checkin_em).length;
+  const porEmail = inscricoes.filter((i) => i.email_enviado_em).length;
+  const porWhatsapp = inscricoes.filter((i) => i.whatsapp_enviado_em).length;
+  const semIngresso = inscricoes.filter(
+    (i) => !i.email_enviado_em && !i.whatsapp_enviado_em,
+  ).length;
+  const frequentam = inscricoes.filter((i) => i.frequenta_igreja).length;
+  const umaSemana = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const naSemana = inscricoes.filter((i) => new Date(i.criado_em).getTime() >= umaSemana).length;
+  const porcentagemPresentes = inscricoes.length
+    ? Math.round((presentes / inscricoes.length) * 100)
+    : 0;
+
+  const irPara = (destino: Aba) => {
+    setAba(destino);
+    setMenuAberto(false);
+    window.scrollTo({ top: 0 });
+  };
+
+  const itemMenu = (ativo: boolean) =>
+    `flex min-h-[44px] w-full items-center gap-3 rounded-xl px-4 text-left text-sm transition-colors ${
+      ativo
+        ? "bg-primary font-semibold text-primary-foreground"
+        : "text-foreground/75 hover:bg-accent hover:text-foreground"
+    }`;
+
+  const cartoes = [
+    {
+      titulo: "Inscritas",
+      valor: inscricoes.length,
+      detalhe: `${naSemana} nos últimos 7 dias`,
+    },
+    {
+      titulo: "Presença confirmada",
+      valor: presentes,
+      detalhe: `${porcentagemPresentes}% das inscritas fizeram check-in`,
+    },
+    {
+      titulo: "Ingressos enviados",
+      valor: inscricoes.length - semIngresso,
+      detalhe: `${porEmail} por e-mail · ${porWhatsapp} por WhatsApp`,
+    },
+    {
+      titulo: "Frequentam igreja",
+      valor: frequentam,
+      detalhe: `${inscricoes.length - frequentam} ainda não frequentam`,
+    },
+  ];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <header className="border-b border-primary/10">
-        <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-6 py-6 md:px-12">
-          <div>
-            <p translate="no" className="eyebrow text-primary/80">
-              Mulheres Curadas
-            </p>
-            <h1 translate="no" className="mt-1 text-display text-2xl text-primary">
-              Inscrições
-            </h1>
+    <div className="min-h-screen bg-muted text-foreground">
+      {/* Barra do topo: logo da marca em branco sobre o vinho escuro. */}
+      <header className="sticky top-0 z-40 bg-foreground text-primary-foreground">
+        <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
+          <div className="flex items-center gap-3">
+            <img
+              src={assetUrl(logoMonogram.url)}
+              alt=""
+              aria-hidden="true"
+              width={349}
+              height={522}
+              className="h-11 w-auto brightness-0 invert"
+            />
+            <div translate="no" className="leading-tight">
+              <p className="text-[0.65rem] uppercase tracking-[0.25em] opacity-80">
+                Painel administrativo
+              </p>
+              <p className="text-display text-xl">Mulheres Curadas</p>
+            </div>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            <button
-              type="button"
-              onClick={abrirSorteio}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-primary/20 px-5 text-xs uppercase tracking-[0.2em] text-primary transition-colors hover:border-primary/50"
-            >
-              <Gift aria-hidden="true" className="h-4 w-4" />
-              Sorteio
-            </button>
+          <div className="flex items-center gap-3">
             <button
               type="button"
               onClick={() => void carregar(senha)}
               disabled={carregando}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-primary/20 px-5 text-xs uppercase tracking-[0.2em] text-primary transition-colors hover:border-primary/50 disabled:opacity-60"
+              className="hidden min-h-[44px] items-center gap-2 rounded-xl border border-primary-foreground/30 px-4 text-sm font-medium transition-colors hover:border-primary-foreground disabled:opacity-60 sm:inline-flex"
             >
               <RefreshCw
                 aria-hidden="true"
@@ -354,167 +422,403 @@ function Painel() {
             </button>
             <button
               type="button"
-              onClick={() => baixarCsv(filtradas)}
-              className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-primary px-5 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-opacity hover:opacity-90"
+              onClick={sair}
+              className="hidden min-h-[44px] items-center gap-2 rounded-xl border border-primary-foreground/30 px-4 text-sm font-medium transition-colors hover:border-primary-foreground sm:inline-flex"
             >
-              <Download aria-hidden="true" className="h-4 w-4" />
-              Baixar planilha
+              <LogOut aria-hidden="true" className="h-4 w-4" />
+              Sair
             </button>
             <button
               type="button"
-              onClick={sair}
-              className="min-h-[44px] text-xs uppercase tracking-[0.2em] text-primary/70 transition-colors hover:text-primary"
+              onClick={() => setMenuAberto((aberto) => !aberto)}
+              aria-expanded={menuAberto}
+              aria-controls="menu-painel"
+              aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-primary-foreground/30 transition-colors hover:border-primary-foreground lg:hidden"
             >
-              Sair
+              {menuAberto ? (
+                <X aria-hidden="true" className="h-5 w-5" />
+              ) : (
+                <Menu aria-hidden="true" className="h-5 w-5" />
+              )}
             </button>
           </div>
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-10 md:px-12">
-        <div className="flex flex-wrap items-center gap-6">
-          <p className="text-sm text-foreground/70">
-            <strong className="text-primary">{inscricoes.length}</strong> inscritas ·{" "}
-            <strong className="text-primary">{presentes}</strong> com presença confirmada
-          </p>
-          <div className="relative ml-auto w-full max-w-xs">
-            <Search
-              aria-hidden="true"
-              className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/50"
-            />
-            <label htmlFor="busca" className="sr-only">
-              Buscar inscrição
-            </label>
-            <input
-              id="busca"
-              type="search"
-              value={busca}
-              onChange={(e) => setBusca(e.target.value)}
-              className={`${CAMPO} pl-12`}
-              placeholder="Buscar por nome, e-mail, código"
-            />
+      <div className="flex">
+        {/* Menu lateral: fixo no computador, gaveta no celular. */}
+        <nav
+          id="menu-painel"
+          aria-label="Seções do painel"
+          className={`${
+            menuAberto ? "block" : "hidden"
+          } fixed inset-x-0 top-[76px] bottom-0 z-30 overflow-y-auto border-r border-border bg-background p-4 lg:sticky lg:block lg:h-[calc(100vh-76px)] lg:w-64 lg:shrink-0`}
+        >
+          <ul className="space-y-1">
+            <li>
+              <button
+                type="button"
+                onClick={() => irPara("visao")}
+                className={itemMenu(aba === "visao")}
+              >
+                <LayoutDashboard aria-hidden="true" className="h-4 w-4" />
+                Visão geral
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => irPara("inscricoes")}
+                className={itemMenu(aba === "inscricoes")}
+              >
+                <Users aria-hidden="true" className="h-4 w-4" />
+                Inscrições
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuAberto(false);
+                  abrirSorteio();
+                }}
+                className={itemMenu(false)}
+              >
+                <Gift aria-hidden="true" className="h-4 w-4" />
+                Sorteio
+              </button>
+            </li>
+            <li>
+              <Link to="/checkin" search={{ c: "" }} className={itemMenu(false)}>
+                <ScanLine aria-hidden="true" className="h-4 w-4" />
+                Check-in na entrada
+              </Link>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => baixarCsv(inscricoes)}
+                className={itemMenu(false)}
+              >
+                <Download aria-hidden="true" className="h-4 w-4" />
+                Baixar planilha
+              </button>
+            </li>
+          </ul>
+          <div className="mt-6 space-y-1 border-t border-border pt-6">
+            <Link to="/" className={itemMenu(false)}>
+              <ExternalLink aria-hidden="true" className="h-4 w-4" />
+              Ver site público
+            </Link>
+            <button type="button" onClick={sair} className={`${itemMenu(false)} sm:hidden`}>
+              <LogOut aria-hidden="true" className="h-4 w-4" />
+              Sair
+            </button>
           </div>
-        </div>
+        </nav>
 
-        {erro && (
-          <p
-            role="alert"
-            className="mt-6 rounded-2xl bg-destructive/10 px-6 py-4 text-sm text-destructive"
-          >
-            {erro}
-          </p>
-        )}
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+          <div className="mx-auto max-w-6xl">
+            {erro && (
+              <p
+                role="alert"
+                className="mb-6 rounded-2xl bg-destructive/10 px-6 py-4 text-sm text-destructive"
+              >
+                {erro}
+              </p>
+            )}
 
-        {filtradas.length === 0 ? (
-          <p className="mt-12 text-center text-sm text-foreground/60">
-            {inscricoes.length === 0
-              ? "Nenhuma inscrição por enquanto."
-              : "Nenhuma inscrição encontrada para essa busca."}
-          </p>
-        ) : (
-          <div className="mt-8 overflow-x-auto rounded-3xl border border-primary/10">
-            <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
-              <thead>
-                <tr className="border-b border-primary/10 text-[0.65rem] uppercase tracking-[0.18em] text-primary/70">
-                  <th scope="col" className="px-5 py-4 font-normal">
-                    Inscrição
-                  </th>
-                  <th scope="col" className="px-5 py-4 font-normal">
-                    Nome
-                  </th>
-                  <th scope="col" className="px-5 py-4 font-normal">
-                    Contato
-                  </th>
-                  <th scope="col" className="px-5 py-4 font-normal">
-                    Igreja
-                  </th>
-                  <th scope="col" className="px-5 py-4 font-normal">
-                    Ingresso
-                  </th>
-                  <th scope="col" className="px-5 py-4 font-normal">
-                    Presença
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {filtradas.map((inscricao) => (
-                  <tr key={inscricao.id} className="border-b border-primary/5 last:border-0">
-                    <td className="px-5 py-4 align-top text-foreground/60">
-                      {formatarData(inscricao.criado_em)}
-                    </td>
-                    <td className="px-5 py-4 align-top">{inscricao.nome}</td>
-                    <td className="px-5 py-4 align-top text-foreground/70">
-                      <a
-                        href={`mailto:${inscricao.email}`}
-                        className="underline underline-offset-4 hover:text-primary"
-                      >
-                        {inscricao.email}
-                      </a>
-                      <br />
-                      <a
-                        href={`tel:${inscricao.telefone.replace(/\D/g, "")}`}
-                        className="hover:text-primary"
-                      >
-                        {inscricao.telefone}
-                      </a>
-                    </td>
-                    <td className="px-5 py-4 align-top text-foreground/70">
-                      {inscricao.frequenta_igreja ? (inscricao.igreja ?? "Sim") : "Não frequenta"}
-                    </td>
-                    <td className="px-5 py-4 align-top">
-                      <span className="tracking-[0.12em] text-primary">{inscricao.codigo}</span>
-                      <br />
-                      <span className="text-xs text-foreground/50">
-                        {inscricao.email_enviado_em ? "E-mail enviado" : "E-mail não enviado"}
-                        {" · "}
-                        {inscricao.whatsapp_enviado_em
-                          ? "WhatsApp enviado"
-                          : "WhatsApp não enviado"}
-                      </span>
-                      {/* Atalhos para mandar o ingresso na mao: abrem o
-                        WhatsApp e o programa de e-mail com tudo escrito. */}
-                      <span className="mt-2 flex gap-3 text-xs">
-                        <a
-                          href={linkWhatsapp(inscricao)}
-                          target="_blank"
-                          rel="noopener"
-                          className="text-primary underline underline-offset-4 hover:opacity-80"
-                        >
-                          WhatsApp
-                        </a>
-                        <a
-                          href={linkEmail(inscricao)}
-                          className="text-primary underline underline-offset-4 hover:opacity-80"
-                        >
-                          E-mail
-                        </a>
-                      </span>
-                    </td>
-                    <td className="px-5 py-4 align-top">
-                      <button
-                        type="button"
-                        onClick={() => void alternarPresenca(inscricao)}
-                        className={`min-h-[38px] rounded-full border px-4 text-xs uppercase tracking-[0.14em] transition-colors ${
-                          inscricao.checkin_em
-                            ? "border-primary bg-primary text-primary-foreground"
-                            : "border-primary/20 text-primary/70 hover:border-primary/50"
-                        }`}
-                      >
-                        {inscricao.checkin_em ? "Presente" : "Marcar presença"}
-                      </button>
-                      {inscricao.checkin_em && (
-                        <span className="mt-1 block text-xs text-foreground/50">
-                          {formatarData(inscricao.checkin_em)}
+            {aba === "visao" ? (
+              <>
+                <h1 translate="no" className="sr-only">
+                  Visão geral
+                </h1>
+                <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                  {cartoes.map((cartao) => (
+                    <div
+                      key={cartao.titulo}
+                      className="rounded-2xl border border-border bg-card p-6 shadow-sm"
+                    >
+                      <p className="text-sm text-foreground/70">{cartao.titulo}</p>
+                      <p className="mt-3 font-sans text-4xl font-bold text-primary">
+                        {cartao.valor}
+                      </p>
+                      <p className="mt-3 text-xs text-muted-foreground">{cartao.detalhe}</p>
+                    </div>
+                  ))}
+                </div>
+
+                <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h2 className="font-sans text-xl font-semibold text-foreground">Encontros</h2>
+                      <p className="mt-1 text-sm text-foreground/70">
+                        Data, situação no site e inscritas de cada encontro.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => irPara("inscricoes")}
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                    >
+                      <Users aria-hidden="true" className="h-4 w-4" />
+                      Ver inscritas
+                    </button>
+                  </div>
+
+                  <div className="mt-6 flex flex-wrap items-center gap-5 border-t border-border pt-6">
+                    <img
+                      src={assetUrl("/imagens/encontros-capa.jpg")}
+                      alt=""
+                      aria-hidden="true"
+                      className="h-20 w-32 shrink-0 rounded-xl object-cover"
+                    />
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-foreground">
+                        {proximoEncontro.nome || "Encontro Mulheres Curadas"}
+                      </p>
+                      <p className="mt-1 text-sm text-foreground/70">
+                        {proximoEncontro.data
+                          ? `${proximoEncontro.data}${proximoEncontro.horario ? ` · ${proximoEncontro.horario}` : ""}`
+                          : "Data a definir"}
+                      </p>
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium">
+                        <span className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
+                          No site
                         </span>
-                      )}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                        <span
+                          className={`rounded-full px-3 py-1 ${
+                            INSCRICOES_ABERTAS
+                              ? "bg-primary/10 text-primary"
+                              : "bg-muted text-muted-foreground"
+                          }`}
+                        >
+                          {INSCRICOES_ABERTAS ? "Inscrições abertas" : "Em breve inscrições"}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-3xl font-bold text-foreground">{inscricoes.length}</p>
+                      <p className="text-xs text-foreground/70">inscrita(s)</p>
+                    </div>
+                  </div>
+                </section>
+
+                <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+                  <div className="flex flex-wrap items-start justify-between gap-4">
+                    <div>
+                      <h2 className="font-sans text-xl font-semibold text-foreground">
+                        Últimas inscrições
+                      </h2>
+                      <p className="mt-1 text-sm text-foreground/70">
+                        Quem entrou mais recentemente.
+                      </p>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => irPara("inscricoes")}
+                      className="min-h-[44px] text-sm font-medium text-primary underline underline-offset-4 hover:opacity-80"
+                    >
+                      Ver todas
+                    </button>
+                  </div>
+                  {inscricoes.length === 0 ? (
+                    <p className="mt-6 border-t border-border pt-6 text-sm text-foreground/60">
+                      Nenhuma inscrição por enquanto.
+                    </p>
+                  ) : (
+                    <ul className="mt-6 divide-y divide-border border-t border-border">
+                      {inscricoes.slice(0, 5).map((inscricao) => (
+                        <li
+                          key={inscricao.id}
+                          className="flex flex-wrap items-center justify-between gap-3 py-4"
+                        >
+                          <div className="min-w-0">
+                            <p className="font-medium text-foreground">{inscricao.nome}</p>
+                            <p className="text-xs text-foreground/60">
+                              {formatarData(inscricao.criado_em)} · {inscricao.codigo}
+                            </p>
+                          </div>
+                          <span
+                            className={`rounded-full px-3 py-1 text-xs font-medium ${
+                              inscricao.checkin_em
+                                ? "bg-primary text-primary-foreground"
+                                : "bg-accent text-accent-foreground"
+                            }`}
+                          >
+                            {inscricao.checkin_em ? "Presente" : "Inscrita"}
+                          </span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </section>
+              </>
+            ) : (
+              <section className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+                <div className="flex flex-wrap items-start gap-4">
+                  <div>
+                    <h1 translate="no" className="font-sans text-xl font-semibold text-foreground">
+                      Inscrições
+                    </h1>
+                    <p className="mt-1 text-sm text-foreground/70">
+                      <strong className="text-primary">{inscricoes.length}</strong> inscritas ·{" "}
+                      <strong className="text-primary">{presentes}</strong> com presença confirmada
+                    </p>
+                  </div>
+                  <div className="ml-auto flex w-full flex-wrap gap-3 sm:w-auto">
+                    <div className="relative w-full sm:w-72">
+                      <Search
+                        aria-hidden="true"
+                        className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/50"
+                      />
+                      <label htmlFor="busca" className="sr-only">
+                        Buscar inscrição
+                      </label>
+                      <input
+                        id="busca"
+                        type="search"
+                        value={busca}
+                        onChange={(e) => setBusca(e.target.value)}
+                        className={`${CAMPO} pl-12`}
+                        placeholder="Buscar por nome, e-mail, código"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => baixarCsv(filtradas)}
+                      className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+                    >
+                      <Download aria-hidden="true" className="h-4 w-4" />
+                      Baixar planilha
+                    </button>
+                  </div>
+                </div>
+
+                {filtradas.length === 0 ? (
+                  <p className="mt-12 text-center text-sm text-foreground/60">
+                    {inscricoes.length === 0
+                      ? "Nenhuma inscrição por enquanto."
+                      : "Nenhuma inscrição encontrada para essa busca."}
+                  </p>
+                ) : (
+                  <div className="mt-8 overflow-x-auto rounded-3xl border border-primary/10">
+                    <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
+                      <thead>
+                        <tr className="border-b border-primary/10 text-[0.65rem] uppercase tracking-[0.18em] text-primary/70">
+                          <th scope="col" className="px-5 py-4 font-normal">
+                            Inscrição
+                          </th>
+                          <th scope="col" className="px-5 py-4 font-normal">
+                            Nome
+                          </th>
+                          <th scope="col" className="px-5 py-4 font-normal">
+                            Contato
+                          </th>
+                          <th scope="col" className="px-5 py-4 font-normal">
+                            Igreja
+                          </th>
+                          <th scope="col" className="px-5 py-4 font-normal">
+                            Ingresso
+                          </th>
+                          <th scope="col" className="px-5 py-4 font-normal">
+                            Presença
+                          </th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {filtradas.map((inscricao) => (
+                          <tr
+                            key={inscricao.id}
+                            className="border-b border-primary/5 last:border-0"
+                          >
+                            <td className="px-5 py-4 align-top text-foreground/60">
+                              {formatarData(inscricao.criado_em)}
+                            </td>
+                            <td className="px-5 py-4 align-top">{inscricao.nome}</td>
+                            <td className="px-5 py-4 align-top text-foreground/70">
+                              <a
+                                href={`mailto:${inscricao.email}`}
+                                className="underline underline-offset-4 hover:text-primary"
+                              >
+                                {inscricao.email}
+                              </a>
+                              <br />
+                              <a
+                                href={`tel:${inscricao.telefone.replace(/\D/g, "")}`}
+                                className="hover:text-primary"
+                              >
+                                {inscricao.telefone}
+                              </a>
+                            </td>
+                            <td className="px-5 py-4 align-top text-foreground/70">
+                              {inscricao.frequenta_igreja
+                                ? (inscricao.igreja ?? "Sim")
+                                : "Não frequenta"}
+                            </td>
+                            <td className="px-5 py-4 align-top">
+                              <span className="tracking-[0.12em] text-primary">
+                                {inscricao.codigo}
+                              </span>
+                              <br />
+                              <span className="text-xs text-foreground/50">
+                                {inscricao.email_enviado_em
+                                  ? "E-mail enviado"
+                                  : "E-mail não enviado"}
+                                {" · "}
+                                {inscricao.whatsapp_enviado_em
+                                  ? "WhatsApp enviado"
+                                  : "WhatsApp não enviado"}
+                              </span>
+                              {/* Atalhos para mandar o ingresso na mao: abrem o
+                                WhatsApp e o programa de e-mail com tudo escrito. */}
+                              <span className="mt-2 flex gap-3 text-xs">
+                                <a
+                                  href={linkWhatsapp(inscricao)}
+                                  target="_blank"
+                                  rel="noopener"
+                                  className="text-primary underline underline-offset-4 hover:opacity-80"
+                                >
+                                  WhatsApp
+                                </a>
+                                <a
+                                  href={linkEmail(inscricao)}
+                                  className="text-primary underline underline-offset-4 hover:opacity-80"
+                                >
+                                  E-mail
+                                </a>
+                              </span>
+                            </td>
+                            <td className="px-5 py-4 align-top">
+                              <button
+                                type="button"
+                                onClick={() => void alternarPresenca(inscricao)}
+                                className={`min-h-[38px] rounded-full border px-4 text-xs uppercase tracking-[0.14em] transition-colors ${
+                                  inscricao.checkin_em
+                                    ? "border-primary bg-primary text-primary-foreground"
+                                    : "border-primary/20 text-primary/70 hover:border-primary/50"
+                                }`}
+                              >
+                                {inscricao.checkin_em ? "Presente" : "Marcar presença"}
+                              </button>
+                              {inscricao.checkin_em && (
+                                <span className="mt-1 block text-xs text-foreground/50">
+                                  {formatarData(inscricao.checkin_em)}
+                                </span>
+                              )}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </section>
+            )}
           </div>
-        )}
-      </main>
+        </main>
+      </div>
 
       {/* Tela do sorteio: cobre tudo e mostra o nome grande, para projetar. */}
       {sorteioAberto && (
