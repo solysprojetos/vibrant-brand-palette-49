@@ -77,7 +77,7 @@ function validar(dados: {
   return erros;
 }
 
-type Estado = "parado" | "enviando" | "enviado" | "erro";
+type Estado = "parado" | "enviando" | "enviado" | "erro" | "esgotado";
 
 export function FormularioInscricao() {
   const id = useId();
@@ -167,6 +167,11 @@ export function FormularioInscricao() {
             origem: "site Mulheres Curadas",
           }),
         });
+        // 409: o banco recusou porque as vagas acabaram.
+        if (resposta.status === 409) {
+          setEstado("esgotado");
+          return;
+        }
         if (!resposta.ok) throw new Error(`Resposta ${resposta.status}`);
         const retorno = await resposta.json().catch(() => ({}));
         if (typeof retorno.codigo === "string") setCodigo(retorno.codigo);
@@ -474,6 +479,16 @@ export function FormularioInscricao() {
       <p role="status" aria-live="polite" className="sr-only">
         {ocupado ? "Enviando sua inscrição, aguarde." : ""}
       </p>
+
+      {estado === "esgotado" && (
+        <p
+          role="alert"
+          className="rounded-2xl bg-primary/10 px-6 py-4 text-sm leading-relaxed text-primary"
+        >
+          As vagas para este encontro esgotaram. Obrigada pelo carinho — fique de olho nas próximas
+          datas!
+        </p>
+      )}
 
       {estado === "erro" && (
         <p

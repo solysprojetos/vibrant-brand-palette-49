@@ -15,7 +15,13 @@ import {
   Users,
   X,
 } from "lucide-react";
-import { ENDPOINT_PAINEL, INSCRICOES_ABERTAS, SITE_URL, proximoEncontro } from "@/config/conteudo";
+import {
+  ENDPOINT_PAINEL,
+  INSCRICOES_ABERTAS,
+  LIMITE_INSCRICOES,
+  SITE_URL,
+  proximoEncontro,
+} from "@/config/conteudo";
 import { assetUrl } from "@/lib/asset-url";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 
@@ -367,7 +373,7 @@ function Painel() {
     {
       titulo: "Inscritas",
       valor: inscricoes.length,
-      detalhe: `${naSemana} nos últimos 7 dias`,
+      detalhe: `de ${LIMITE_INSCRICOES} vagas · ${Math.max(0, LIMITE_INSCRICOES - inscricoes.length)} restantes · ${naSemana} nos últimos 7 dias`,
     },
     {
       titulo: "Presença confirmada",
@@ -594,13 +600,17 @@ function Painel() {
                               : "bg-muted text-muted-foreground"
                           }`}
                         >
-                          {INSCRICOES_ABERTAS ? "Inscrições abertas" : "Em breve inscrições"}
+                          {!INSCRICOES_ABERTAS
+                            ? "Em breve inscrições"
+                            : inscricoes.length >= LIMITE_INSCRICOES
+                              ? "Vagas esgotadas"
+                              : "Inscrições abertas"}
                         </span>
                       </div>
                     </div>
                     <div className="text-right">
                       <p className="text-3xl font-bold text-foreground">{inscricoes.length}</p>
-                      <p className="text-xs text-foreground/70">inscrita(s)</p>
+                      <p className="text-xs text-foreground/70">de {LIMITE_INSCRICOES} vagas</p>
                     </div>
                   </div>
                 </section>

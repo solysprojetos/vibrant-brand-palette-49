@@ -196,6 +196,33 @@ Deno.serve(async (req) => {
 
   try {
     const dados = await req.json();
+
+    // Consulta de vagas: o site pergunta antes de mostrar o formulario, para
+    // avisar "vagas esgotadas" sem a visitante preencher tudo a toa.
+    if (dados.acao === "vagas") {
+      const supabase = createClient(
+        Deno.env.get("SUPABASE_URL")!,
+        Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!,
+      );
+      const [{ data: limite, error: erroLimite }, { count, error: erroContagem }] =
+        await Promise.all([
+          supabase.rpc("limite_inscricoes"),
+          supabase.from("inscricoes").select("id", { count: "exact", head: true }),
+        ]);
+      if (erroLimite) throw erroLimite;
+      if (erroContagem) throw erroContagem;
+      const inscritas = count ?? 0;
+      return new Response(
+        JSON.stringify({
+          ok: true,
+          limite,
+          inscritas,
+          restantes: Math.max(0, Number(limite) - inscritas),
+        }),
+        { headers: { ...CORS, "Content-Type": "application/json" } },
+      );
+    }
+
     const nome = String(dados.nome ?? "")
       .trim()
       .slice(0, 100);
@@ -253,6 +280,15 @@ Deno.serve(async (req) => {
         .select("id")
         .single();
 
+      // O banco recusa a inscricao alem do limite (veja a migracao
+      // limita_inscricoes). Quem ja estava inscrita nao passa por aqui: o
+      // ingresso dela e so reenviado, mesmo com as vagas esgotadas.
+      if (error?.message?.includes("LIMITE_DE_INSCRICOES")) {
+        return new Response(
+          JSON.stringify({ erro: "As vagas para este encontro esgotaram.", esgotado: true }),
+          { status: 409, headers: { ...CORS, "Content-Type": "application/json" } },
+        );
+      }
       if (error) throw error;
       id = data.id;
     }

@@ -6,7 +6,14 @@ import { ImagemResponsiva } from "@/components/imagem-responsiva";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
 import { PassosInscricao } from "@/components/passos-inscricao";
-import { INSCRICOES_ABERTAS, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
+import {
+  INSCRICOES_ABERTAS,
+  LIMITE_INSCRICOES,
+  SITE_URL,
+  contato,
+  proximoEncontro,
+} from "@/config/conteudo";
+import { textoDasVagas, useVagas } from "@/lib/vagas";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import flowers from "@/assets/flowers.asset.json";
@@ -138,6 +145,8 @@ function dadosEstruturados() {
 
 function Index() {
   const [menuAberto, setMenuAberto] = useState(false);
+  const vagas = useVagas();
+  const esgotado = vagas.restantes === 0;
 
   return (
     <div className="min-h-screen bg-background text-foreground">
@@ -193,7 +202,7 @@ function Index() {
             ))}
           </nav>
 
-          {INSCRICOES_ABERTAS && (
+          {INSCRICOES_ABERTAS && !esgotado && (
             <Link
               to="/inscricao"
               className="hidden rounded-full border border-primary/30 px-3 py-2 text-[0.6rem] whitespace-nowrap uppercase tracking-[0.12em] text-primary transition-all hover:bg-primary hover:text-primary-foreground lg:inline-block xl:px-5 xl:text-[0.68rem] xl:tracking-[0.18em]"
@@ -242,7 +251,7 @@ function Index() {
                   {texto}
                 </a>
               ))}
-              {INSCRICOES_ABERTAS && (
+              {INSCRICOES_ABERTAS && !esgotado && (
                 <Link
                   to="/inscricao"
                   onClick={() => setMenuAberto(false)}
@@ -433,7 +442,7 @@ function Index() {
             <div className="grid items-center gap-10 text-foreground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
               {/* Banner de divulgacao do proximo encontro. Com as inscricoes
                 abertas ele tambem leva ao formulario. */}
-              {INSCRICOES_ABERTAS ? (
+              {INSCRICOES_ABERTAS && !esgotado ? (
                 <Link
                   to="/inscricao"
                   aria-label="Fazer minha inscrição no encontro de 9 de novembro"
@@ -465,7 +474,7 @@ function Index() {
                   Venha florescer <br /> <span className="italic">com a gente.</span>
                 </h2>
                 <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                  {INSCRICOES_ABERTAS && (
+                  {INSCRICOES_ABERTAS && !esgotado && (
                     <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
                       <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
                       Inscrições abertas
@@ -474,17 +483,24 @@ function Index() {
                   <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
                     9 de novembro · 18h30
                   </p>
+                  {INSCRICOES_ABERTAS && (
+                    <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
+                      {textoDasVagas(vagas, LIMITE_INSCRICOES)}
+                    </p>
+                  )}
                 </div>
                 <p className="mt-6 text-lg leading-relaxed text-foreground/70">
-                  {INSCRICOES_ABERTAS
-                    ? "Garanta seu lugar no próximo encontro. É simples:"
-                    : "Em breve inscrições."}
+                  {!INSCRICOES_ABERTAS
+                    ? "Em breve inscrições."
+                    : esgotado
+                      ? "As vagas deste encontro esgotaram. Obrigada pelo carinho — fique de olho nas próximas datas!"
+                      : "Garanta seu lugar no próximo encontro. É simples:"}
                 </p>
 
                 {/* A inscricao vive na sua propria pagina (/inscricao), que tem
                   endereco curto para mandar no WhatsApp e no Instagram. Aqui
                   fica so o convite, para o formulario existir num lugar so. */}
-                {INSCRICOES_ABERTAS && (
+                {INSCRICOES_ABERTAS && !esgotado && (
                   <div id="inscricao" className="mt-8 scroll-mt-24">
                     <PassosInscricao empilhado />
                     <Link

@@ -3,7 +3,14 @@ import { ArrowLeft } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { FormularioInscricao } from "@/components/formulario-inscricao";
 import { PassosInscricao } from "@/components/passos-inscricao";
-import { INSCRICOES_ABERTAS, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
+import {
+  INSCRICOES_ABERTAS,
+  LIMITE_INSCRICOES,
+  SITE_URL,
+  contato,
+  proximoEncontro,
+} from "@/config/conteudo";
+import { textoDasVagas, useVagas } from "@/lib/vagas";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 
@@ -39,6 +46,9 @@ export const Route = createFileRoute("/inscricao")({
 });
 
 function Inscricao() {
+  const vagas = useVagas();
+  const esgotado = vagas.restantes === 0;
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-primary/10">
@@ -77,10 +87,17 @@ function Inscricao() {
       <main className="mx-auto max-w-6xl px-6 py-14 md:px-12 md:py-20">
         <div className="text-center lg:text-left">
           {INSCRICOES_ABERTAS && (
-            <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
-              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
-              Inscrições abertas
-            </p>
+            <div className="flex flex-wrap justify-center gap-3 lg:justify-start">
+              {!esgotado && (
+                <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
+                  Inscrições abertas
+                </p>
+              )}
+              <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
+                {textoDasVagas(vagas, LIMITE_INSCRICOES)}
+              </p>
+            </div>
           )}
           <h1 className="mt-6 text-display text-4xl leading-tight text-primary md:text-5xl">
             Reserve seu <span className="italic">lugar.</span>
@@ -115,7 +132,15 @@ function Inscricao() {
           </aside>
 
           <div className="order-1 rounded-[2rem] border border-primary/10 bg-card p-6 shadow-sm md:p-10 lg:order-2">
-            {INSCRICOES_ABERTAS ? (
+            {INSCRICOES_ABERTAS && esgotado ? (
+              <div className="text-center">
+                <p className="eyebrow text-primary/80">Vagas esgotadas</p>
+                <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-foreground/70">
+                  As {vagas.limite ?? LIMITE_INSCRICOES} vagas deste encontro já foram preenchidas.
+                  Obrigada pelo carinho — fique de olho nas próximas datas!
+                </p>
+              </div>
+            ) : INSCRICOES_ABERTAS ? (
               <>
                 <h2 className="text-display text-3xl text-primary">Seus dados</h2>
                 <p className="mt-2 text-sm text-foreground/70">

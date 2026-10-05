@@ -22,6 +22,13 @@ export const EM_BREVE = "Informações em breve";
  */
 export const INSCRICOES_ABERTAS = true;
 
+/**
+ * Limite de inscricoes do encontro. Quem trava de verdade e o banco (migracao
+ * limita_inscricoes, em supabase/migrations); este numero serve so para
+ * exibir no site e no painel. Ao mudar um, mude o outro.
+ */
+export const LIMITE_INSCRICOES = 300;
+
 export type ProximoEncontro = {
   /** Nome do encontro. Ex.: "Encontro Mulheres Curadas — 3a edicao" */
   nome: string;
@@ -58,7 +65,7 @@ export const proximoEncontro: ProximoEncontro = {
   investimento: "",
   palavraCom: "",
   programacao: [],
-  vagas: "",
+  vagas: "300 vagas",
   dataISO: "2026-11-09T18:30:00-03:00",
 };
 
