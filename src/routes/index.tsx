@@ -5,7 +5,6 @@ import { assetUrl } from "@/lib/asset-url";
 import { ImagemResponsiva } from "@/components/imagem-responsiva";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
-import { PassosInscricao } from "@/components/passos-inscricao";
 import { AvisoDoacao } from "@/components/aviso-doacao";
 import {
   INSCRICOES_ABERTAS,
@@ -438,16 +437,16 @@ function Index() {
         <Depoimentos />
 
         {/* Encontros / CTA */}
-        <section id="encontros" className="scroll-mt-24 py-28 md:py-36">
+        <section id="encontros" className="scroll-mt-24 py-16 md:py-24">
           <div className="mx-auto max-w-6xl px-4 md:px-6">
-            <div className="grid items-center gap-10 text-foreground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
+            <div className="grid items-center gap-8 text-foreground lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
               {/* Banner de divulgacao do proximo encontro. Com as inscricoes
                 abertas ele tambem leva ao formulario. */}
               {INSCRICOES_ABERTAS && !esgotado ? (
                 <Link
                   to="/inscricao"
                   aria-label="Fazer minha inscrição no encontro de 9 de novembro"
-                  className="mx-auto block w-full max-w-md overflow-hidden rounded-3xl shadow-2xl ring-1 ring-primary/10 transition-transform duration-500 hover:scale-[1.02]"
+                  className="mx-auto block w-full max-w-sm overflow-hidden rounded-2xl ring-1 ring-primary/10"
                 >
                   <img
                     src={assetUrl("/imagens/banner-encontro-9-nov.jpg")}
@@ -465,53 +464,46 @@ function Index() {
                   width={1280}
                   height={1600}
                   loading="lazy"
-                  className="mx-auto h-auto w-full max-w-md rounded-3xl shadow-2xl ring-1 ring-primary/10"
+                  className="mx-auto h-auto w-full max-w-sm rounded-2xl ring-1 ring-primary/10"
                 />
               )}
 
               <div className="text-center lg:text-left">
                 <p className="eyebrow text-primary/80">Evento</p>
-                <h2 className="mt-5 text-display text-4xl leading-tight text-primary md:text-6xl">
-                  Venha florescer <br /> <span className="italic">com a gente.</span>
+                <h2 className="mt-4 text-display text-4xl leading-tight text-primary md:text-5xl">
+                  Venha florescer <span className="italic">com a gente.</span>
                 </h2>
-                <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
-                  {INSCRICOES_ABERTAS && !esgotado && (
-                    <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
-                      <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
-                      Inscrições abertas
-                    </p>
-                  )}
-                  <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
-                    9 de novembro · 18h30
-                  </p>
+                <p className="mt-4 text-base leading-relaxed text-foreground/80">
+                  9 de novembro, às 18h30.
                   {INSCRICOES_ABERTAS && (
-                    <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
-                      {textoDasVagas(vagas, LIMITE_INSCRICOES)}
-                    </p>
+                    <>
+                      {" "}
+                      {esgotado
+                        ? "Vagas esgotadas."
+                        : `${textoDasVagas(vagas, LIMITE_INSCRICOES)}.`}
+                    </>
                   )}
-                </div>
-                <p className="mt-6 text-lg leading-relaxed text-foreground/70">
+                </p>
+                <p className="mt-2 text-base leading-relaxed text-foreground/80">
                   {!INSCRICOES_ABERTAS
                     ? "Em breve inscrições."
                     : esgotado
-                      ? "As vagas deste encontro esgotaram. Obrigada pelo carinho — fique de olho nas próximas datas!"
-                      : "Garanta seu lugar no próximo encontro. É simples:"}
+                      ? "As vagas deste encontro esgotaram. Obrigada pelo carinho — fique de olho nas próximas datas."
+                      : "Faça sua inscrição e receba o ingresso com QR code na hora, na tela e no seu e-mail. No dia, é só apresentar o QR code na entrada."}
                 </p>
 
                 {/* A inscricao vive na sua propria pagina (/inscricao), que tem
                   endereco curto para mandar no WhatsApp e no Instagram. Aqui
                   fica so o convite, para o formulario existir num lugar so. */}
                 {INSCRICOES_ABERTAS && !esgotado && (
-                  <div id="inscricao" className="mt-8 scroll-mt-24">
-                    <PassosInscricao empilhado />
-                    <AvisoDoacao className="mt-8" />
+                  <div id="inscricao" className="mt-5 scroll-mt-24">
+                    <AvisoDoacao />
                     <Link
                       to="/inscricao"
-                      className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-8 py-4 text-[0.68rem] uppercase tracking-[0.16em] text-primary-foreground transition-all hover:opacity-90 sm:px-12 sm:text-xs sm:tracking-[0.3em]"
+                      className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-8 py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-all hover:opacity-90"
                     >
                       Fazer minha inscrição
                     </Link>
-                    <p className="mt-4 text-sm text-foreground/60">Leva menos de um minuto.</p>
                   </div>
                 )}
               </div>

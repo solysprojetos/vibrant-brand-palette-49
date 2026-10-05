@@ -40,7 +40,7 @@ export function PassosInscricao({
           }`}
         >
           <p className={`eyebrow text-[0.6rem] text-primary/70`}>Passo {i + 1}</p>
-          <p className={`mt-1 text-display text-xl text-primary`}>{titulo}</p>
+          <p className="mt-1 text-base font-semibold text-primary">{titulo}</p>
           <p className={`mt-1 text-sm leading-relaxed text-foreground/70`}>{texto}</p>
         </li>
       ))}

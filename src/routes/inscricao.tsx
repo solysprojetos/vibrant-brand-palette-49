@@ -85,45 +85,23 @@ function Inscricao() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-14 md:px-12 md:py-20">
+      <main className="mx-auto max-w-6xl px-6 py-10 md:px-12 md:py-16">
         <div className="text-center lg:text-left">
-          {INSCRICOES_ABERTAS && (
-            <div className="flex flex-wrap justify-center gap-3 lg:justify-start">
-              {!esgotado && (
-                <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
-                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
-                  Inscrições abertas
-                </p>
-              )}
-              <p className="inline-flex items-center rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
-                {textoDasVagas(vagas, LIMITE_INSCRICOES)}
-              </p>
-            </div>
-          )}
-          <h1 className="mt-6 text-display text-4xl leading-tight text-primary md:text-5xl">
+          <h1 className="text-display text-4xl leading-tight text-primary md:text-5xl">
             Reserve seu <span className="italic">lugar.</span>
           </h1>
+          <p className="mt-3 text-base leading-relaxed text-foreground/80">
+            {proximoEncontro.data ? `${proximoEncontro.data}, ${proximoEncontro.horario}.` : ""}
+            {INSCRICOES_ABERTAS && (
+              <> {esgotado ? "Vagas esgotadas." : `${textoDasVagas(vagas, LIMITE_INSCRICOES)}.`}</>
+            )}
+          </p>
         </div>
 
-        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
           {/* Coluna do resumo: o encontro (quando houver dados) e o passo a
             passo. No celular vem antes do formulario. */}
           <aside className="order-2 space-y-6 lg:order-1">
-            {/* So aparece quando a data estiver cadastrada em src/config/conteudo.ts. */}
-            {proximoEncontro.data && (
-              <div className="rounded-2xl bg-primary p-6 text-primary-foreground">
-                <p className="eyebrow text-[0.6rem] opacity-70">Próximo encontro</p>
-                <p className="mt-2 text-display text-2xl italic leading-snug">
-                  {proximoEncontro.data}
-                </p>
-                {proximoEncontro.horario && (
-                  <p className="mt-1 text-sm opacity-80">{proximoEncontro.horario}</p>
-                )}
-                {proximoEncontro.local && (
-                  <p className="mt-1 text-sm opacity-80">{proximoEncontro.local}</p>
-                )}
-              </div>
-            )}
             <div>
               <h2 className="eyebrow text-primary/80">Como funciona</h2>
               <div className="mt-4">
