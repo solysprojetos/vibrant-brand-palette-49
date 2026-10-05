@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as CheckinRouteImport } from './routes/checkin'
+import { Route as EventosRouteImport } from './routes/eventos'
 import { Route as InscricaoRouteImport } from './routes/inscricao'
 import { Route as PainelRouteImport } from './routes/painel'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
@@ -23,6 +24,11 @@ const IndexRoute = IndexRouteImport.update({
 const CheckinRoute = CheckinRouteImport.update({
   id: '/checkin',
   path: '/checkin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const EventosRoute = EventosRouteImport.update({
+  id: '/eventos',
+  path: '/eventos',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InscricaoRoute = InscricaoRouteImport.update({
@@ -44,6 +50,7 @@ const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
+  '/eventos': typeof EventosRoute
   '/inscricao': typeof InscricaoRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
@@ -51,6 +58,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
+  '/eventos': typeof EventosRoute
   '/inscricao': typeof InscricaoRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
@@ -59,6 +67,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
+  '/eventos': typeof EventosRoute
   '/inscricao': typeof InscricaoRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
@@ -66,13 +75,25 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
-    '/' | '/checkin' | '/inscricao' | '/painel' | '/politica-de-privacidade'
+    | '/'
+    | '/checkin'
+    | '/eventos'
+    | '/inscricao'
+    | '/painel'
+    | '/politica-de-privacidade'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/checkin' | '/inscricao' | '/painel' | '/politica-de-privacidade'
+  to:
+    | '/'
+    | '/checkin'
+    | '/eventos'
+    | '/inscricao'
+    | '/painel'
+    | '/politica-de-privacidade'
   id:
     | '__root__'
     | '/'
     | '/checkin'
+    | '/eventos'
     | '/inscricao'
     | '/painel'
     | '/politica-de-privacidade'
@@ -81,6 +102,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   CheckinRoute: typeof CheckinRoute
+  EventosRoute: typeof EventosRoute
   InscricaoRoute: typeof InscricaoRoute
   PainelRoute: typeof PainelRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
@@ -100,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/checkin'
       fullPath: '/checkin'
       preLoaderRoute: typeof CheckinRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/eventos': {
+      id: '/eventos'
+      path: '/eventos'
+      fullPath: '/eventos'
+      preLoaderRoute: typeof EventosRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inscricao': {
@@ -129,6 +158,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   CheckinRoute: CheckinRoute,
+  EventosRoute: EventosRoute,
   InscricaoRoute: InscricaoRoute,
   PainelRoute: PainelRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
