@@ -235,8 +235,9 @@ export function FormularioInscricao() {
                 />
                 <p className="mt-3 text-base tracking-[0.18em] text-primary">{codigo}</p>
                 <p className="mt-2 text-sm leading-relaxed text-foreground/60">
-                  Tire um print desta tela ou salve a imagem. Também enviamos tudo para o seu e-mail
-                  — se não encontrar, basta apresentar este código na entrada.
+                  Salve esta tela ou tire um print. O ingresso também foi enviado para o seu e-mail:
+                  se não estiver na caixa de entrada, confira as pastas <strong>Spam</strong> e{" "}
+                  <strong>Promoções</strong>.
                 </p>
 
                 {proximoEncontro.data && (
