@@ -20,7 +20,7 @@ export const EM_BREVE = "Informações em breve";
  * escondidos, e no lugar deles aparece um aviso de "em breve". Basta trocar
  * para true quando as inscricoes forem liberadas — nada mais precisa mudar.
  */
-export const INSCRICOES_ABERTAS = false;
+export const INSCRICOES_ABERTAS = true;
 
 export type ProximoEncontro = {
   /** Nome do encontro. Ex.: "Encontro Mulheres Curadas — 3a edicao" */

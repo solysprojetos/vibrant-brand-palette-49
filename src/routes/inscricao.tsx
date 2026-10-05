@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { FormularioInscricao } from "@/components/formulario-inscricao";
+import { PassosInscricao } from "@/components/passos-inscricao";
 import { INSCRICOES_ABERTAS, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
@@ -41,7 +42,7 @@ function Inscricao() {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-primary/10">
-        <div className="mx-auto flex max-w-3xl items-center justify-between px-6 py-6 md:px-12">
+        <div className="mx-auto flex max-w-6xl items-center justify-between px-6 py-6 md:px-12">
           <Link
             to="/"
             className="flex items-center gap-3"
@@ -73,38 +74,65 @@ function Inscricao() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-2xl px-6 py-14 md:px-12 md:py-20">
-        <div className="text-center">
-          <p className="eyebrow text-primary/80">Inscrição</p>
-          <h1 className="mt-4 text-display text-4xl leading-tight text-primary md:text-5xl">
+      <main className="mx-auto max-w-6xl px-6 py-14 md:px-12 md:py-20">
+        <div className="text-center lg:text-left">
+          {INSCRICOES_ABERTAS && (
+            <p className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-4 py-2 text-xs uppercase tracking-[0.2em] text-primary">
+              <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary" />
+              Inscrições abertas
+            </p>
+          )}
+          <h1 className="mt-6 text-display text-4xl leading-tight text-primary md:text-5xl">
             Reserve seu <span className="italic">lugar.</span>
           </h1>
-          {/* So aparece quando a data estiver cadastrada em src/config/conteudo.ts. */}
-          {proximoEncontro.data && (
-            <div className="mt-8 inline-flex flex-col items-center gap-1">
-              <span className="eyebrow text-primary/70">Próximo encontro</span>
-              <span className="text-display text-2xl leading-snug text-primary italic md:text-3xl">
-                {proximoEncontro.data}
-              </span>
-              {proximoEncontro.local && (
-                <span className="text-sm text-primary/80">{proximoEncontro.local}</span>
-              )}
-            </div>
-          )}
         </div>
 
-        <div className="mt-10 rounded-[2rem] border border-primary/10 bg-primary-foreground/60 p-6 shadow-sm md:p-10">
-          {INSCRICOES_ABERTAS ? (
-            <FormularioInscricao />
-          ) : (
-            <div className="text-center">
-              <p className="eyebrow text-primary/80">Inscrições em breve</p>
-              <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-foreground/70">
-                As inscrições para o próximo encontro ainda não estão abertas. Assim que forem
-                liberadas, o formulário aparece aqui.
-              </p>
+        <div className="mt-10 grid gap-10 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
+          {/* Coluna do resumo: o encontro (quando houver dados) e o passo a
+            passo. No celular vem antes do formulario. */}
+          <aside className="order-2 space-y-6 lg:order-1">
+            {/* So aparece quando a data estiver cadastrada em src/config/conteudo.ts. */}
+            {proximoEncontro.data && (
+              <div className="rounded-2xl bg-primary p-6 text-primary-foreground">
+                <p className="eyebrow text-[0.6rem] opacity-70">Próximo encontro</p>
+                <p className="mt-2 text-display text-2xl italic leading-snug">
+                  {proximoEncontro.data}
+                </p>
+                {proximoEncontro.horario && (
+                  <p className="mt-1 text-sm opacity-80">{proximoEncontro.horario}</p>
+                )}
+                {proximoEncontro.local && (
+                  <p className="mt-1 text-sm opacity-80">{proximoEncontro.local}</p>
+                )}
+              </div>
+            )}
+            <div>
+              <h2 className="eyebrow text-primary/80">Como funciona</h2>
+              <div className="mt-4">
+                <PassosInscricao claro />
+              </div>
             </div>
-          )}
+          </aside>
+
+          <div className="order-1 rounded-[2rem] border border-primary/10 bg-card p-6 shadow-sm md:p-10 lg:order-2">
+            {INSCRICOES_ABERTAS ? (
+              <>
+                <h2 className="text-display text-3xl text-primary">Seus dados</h2>
+                <p className="mt-2 text-sm text-foreground/70">
+                  Preencha abaixo para receber seu ingresso.
+                </p>
+                <FormularioInscricao />
+              </>
+            ) : (
+              <div className="text-center">
+                <p className="eyebrow text-primary/80">Inscrições em breve</p>
+                <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-foreground/70">
+                  As inscrições para o próximo encontro ainda não estão abertas. Assim que forem
+                  liberadas, o formulário aparece aqui.
+                </p>
+              </div>
+            )}
+          </div>
         </div>
 
         <p className="mt-10 text-center text-sm leading-relaxed text-foreground/60">

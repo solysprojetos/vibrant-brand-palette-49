@@ -5,6 +5,7 @@ import { assetUrl } from "@/lib/asset-url";
 import { ImagemResponsiva } from "@/components/imagem-responsiva";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
+import { PassosInscricao } from "@/components/passos-inscricao";
 import { INSCRICOES_ABERTAS, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
@@ -434,8 +435,16 @@ function Index() {
               <h2 className="mt-6 text-display text-5xl leading-tight md:text-7xl">
                 Venha florescer <br /> <span className="italic">com a gente.</span>
               </h2>
-              <p className="mx-auto mt-8 max-w-xl text-lg leading-relaxed opacity-80">
-                Em breve nosso encontro.
+              {INSCRICOES_ABERTAS && (
+                <p className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-4 py-2 text-xs uppercase tracking-[0.2em]">
+                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary-foreground" />
+                  Inscrições abertas
+                </p>
+              )}
+              <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed opacity-80">
+                {INSCRICOES_ABERTAS
+                  ? "Garanta seu lugar no próximo encontro. É simples:"
+                  : "Em breve nosso encontro."}
               </p>
             </div>
 
@@ -446,9 +455,10 @@ function Index() {
             <div id="inscricao" className="mt-14 scroll-mt-24 text-center">
               {INSCRICOES_ABERTAS ? (
                 <>
+                  <PassosInscricao />
                   <Link
                     to="/inscricao"
-                    className="inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary-foreground px-8 py-4 text-[0.68rem] sm:px-12 sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.3em] text-primary transition-all hover:opacity-90"
+                    className="mt-12 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary-foreground px-8 py-4 text-[0.68rem] sm:px-12 sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.3em] text-primary transition-all hover:opacity-90"
                   >
                     Fazer minha inscrição
                   </Link>
