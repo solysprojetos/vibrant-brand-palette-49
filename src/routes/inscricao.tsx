@@ -2,8 +2,6 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { FormularioInscricao } from "@/components/formulario-inscricao";
-import { PassosInscricao } from "@/components/passos-inscricao";
-import { AvisoDoacao } from "@/components/aviso-doacao";
 import {
   INSCRICOES_ABERTAS,
   LIMITE_INSCRICOES,
@@ -85,12 +83,12 @@ function Inscricao() {
         </div>
       </header>
 
-      <main className="mx-auto max-w-6xl px-6 py-10 md:px-12 md:py-16">
-        <div className="text-center lg:text-left">
+      <main className="mx-auto max-w-2xl px-6 py-10 md:px-12 md:py-16">
+        <div className="text-center">
           <h1 className="text-display text-4xl leading-tight text-primary md:text-5xl">
             Reserve seu <span className="italic">lugar.</span>
           </h1>
-          <dl className="mx-auto mt-4 grid max-w-sm grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-left text-base leading-relaxed text-foreground/80 lg:mx-0 lg:max-w-none">
+          <dl className="mx-auto mt-4 grid max-w-sm grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-left text-base leading-relaxed text-foreground/80">
             {proximoEncontro.data && (
               <>
                 <dt className="font-semibold text-primary">Data</dt>
@@ -122,20 +120,10 @@ function Inscricao() {
           </dl>
         </div>
 
-        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,5fr)_minmax(0,7fr)] lg:items-start">
-          {/* Coluna do resumo: o encontro (quando houver dados) e o passo a
-            passo. No celular vem antes do formulario. */}
-          <aside className="order-2 space-y-6 lg:order-1">
-            <div>
-              <h2 className="eyebrow text-primary/80">Como funciona</h2>
-              <div className="mt-4">
-                <PassosInscricao claro />
-              </div>
-              <AvisoDoacao className="mt-4" />
-            </div>
-          </aside>
-
-          <div className="order-1 rounded-[2rem] border border-primary/10 bg-card p-6 shadow-sm md:p-10 lg:order-2">
+        {/* O passo a passo e o aviso do alimento ficam so na pagina inicial:
+          quem chega aqui ja leu. */}
+        <div className="mx-auto mt-8 max-w-2xl">
+          <div className="rounded-[2rem] border border-primary/10 bg-card p-6 shadow-sm md:p-10">
             {INSCRICOES_ABERTAS && esgotado ? (
               <div className="text-center">
                 <p className="eyebrow text-primary/80">Vagas esgotadas</p>
