@@ -1,7 +1,7 @@
 import { useId, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, MailOpen } from "lucide-react";
-import { ENDPOINT_INSCRICAO, SITE_URL, contato } from "@/config/conteudo";
+import { ENDPOINT_INSCRICAO, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
 import { AvisoDoacao } from "@/components/aviso-doacao";
 
 /**
@@ -240,6 +240,15 @@ export function FormularioInscricao() {
                   — se não encontrar, basta apresentar este código na entrada.
                 </p>
                 <AvisoDoacao className="mt-6" />
+                {proximoEncontro.data && (
+                  <p className="mt-4 text-sm leading-relaxed text-foreground/70">
+                    {proximoEncontro.data}, {proximoEncontro.horario}
+                    <br />
+                    {proximoEncontro.local}
+                    <br />
+                    {proximoEncontro.endereco}
+                  </p>
+                )}
               </>
             )}
           </>

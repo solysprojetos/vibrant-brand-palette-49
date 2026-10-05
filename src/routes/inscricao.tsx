@@ -92,6 +92,7 @@ function Inscricao() {
           </h1>
           <p className="mt-3 text-base leading-relaxed text-foreground/80">
             {proximoEncontro.data ? `${proximoEncontro.data}, ${proximoEncontro.horario}.` : ""}
+            {proximoEncontro.local && ` ${proximoEncontro.local} — ${proximoEncontro.endereco}.`}
             {INSCRICOES_ABERTAS && (
               <> {esgotado ? "Vagas esgotadas." : `${textoDasVagas(vagas, LIMITE_INSCRICOES)}.`}</>
             )}

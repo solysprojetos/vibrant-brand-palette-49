@@ -66,8 +66,8 @@ function corpoDoEmail(nome: string, codigo: string): string {
     Deno.env.get("ENCONTRO_NOME"),
     Deno.env.get("ENCONTRO_DATA") ?? "9 de novembro de 2026, segunda-feira",
     Deno.env.get("ENCONTRO_HORARIO") ?? "às 18h30",
-    Deno.env.get("ENCONTRO_LOCAL"),
-    Deno.env.get("ENCONTRO_ENDERECO"),
+    Deno.env.get("ENCONTRO_LOCAL") ?? "CC Visão Profética",
+    Deno.env.get("ENCONTRO_ENDERECO") ?? "Av. dos Marinheiros, 319 - Cidade Nova, Maracanaú - CE",
   ].filter((linha): linha is string => Boolean(linha && linha.trim()));
 
   return `<!doctype html>

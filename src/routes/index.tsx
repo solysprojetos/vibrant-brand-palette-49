@@ -476,7 +476,7 @@ function Index() {
                   <span className="italic">com a gente.</span>
                 </h2>
                 <p className="mt-4 text-balance text-base leading-relaxed text-foreground/80">
-                  9 de novembro, às 18h30.
+                  9 de novembro, às 18h30, na {proximoEncontro.local}.
                   {INSCRICOES_ABERTAS && (
                     <>
                       {" "}
@@ -485,6 +485,9 @@ function Index() {
                         : `${textoDasVagas(vagas, LIMITE_INSCRICOES)}.`}
                     </>
                   )}
+                </p>
+                <p className="mt-1 text-balance text-base leading-relaxed text-foreground/80">
+                  {proximoEncontro.endereco}
                 </p>
                 <p className="mt-2 text-balance text-base leading-relaxed text-foreground/80">
                   {!INSCRICOES_ABERTAS
