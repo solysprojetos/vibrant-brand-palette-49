@@ -32,6 +32,7 @@
   --color-rose-deep: var(--rose-deep);
   --color-clay: var(--clay);
   --color-cream: var(--cream);
+  --color-wine: var(--wine);
   --font-display: "Cormorant Garamond", serif;
   --font-sans: "Nunito Sans", sans-serif;
 }
@@ -39,14 +40,15 @@
 :root {
   --radius: 0.5rem;
 
-  /* Brand palette from Mulheres Curadas identity */
-  --cream: oklch(0.985 0.006 60); /* #FBF7F2 */
-  --rose-soft: oklch(0.88 0.055 5); /* soft blush pink #F4CFD8 */
-  --rose-deep: oklch(0.78 0.09 5); /* deeper rose */
-  --clay: oklch(0.42 0.09 30); /* burgundy/clay from MC monogram */
+  /* Paleta da marca Mulheres Curadas */
+  --cream: #fbf7f2; /* fundo neutro */
+  --rose-soft: #d08577; /* rose terroso */
+  --rose-deep: #ca6373; /* rose */
+  --clay: #b41a40; /* vinho/framboesa: cor principal */
+  --wine: #a83d3d; /* vermelho tijolo */
 
   --background: var(--cream);
-  --foreground: oklch(0.28 0.03 20);
+  --foreground: color-mix(in oklch, var(--wine) 55%, black);
   --card: oklch(1 0 0);
   --card-foreground: var(--foreground);
   --popover: oklch(1 0 0);
@@ -54,15 +56,15 @@
   --primary: var(--clay);
   --primary-foreground: var(--cream);
   --secondary: var(--rose-soft);
-  --secondary-foreground: var(--clay);
-  --muted: oklch(0.95 0.012 40);
-  --muted-foreground: oklch(0.5 0.02 25);
-  --accent: var(--rose-soft);
-  --accent-foreground: var(--clay);
+  --secondary-foreground: var(--cream);
+  --muted: color-mix(in oklch, var(--rose-soft) 12%, var(--cream));
+  --muted-foreground: var(--wine);
+  --accent: color-mix(in oklch, var(--rose-soft) 25%, var(--cream));
+  --accent-foreground: var(--wine);
   --destructive: oklch(0.55 0.22 27);
   --destructive-foreground: oklch(0.99 0 0);
-  --border: oklch(0.9 0.02 30);
-  --input: oklch(0.9 0.02 30);
+  --border: color-mix(in oklch, var(--rose-soft) 30%, var(--cream));
+  --input: color-mix(in oklch, var(--rose-soft) 30%, var(--cream));
   --ring: var(--rose-deep);
 }
 
