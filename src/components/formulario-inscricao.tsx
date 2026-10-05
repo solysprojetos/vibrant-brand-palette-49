@@ -1,8 +1,7 @@
 import { useId, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, MailOpen } from "lucide-react";
-import { ENDPOINT_INSCRICAO, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
-import { AvisoDoacao } from "@/components/aviso-doacao";
+import { DOACAO, ENDPOINT_INSCRICAO, SITE_URL, contato, proximoEncontro } from "@/config/conteudo";
 
 /**
  * Formulario de inscricao.
@@ -230,25 +229,34 @@ export function FormularioInscricao() {
                     `${SITE_URL}/checkin/?c=${codigo}`,
                   )}`}
                   alt={`QR code do seu ingresso: ${codigo}`}
-                  width={220}
-                  height={220}
-                  className="mx-auto mt-6 rounded-2xl border border-primary/10"
+                  width={160}
+                  height={160}
+                  className="mx-auto mt-6 rounded-xl border border-primary/10"
                 />
-                <p className="mt-3 text-lg tracking-[0.18em] text-primary">{codigo}</p>
+                <p className="mt-3 text-base tracking-[0.18em] text-primary">{codigo}</p>
                 <p className="mt-2 text-sm leading-relaxed text-foreground/60">
                   Tire um print desta tela ou salve a imagem. Também enviamos tudo para o seu e-mail
                   — se não encontrar, basta apresentar este código na entrada.
                 </p>
-                <AvisoDoacao className="mt-6" />
+
                 {proximoEncontro.data && (
-                  <p className="mt-4 text-sm leading-relaxed text-foreground/70">
-                    {proximoEncontro.data}, {proximoEncontro.horario}
-                    <br />
-                    {proximoEncontro.local}
-                    <br />
-                    {proximoEncontro.endereco}
-                  </p>
+                  <div className="mx-auto mt-6 max-w-sm space-y-1 border-t border-primary/10 pt-5 text-left text-[15px] leading-relaxed text-foreground/85">
+                    <p>
+                      <strong className="font-semibold text-foreground">Data:</strong>{" "}
+                      {proximoEncontro.data}, {proximoEncontro.horario}
+                    </p>
+                    <p>
+                      <strong className="font-semibold text-foreground">Local:</strong>{" "}
+                      {proximoEncontro.local}
+                    </p>
+                    <p>
+                      <strong className="font-semibold text-foreground">Endereço:</strong>{" "}
+                      {proximoEncontro.endereco}
+                    </p>
+                  </div>
                 )}
+
+                <p className="mt-6 text-display text-2xl text-primary md:text-3xl">{DOACAO}</p>
               </>
             )}
           </>

@@ -62,39 +62,38 @@ function corpoDoEmail(nome: string, codigo: string): string {
   const doacao = Deno.env.get("ENCONTRO_DOACAO") ?? "Leve 2 kg de alimento";
   // Data e horario confirmados pela organizacao; os segredos ENCONTRO_*
   // continuam podendo sobrescrever qualquer linha sem mexer no codigo.
-  const encontro = [
-    Deno.env.get("ENCONTRO_NOME"),
-    Deno.env.get("ENCONTRO_DATA") ?? "9 de novembro de 2026, segunda-feira",
-    Deno.env.get("ENCONTRO_HORARIO") ?? "às 18h30",
-    Deno.env.get("ENCONTRO_LOCAL") ?? "CC Visão Profética",
-    Deno.env.get("ENCONTRO_ENDERECO") ?? "Av. dos Marinheiros, 319 - Cidade Nova, Maracanaú - CE",
-  ].filter((linha): linha is string => Boolean(linha && linha.trim()));
+  const data = Deno.env.get("ENCONTRO_DATA") ?? "9 de novembro de 2026, segunda-feira";
+  const horario = Deno.env.get("ENCONTRO_HORARIO") ?? "às 18h30";
+  const local = Deno.env.get("ENCONTRO_LOCAL") ?? "CC Visão Profética";
+  const endereco =
+    Deno.env.get("ENCONTRO_ENDERECO") ?? "Av. dos Marinheiros, 319 - Cidade Nova, Maracanaú - CE";
+
+  const linha = (rotulo: string, valor: string) =>
+    `<p style="margin:0 0 6px;font-size:15px;line-height:1.6;color:#3c2f2b"><strong style="font-weight:700">${rotulo}:</strong> ${escapar(valor)}</p>`;
 
   return `<!doctype html>
-<html lang="pt-BR"><body style="margin:0;background:#faf6f3;font-family:Georgia,'Times New Roman',serif;color:#3c2f2b">
+<html lang="pt-BR"><body style="margin:0;background:#faf6f3;font-family:Helvetica,Arial,sans-serif;color:#3c2f2b">
   <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="padding:32px 16px">
     <tr><td align="center">
-      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;background:#fff;border-radius:24px;padding:40px 32px">
+      <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:480px;background:#fff;border-radius:20px;padding:36px 28px">
         <tr><td align="center">
-          <p style="margin:0;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#a9736a">Mulheres Curadas</p>
-          <h1 style="margin:16px 0 0;font-size:28px;font-weight:400;color:#8b4f46">Sua vaga está garantida${saudacao ? `, ${escapar(saudacao)}` : ""}.</h1>
-          <p style="margin:16px 0 0;font-size:15px;line-height:1.7;color:#5c4a45">
-            Guarde este e-mail. Na entrada do encontro é só apresentar o QR code abaixo.
-          </p>
-          <img src="${urlDoQr(codigo)}" alt="QR code do seu ingresso: ${escapar(codigo)}" width="240" height="240" style="display:block;margin:28px auto 0;border-radius:16px;border:1px solid #eadfd9" />
-          <p style="margin:16px 0 0;font-size:18px;letter-spacing:.18em;color:#8b4f46">${escapar(codigo)}</p>
-          <p style="margin:6px 0 0;font-size:12px;color:#8a7a75">Se a imagem não aparecer, mostre este código na entrada.</p>
-          <p style="margin:24px 0 0;padding:14px 18px;border-radius:14px;background:#fbeef0;border:1px solid #f0d3d9;font-size:15px;line-height:1.6;color:#b41a40"><strong>${escapar(doacao)}</strong> no dia do encontro.</p>
-          ${
-            encontro.length
-              ? `<table role="presentation" width="100%" style="margin-top:28px;border-top:1px solid #eadfd9;padding-top:20px"><tr><td style="padding-top:20px;font-size:14px;line-height:1.9;color:#5c4a45;text-align:center">${encontro
-                  .map((linha) => escapar(linha))
-                  .join("<br />")}</td></tr></table>`
-              : ""
-          }
-          <p style="margin:28px 0 0;font-size:13px;line-height:1.7;color:#8a7a75">
-            Qualquer dúvida, é só responder esta mensagem. Até logo!
-          </p>
+          <p style="margin:0;font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#b41a40">Mulheres Curadas</p>
+          <h1 style="margin:14px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:26px;font-weight:400;color:#b41a40">Sua vaga está garantida${saudacao ? `, ${escapar(saudacao)}` : ""}.</h1>
+          <p style="margin:12px 0 0;font-size:15px;line-height:1.6;color:#5c4a45">Na entrada do encontro é só apresentar o QR code abaixo.</p>
+          <img src="${urlDoQr(codigo)}" alt="QR code do seu ingresso: ${escapar(codigo)}" width="160" height="160" style="display:block;margin:24px auto 0;border-radius:12px;border:1px solid #eadfd9" />
+          <p style="margin:12px 0 0;font-size:16px;letter-spacing:.18em;color:#b41a40">${escapar(codigo)}</p>
+          <p style="margin:4px 0 0;font-size:12px;color:#8a7a75">Se a imagem não aparecer, mostre este código na entrada.</p>
+        </td></tr>
+        <tr><td style="padding-top:24px;border-top:1px solid #eadfd9" align="left">
+          <table role="presentation" cellpadding="0" cellspacing="0" style="margin:24px auto 0;max-width:360px"><tr><td>
+          ${linha("Data", `${data}, ${horario}`)}
+          ${linha("Local", local)}
+          ${linha("Endereço", endereco)}
+          </td></tr></table>
+        </td></tr>
+        <tr><td align="center">
+          <p style="margin:28px 0 0;font-family:Georgia,'Times New Roman',serif;font-size:26px;line-height:1.3;color:#b41a40">${escapar(doacao)}</p>
+          <p style="margin:24px 0 0;font-size:13px;line-height:1.6;color:#8a7a75">Qualquer dúvida, é só responder esta mensagem. Até logo!</p>
         </td></tr>
       </table>
     </td></tr>
