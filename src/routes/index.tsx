@@ -6,6 +6,7 @@ import { ImagemResponsiva } from "@/components/imagem-responsiva";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
 import { PassosInscricao } from "@/components/passos-inscricao";
+import { AvisoDoacao } from "@/components/aviso-doacao";
 import {
   INSCRICOES_ABERTAS,
   LIMITE_INSCRICOES,
@@ -503,6 +504,7 @@ function Index() {
                 {INSCRICOES_ABERTAS && !esgotado && (
                   <div id="inscricao" className="mt-8 scroll-mt-24">
                     <PassosInscricao empilhado />
+                    <AvisoDoacao className="mt-8" />
                     <Link
                       to="/inscricao"
                       className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-8 py-4 text-[0.68rem] uppercase tracking-[0.16em] text-primary-foreground transition-all hover:opacity-90 sm:px-12 sm:text-xs sm:tracking-[0.3em]"

@@ -2,6 +2,7 @@ import { useId, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { CheckCircle2, Loader2, MailOpen } from "lucide-react";
 import { ENDPOINT_INSCRICAO, SITE_URL, contato } from "@/config/conteudo";
+import { AvisoDoacao } from "@/components/aviso-doacao";
 
 /**
  * Formulario de inscricao.
@@ -238,6 +239,7 @@ export function FormularioInscricao() {
                   Tire um print desta tela ou salve a imagem. Também enviamos tudo para o seu e-mail
                   — se não encontrar, basta apresentar este código na entrada.
                 </p>
+                <AvisoDoacao className="mt-6" />
               </>
             )}
           </>

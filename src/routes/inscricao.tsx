@@ -3,6 +3,7 @@ import { ArrowLeft } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { FormularioInscricao } from "@/components/formulario-inscricao";
 import { PassosInscricao } from "@/components/passos-inscricao";
+import { AvisoDoacao } from "@/components/aviso-doacao";
 import {
   INSCRICOES_ABERTAS,
   LIMITE_INSCRICOES,
@@ -128,6 +129,7 @@ function Inscricao() {
               <div className="mt-4">
                 <PassosInscricao claro />
               </div>
+              <AvisoDoacao className="mt-4" />
             </div>
           </aside>
 

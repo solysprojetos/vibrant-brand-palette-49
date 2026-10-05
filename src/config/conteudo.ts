@@ -29,6 +29,13 @@ export const INSCRICOES_ABERTAS = true;
  */
 export const LIMITE_INSCRICOES = 300;
 
+/**
+ * O que cada participante leva no dia. Aparece na secao do evento, em
+ * /inscricao e na tela de inscricao concluida. O e-mail de confirmacao tem o
+ * mesmo texto na funcao inscricao (segredo ENCONTRO_DOACAO para trocar).
+ */
+export const DOACAO = "Leve 2 kg de alimento";
+
 export type ProximoEncontro = {
   /** Nome do encontro. Ex.: "Encontro Mulheres Curadas — 3a edicao" */
   nome: string;

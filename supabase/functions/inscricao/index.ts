@@ -59,6 +59,7 @@ function saudacaoDe(nome: string): string {
 
 function corpoDoEmail(nome: string, codigo: string): string {
   const saudacao = saudacaoDe(nome);
+  const doacao = Deno.env.get("ENCONTRO_DOACAO") ?? "Leve 2 kg de alimento";
   // Data e horario confirmados pela organizacao; os segredos ENCONTRO_*
   // continuam podendo sobrescrever qualquer linha sem mexer no codigo.
   const encontro = [
@@ -83,6 +84,7 @@ function corpoDoEmail(nome: string, codigo: string): string {
           <img src="${urlDoQr(codigo)}" alt="QR code do seu ingresso: ${escapar(codigo)}" width="240" height="240" style="display:block;margin:28px auto 0;border-radius:16px;border:1px solid #eadfd9" />
           <p style="margin:16px 0 0;font-size:18px;letter-spacing:.18em;color:#8b4f46">${escapar(codigo)}</p>
           <p style="margin:6px 0 0;font-size:12px;color:#8a7a75">Se a imagem não aparecer, mostre este código na entrada.</p>
+          <p style="margin:24px 0 0;padding:14px 18px;border-radius:14px;background:#fbeef0;border:1px solid #f0d3d9;font-size:15px;line-height:1.6;color:#b41a40"><strong>${escapar(doacao)}</strong> no dia do encontro.</p>
           ${
             encontro.length
               ? `<table role="presentation" width="100%" style="margin-top:28px;border-top:1px solid #eadfd9;padding-top:20px"><tr><td style="padding-top:20px;font-size:14px;line-height:1.9;color:#5c4a45;text-align:center">${encontro
