@@ -471,11 +471,8 @@ function Index() {
 
               <div className="text-center lg:text-left">
                 <p className="eyebrow text-primary/80">Evento</p>
-                <h2 className="mt-4 text-display text-3xl leading-tight text-primary sm:text-4xl md:text-5xl">
-                  Venha florescer <br className="lg:hidden" />
-                  <span className="italic">com a gente.</span>
-                </h2>
-                <div className="mx-auto mt-5 max-w-sm space-y-1 text-left text-[15px] leading-relaxed text-foreground/85 lg:mx-0 lg:max-w-none">
+                <h2 className="sr-only">Evento</h2>
+                <div className="mx-auto mt-4 max-w-sm space-y-1 text-left text-[15px] leading-relaxed text-foreground/85 lg:mx-0 lg:max-w-none">
                   <p>
                     <strong className="font-semibold text-foreground">Data:</strong> 9 de novembro,
                     às 18h30
