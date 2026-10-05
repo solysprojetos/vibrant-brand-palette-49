@@ -471,10 +471,11 @@ function Index() {
 
               <div className="text-center lg:text-left">
                 <p className="eyebrow text-primary/80">Evento</p>
-                <h2 className="mt-4 text-display text-4xl leading-tight text-primary md:text-5xl">
-                  Venha florescer <span className="italic">com a gente.</span>
+                <h2 className="mt-4 text-display text-3xl leading-tight text-primary sm:text-4xl md:text-5xl">
+                  Venha florescer <br className="lg:hidden" />
+                  <span className="italic">com a gente.</span>
                 </h2>
-                <p className="mt-4 text-base leading-relaxed text-foreground/80">
+                <p className="mt-4 text-balance text-base leading-relaxed text-foreground/80">
                   9 de novembro, às 18h30.
                   {INSCRICOES_ABERTAS && (
                     <>
@@ -485,7 +486,7 @@ function Index() {
                     </>
                   )}
                 </p>
-                <p className="mt-2 text-base leading-relaxed text-foreground/80">
+                <p className="mt-2 text-balance text-base leading-relaxed text-foreground/80">
                   {!INSCRICOES_ABERTAS
                     ? "Em breve inscrições."
                     : esgotado
