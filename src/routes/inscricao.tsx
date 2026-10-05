@@ -91,7 +91,7 @@ function Inscricao() {
           <dl className="mx-auto mt-4 grid max-w-sm grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-left text-base leading-relaxed text-foreground/80">
             {proximoEncontro.data && (
               <>
-                <dt className="font-semibold text-primary">Data</dt>
+                <dt className="font-semibold text-primary">Data:</dt>
                 <dd>
                   {proximoEncontro.data}, {proximoEncontro.horario}
                 </dd>
@@ -99,15 +99,15 @@ function Inscricao() {
             )}
             {proximoEncontro.local && (
               <>
-                <dt className="font-semibold text-primary">Local</dt>
+                <dt className="font-semibold text-primary">Local:</dt>
                 <dd>{proximoEncontro.local}</dd>
-                <dt className="font-semibold text-primary">Endereço</dt>
+                <dt className="font-semibold text-primary">Endereço:</dt>
                 <dd>{proximoEncontro.endereco}</dd>
               </>
             )}
             {INSCRICOES_ABERTAS && (
               <>
-                <dt className="font-semibold text-primary">Vagas</dt>
+                <dt className="font-semibold text-primary">Vagas:</dt>
                 <dd>
                   {esgotado
                     ? "Esgotadas"
