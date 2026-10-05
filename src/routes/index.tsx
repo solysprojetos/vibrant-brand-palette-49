@@ -429,44 +429,77 @@ function Index() {
 
         {/* Encontros / CTA */}
         <section id="encontros" className="scroll-mt-24 py-28 md:py-36">
-          <div className="mx-auto max-w-5xl rounded-[2.5rem] bg-primary px-8 py-20 text-primary-foreground md:px-16">
-            <div className="text-center">
-              <p className="eyebrow opacity-70">Encontros · Retiros · Comunidade</p>
-              <h2 className="mt-6 text-display text-5xl leading-tight md:text-7xl">
-                Venha florescer <br /> <span className="italic">com a gente.</span>
-              </h2>
-              {INSCRICOES_ABERTAS && (
-                <p className="mt-8 inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-4 py-2 text-xs uppercase tracking-[0.2em]">
-                  <span aria-hidden="true" className="h-2 w-2 rounded-full bg-primary-foreground" />
-                  Inscrições abertas
-                </p>
-              )}
-              <p className="mx-auto mt-6 max-w-xl text-lg leading-relaxed opacity-80">
-                {INSCRICOES_ABERTAS
-                  ? "Garanta seu lugar no próximo encontro. É simples:"
-                  : "Em breve nosso encontro."}
-              </p>
-            </div>
-
-            {/* A inscricao vive na sua propria pagina (/inscricao), que tem
-              endereco curto para mandar no WhatsApp e no Instagram. Aqui fica
-              so o convite, para o formulario existir num lugar so. Enquanto
-              INSCRICOES_ABERTAS for false, o convite da lugar a um aviso. */}
-            <div id="inscricao" className="mt-14 scroll-mt-24 text-center">
+          <div className="mx-auto max-w-6xl px-4 md:px-6">
+            <div className="grid items-center gap-10 rounded-[2.5rem] bg-primary px-6 py-10 text-primary-foreground md:px-12 md:py-14 lg:grid-cols-[minmax(0,5fr)_minmax(0,6fr)] lg:gap-14">
+              {/* Banner de divulgacao do proximo encontro. Com as inscricoes
+                abertas ele tambem leva ao formulario. */}
               {INSCRICOES_ABERTAS ? (
-                <>
-                  <PassosInscricao />
-                  <Link
-                    to="/inscricao"
-                    className="mt-12 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary-foreground px-8 py-4 text-[0.68rem] sm:px-12 sm:text-xs uppercase tracking-[0.16em] sm:tracking-[0.3em] text-primary transition-all hover:opacity-90"
-                  >
-                    Fazer minha inscrição
-                  </Link>
-                  <p className="mt-5 text-sm opacity-70">Leva menos de um minuto.</p>
-                </>
+                <Link
+                  to="/inscricao"
+                  aria-label="Fazer minha inscrição no encontro de 9 de novembro"
+                  className="mx-auto block w-full max-w-md overflow-hidden rounded-3xl shadow-2xl ring-1 ring-primary-foreground/20 transition-transform duration-500 hover:scale-[1.02]"
+                >
+                  <img
+                    src={assetUrl("/imagens/banner-encontro-9-nov.jpg")}
+                    alt="Mulheres Curadas por Karoline Rodrigues, com Pr. Samuel Vagner e Gaby Cardozo — 9 de novembro às 18h30"
+                    width={1280}
+                    height={1600}
+                    loading="lazy"
+                    className="h-auto w-full"
+                  />
+                </Link>
               ) : (
-                <p className="eyebrow text-sm tracking-[0.3em] opacity-80">Em breve inscrições</p>
+                <img
+                  src={assetUrl("/imagens/banner-encontro-9-nov.jpg")}
+                  alt="Mulheres Curadas por Karoline Rodrigues, com Pr. Samuel Vagner e Gaby Cardozo — 9 de novembro às 18h30"
+                  width={1280}
+                  height={1600}
+                  loading="lazy"
+                  className="mx-auto h-auto w-full max-w-md rounded-3xl shadow-2xl ring-1 ring-primary-foreground/20"
+                />
               )}
+
+              <div className="text-center lg:text-left">
+                <p className="eyebrow opacity-70">Encontros · Retiros · Comunidade</p>
+                <h2 className="mt-5 text-display text-4xl leading-tight md:text-6xl">
+                  Venha florescer <br /> <span className="italic">com a gente.</span>
+                </h2>
+                <div className="mt-6 flex flex-wrap items-center justify-center gap-3 lg:justify-start">
+                  {INSCRICOES_ABERTAS && (
+                    <p className="inline-flex items-center gap-2 rounded-full bg-primary-foreground/15 px-4 py-2 text-xs uppercase tracking-[0.2em]">
+                      <span
+                        aria-hidden="true"
+                        className="h-2 w-2 rounded-full bg-primary-foreground"
+                      />
+                      Inscrições abertas
+                    </p>
+                  )}
+                  <p className="inline-flex items-center rounded-full bg-primary-foreground/15 px-4 py-2 text-xs uppercase tracking-[0.2em]">
+                    9 de novembro · 18h30
+                  </p>
+                </div>
+                <p className="mt-6 text-lg leading-relaxed opacity-80">
+                  {INSCRICOES_ABERTAS
+                    ? "Garanta seu lugar no próximo encontro. É simples:"
+                    : "Em breve inscrições."}
+                </p>
+
+                {/* A inscricao vive na sua propria pagina (/inscricao), que tem
+                  endereco curto para mandar no WhatsApp e no Instagram. Aqui
+                  fica so o convite, para o formulario existir num lugar so. */}
+                {INSCRICOES_ABERTAS && (
+                  <div id="inscricao" className="mt-8 scroll-mt-24">
+                    <PassosInscricao empilhado />
+                    <Link
+                      to="/inscricao"
+                      className="mt-8 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary-foreground px-8 py-4 text-[0.68rem] uppercase tracking-[0.16em] text-primary transition-all hover:opacity-90 sm:px-12 sm:text-xs sm:tracking-[0.3em]"
+                    >
+                      Fazer minha inscrição
+                    </Link>
+                    <p className="mt-4 text-sm opacity-70">Leva menos de um minuto.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </section>

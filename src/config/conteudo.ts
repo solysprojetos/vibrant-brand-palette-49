@@ -49,20 +49,17 @@ export type ProximoEncontro = {
   dataISO: string;
 };
 
-// Data, horario e dataISO foram retirados por enquanto (eram
-// "9 de novembro de 2026, segunda-feira", "às 18h30" e
-// "2026-11-09T18:30:00-03:00"). Preencha de novo quando for para divulgar.
 export const proximoEncontro: ProximoEncontro = {
   nome: "",
-  data: "",
-  horario: "",
+  data: "9 de novembro de 2026, segunda-feira",
+  horario: "às 18h30",
   local: "",
   endereco: "",
   investimento: "",
   palavraCom: "",
   programacao: [],
   vagas: "",
-  dataISO: "",
+  dataISO: "2026-11-09T18:30:00-03:00",
 };
 
 export type Depoimento = {

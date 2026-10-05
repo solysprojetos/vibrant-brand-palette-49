@@ -23,9 +23,16 @@ const passos = [
   },
 ];
 
-export function PassosInscricao({ claro = false }: { claro?: boolean }) {
+export function PassosInscricao({
+  claro = false,
+  empilhado = false,
+}: {
+  claro?: boolean;
+  /** Um passo embaixo do outro, para colunas estreitas. */
+  empilhado?: boolean;
+}) {
   return (
-    <ol className={`grid gap-4 ${claro ? "" : "md:grid-cols-3"}`}>
+    <ol className={`grid gap-3 ${claro || empilhado ? "" : "md:grid-cols-3"}`}>
       {passos.map(({ icone: Icone, titulo, texto }, i) => (
         <li
           key={titulo}

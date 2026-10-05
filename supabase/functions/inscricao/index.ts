@@ -63,7 +63,7 @@ function corpoDoEmail(nome: string, codigo: string): string {
   // continuam podendo sobrescrever qualquer linha sem mexer no codigo.
   const encontro = [
     Deno.env.get("ENCONTRO_NOME"),
-    Deno.env.get("ENCONTRO_DATA") ?? "2 de novembro de 2026, segunda-feira",
+    Deno.env.get("ENCONTRO_DATA") ?? "9 de novembro de 2026, segunda-feira",
     Deno.env.get("ENCONTRO_HORARIO") ?? "às 18h30",
     Deno.env.get("ENCONTRO_LOCAL"),
     Deno.env.get("ENCONTRO_ENDERECO"),
