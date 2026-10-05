@@ -5,6 +5,7 @@ import { assetUrl } from "@/lib/asset-url";
 import { ImagemResponsiva } from "@/components/imagem-responsiva";
 import { Depoimentos } from "@/components/depoimentos";
 import { Duvidas } from "@/components/duvidas";
+import { PassosInscricao } from "@/components/passos-inscricao";
 import { AvisoDoacao } from "@/components/aviso-doacao";
 import {
   INSCRICOES_ABERTAS,
@@ -489,15 +490,16 @@ function Index() {
                     ? "Em breve inscrições."
                     : esgotado
                       ? "As vagas deste encontro esgotaram. Obrigada pelo carinho — fique de olho nas próximas datas."
-                      : "Faça sua inscrição e receba o ingresso com QR code na hora, na tela e no seu e-mail. No dia, é só apresentar o QR code na entrada."}
+                      : "Garanta seu lugar no próximo encontro. É simples:"}
                 </p>
 
                 {/* A inscricao vive na sua propria pagina (/inscricao), que tem
                   endereco curto para mandar no WhatsApp e no Instagram. Aqui
                   fica so o convite, para o formulario existir num lugar so. */}
                 {INSCRICOES_ABERTAS && !esgotado && (
-                  <div id="inscricao" className="mt-5 scroll-mt-24">
-                    <AvisoDoacao />
+                  <div id="inscricao" className="mt-6 scroll-mt-24">
+                    <PassosInscricao empilhado />
+                    <AvisoDoacao className="mt-6" />
                     <Link
                       to="/inscricao"
                       className="mt-6 inline-flex min-h-[44px] items-center justify-center rounded-full bg-primary px-8 py-3 text-xs uppercase tracking-[0.2em] text-primary-foreground transition-all hover:opacity-90"
