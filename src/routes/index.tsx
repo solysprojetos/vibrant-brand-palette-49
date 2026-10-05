@@ -475,26 +475,32 @@ function Index() {
                   Venha florescer <br className="lg:hidden" />
                   <span className="italic">com a gente.</span>
                 </h2>
-                <dl className="mx-auto mt-5 grid max-w-sm grid-cols-[auto_1fr] gap-x-3 gap-y-1.5 text-left text-base leading-relaxed text-foreground/80 lg:mx-0 lg:max-w-none">
-                  <dt className="font-semibold text-primary">Data:</dt>
-                  <dd>9 de novembro, às 18h30</dd>
-                  <dt className="font-semibold text-primary">Local:</dt>
-                  <dd>{proximoEncontro.local}</dd>
-                  <dt className="font-semibold text-primary">Endereço:</dt>
-                  <dd>{proximoEncontro.endereco}</dd>
+                <div className="mx-auto mt-5 max-w-sm space-y-1 text-left text-[15px] leading-relaxed text-foreground/85 lg:mx-0 lg:max-w-none">
+                  <p>
+                    <strong className="font-semibold text-foreground">Data:</strong> 9 de novembro,
+                    às 18h30
+                  </p>
+                  <p>
+                    <strong className="font-semibold text-foreground">Local:</strong>{" "}
+                    {proximoEncontro.local}
+                  </p>
+                  <p>
+                    <strong className="font-semibold text-foreground">Endereço:</strong>{" "}
+                    {proximoEncontro.endereco}
+                  </p>
                   {INSCRICOES_ABERTAS && (
                     <>
-                      <dt className="font-semibold text-primary">Vagas:</dt>
-                      <dd>
+                      <p>
+                        <strong className="font-semibold text-foreground">Vagas:</strong>{" "}
                         {esgotado
                           ? "Esgotadas"
                           : vagas.restantes === null
                             ? `${vagas.limite ?? LIMITE_INSCRICOES}`
                             : `Restam ${vagas.restantes} de ${vagas.limite ?? LIMITE_INSCRICOES}`}
-                      </dd>
+                      </p>
                     </>
                   )}
-                </dl>
+                </div>
                 <p className="mt-5 text-base leading-relaxed text-foreground/80">
                   {!INSCRICOES_ABERTAS
                     ? "Em breve inscrições."
