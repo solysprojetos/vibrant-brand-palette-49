@@ -1,7 +1,7 @@
 /**
  * Passo a passo da inscricao, para a visitante saber o que acontece antes
- * mesmo de abrir o formulario. Aparece no convite da pagina inicial (sobre o
- * fundo vinho) e ao lado do formulario em /inscricao (sobre o fundo claro).
+ * mesmo de abrir o formulario. Aparece no convite da pagina inicial (so o
+ * texto, com uma linha ao lado) e em cartoes ao lado do formulario em /inscricao.
  */
 const passos = [
   {
@@ -36,18 +36,12 @@ export function PassosInscricao({
           className={`text-left ${
             claro
               ? "rounded-2xl bg-card p-5 ring-1 ring-primary/10"
-              : "border-l-2 border-primary-foreground/40 pl-5"
+              : "border-l-2 border-primary/30 pl-5"
           }`}
         >
-          <p className={`eyebrow text-[0.6rem] ${claro ? "text-primary/70" : "opacity-70"}`}>
-            Passo {i + 1}
-          </p>
-          <p className={`mt-1 text-display text-xl ${claro ? "text-primary" : ""}`}>{titulo}</p>
-          <p
-            className={`mt-1 text-sm leading-relaxed ${claro ? "text-foreground/70" : "opacity-80"}`}
-          >
-            {texto}
-          </p>
+          <p className={`eyebrow text-[0.6rem] text-primary/70`}>Passo {i + 1}</p>
+          <p className={`mt-1 text-display text-xl text-primary`}>{titulo}</p>
+          <p className={`mt-1 text-sm leading-relaxed text-foreground/70`}>{texto}</p>
         </li>
       ))}
     </ol>
