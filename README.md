@@ -25,6 +25,12 @@ npm i
 npm run dev
 ```
 
+## Painel administrativo (/admin)
+
+Eventos, galeria de fotos, mensagens e testemunhos, textos do site, equipe,
+contatos e acessos são atualizados pelo painel em **/admin/**, com login.
+Configuração e uso: **[MANUAL-PAINEL.md](MANUAL-PAINEL.md)**.
+
 ## Atualizar o conteúdo do site
 
 As informações que mudam a cada encontro ficam em um arquivo só:

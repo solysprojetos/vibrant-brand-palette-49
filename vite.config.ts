@@ -22,7 +22,26 @@ export default defineConfig({
       server: { entry: "server" },
       // Emit a static index.html so the site can be hosted without a server.
       prerender: { enabled: true, crawlLinks: true },
-      pages: [{ path: "/" }, { path: "/inscricao" }, { path: "/politica-de-privacidade" }],
+      pages: [
+        { path: "/" },
+        { path: "/inscricao" },
+        { path: "/politica-de-privacidade" },
+        { path: "/sobre" },
+        { path: "/eventos" },
+        { path: "/galeria" },
+        { path: "/mensagens" },
+        { path: "/contato" },
+        // Painel administrativo: cada secao vira um index.html proprio, para
+        // abrir direto pelo endereco no GitHub Pages.
+        { path: "/admin" },
+        { path: "/admin/eventos" },
+        { path: "/admin/galeria" },
+        { path: "/admin/mensagens" },
+        { path: "/admin/conteudo" },
+        { path: "/admin/equipe" },
+        { path: "/admin/contatos" },
+        { path: "/admin/usuarios" },
+      ],
     }),
     viteReact(),
   ],

@@ -124,3 +124,51 @@
     border-radius: var(--radius);
   }
 }
+
+/* ---------------------------------------------------------------------------
+   Painel administrativo (/admin). Tudo fica dentro de .admin-raiz, entao o
+   site publico nao e afetado por nada daqui.
+--------------------------------------------------------------------------- */
+.admin-raiz {
+  --admin-vinho: #561230;
+  --admin-vinho-claro: #7d1f45;
+  --admin-rosado: #f5e4e8;
+  --admin-linha: #f0e4e3;
+  --admin-fundo: #f7f2ee;
+  --admin-dourado: #c9a46a;
+  background-color: var(--admin-fundo);
+  font-weight: 400;
+}
+
+.admin-raiz .text-display {
+  /* Numeros alinhados: o Cormorant usa algarismos antigos por padrao, que
+     deixam "1" parecido com "I" e "0" com "O" nos cartoes. */
+  font-variant-numeric: lining-nums;
+}
+
+.admin-barra {
+  background:
+    radial-gradient(120% 60% at 0% 0%, rgb(255 255 255 / 0.07), transparent 60%),
+    linear-gradient(175deg, #4a0f29 0%, #6b1a3c 55%, #561230 100%);
+}
+
+@keyframes admin-surgir {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.admin-surgir {
+  animation: admin-surgir 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .admin-surgir {
+    animation: none;
+  }
+}

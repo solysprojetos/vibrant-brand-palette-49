@@ -7,6 +7,9 @@ Projeto: `vdjovchltmyhuvlwxzwr` (https://vdjovchltmyhuvlwxzwr.supabase.co)
 - `migrations/20260827000000_cria_inscricoes.sql` — a tabela `public.inscricoes`.
 - `functions/inscricao/index.ts` — a Edge Function que o formulário do site chama.
 - `functions/painel/index.ts` — a Edge Function que serve o painel de inscrições.
+- `migrations/20261101120000_painel_administrativo.sql` e
+  `functions/admin-usuarios/index.ts` — o painel administrativo `/admin`
+  (veja [MANUAL-PAINEL.md](../MANUAL-PAINEL.md)).
 
 ## Como funciona
 
