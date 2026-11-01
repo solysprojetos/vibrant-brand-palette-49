@@ -22,7 +22,9 @@ import { Route as AdminConteudoRouteImport } from './routes/admin/conteudo'
 import { Route as AdminEquipeRouteImport } from './routes/admin/equipe'
 import { Route as AdminEventosRouteImport } from './routes/admin/eventos'
 import { Route as AdminGaleriaRouteImport } from './routes/admin/galeria'
+import { Route as AdminInscricoesRouteImport } from './routes/admin/inscricoes'
 import { Route as AdminMensagensRouteImport } from './routes/admin/mensagens'
+import { Route as AdminSorteioRouteImport } from './routes/admin/sorteio'
 import { Route as AdminUsuariosRouteImport } from './routes/admin/usuarios'
 
 const IndexRoute = IndexRouteImport.update({
@@ -90,9 +92,19 @@ const AdminGaleriaRoute = AdminGaleriaRouteImport.update({
   path: '/galeria',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminInscricoesRoute = AdminInscricoesRouteImport.update({
+  id: '/inscricoes',
+  path: '/inscricoes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminMensagensRoute = AdminMensagensRouteImport.update({
   id: '/mensagens',
   path: '/mensagens',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSorteioRoute = AdminSorteioRouteImport.update({
+  id: '/sorteio',
+  path: '/sorteio',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminUsuariosRoute = AdminUsuariosRouteImport.update({
@@ -114,7 +126,9 @@ export interface FileRoutesByFullPath {
   '/admin/equipe': typeof AdminEquipeRoute
   '/admin/eventos': typeof AdminEventosRoute
   '/admin/galeria': typeof AdminGaleriaRoute
+  '/admin/inscricoes': typeof AdminInscricoesRoute
   '/admin/mensagens': typeof AdminMensagensRoute
+  '/admin/sorteio': typeof AdminSorteioRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -130,7 +144,9 @@ export interface FileRoutesByTo {
   '/admin/equipe': typeof AdminEquipeRoute
   '/admin/eventos': typeof AdminEventosRoute
   '/admin/galeria': typeof AdminGaleriaRoute
+  '/admin/inscricoes': typeof AdminInscricoesRoute
   '/admin/mensagens': typeof AdminMensagensRoute
+  '/admin/sorteio': typeof AdminSorteioRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin': typeof AdminIndexRoute
 }
@@ -148,7 +164,9 @@ export interface FileRoutesById {
   '/admin/equipe': typeof AdminEquipeRoute
   '/admin/eventos': typeof AdminEventosRoute
   '/admin/galeria': typeof AdminGaleriaRoute
+  '/admin/inscricoes': typeof AdminInscricoesRoute
   '/admin/mensagens': typeof AdminMensagensRoute
+  '/admin/sorteio': typeof AdminSorteioRoute
   '/admin/usuarios': typeof AdminUsuariosRoute
   '/admin/': typeof AdminIndexRoute
 }
@@ -167,7 +185,9 @@ export interface FileRouteTypes {
     | '/admin/equipe'
     | '/admin/eventos'
     | '/admin/galeria'
+    | '/admin/inscricoes'
     | '/admin/mensagens'
+    | '/admin/sorteio'
     | '/admin/usuarios'
     | '/admin/'
   fileRoutesByTo: FileRoutesByTo
@@ -183,7 +203,9 @@ export interface FileRouteTypes {
     | '/admin/equipe'
     | '/admin/eventos'
     | '/admin/galeria'
+    | '/admin/inscricoes'
     | '/admin/mensagens'
+    | '/admin/sorteio'
     | '/admin/usuarios'
     | '/admin'
   id:
@@ -200,7 +222,9 @@ export interface FileRouteTypes {
     | '/admin/equipe'
     | '/admin/eventos'
     | '/admin/galeria'
+    | '/admin/inscricoes'
     | '/admin/mensagens'
+    | '/admin/sorteio'
     | '/admin/usuarios'
     | '/admin/'
   fileRoutesById: FileRoutesById
@@ -308,11 +332,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminGaleriaRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/inscricoes': {
+      id: '/admin/inscricoes'
+      path: '/inscricoes'
+      fullPath: '/admin/inscricoes'
+      preLoaderRoute: typeof AdminInscricoesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/mensagens': {
       id: '/admin/mensagens'
       path: '/mensagens'
       fullPath: '/admin/mensagens'
       preLoaderRoute: typeof AdminMensagensRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/sorteio': {
+      id: '/admin/sorteio'
+      path: '/sorteio'
+      fullPath: '/admin/sorteio'
+      preLoaderRoute: typeof AdminSorteioRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/usuarios': {
@@ -331,7 +369,9 @@ interface AdminRouteChildren {
   AdminEquipeRoute: typeof AdminEquipeRoute
   AdminEventosRoute: typeof AdminEventosRoute
   AdminGaleriaRoute: typeof AdminGaleriaRoute
+  AdminInscricoesRoute: typeof AdminInscricoesRoute
   AdminMensagensRoute: typeof AdminMensagensRoute
+  AdminSorteioRoute: typeof AdminSorteioRoute
   AdminUsuariosRoute: typeof AdminUsuariosRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -342,7 +382,9 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminEquipeRoute: AdminEquipeRoute,
   AdminEventosRoute: AdminEventosRoute,
   AdminGaleriaRoute: AdminGaleriaRoute,
+  AdminInscricoesRoute: AdminInscricoesRoute,
   AdminMensagensRoute: AdminMensagensRoute,
+  AdminSorteioRoute: AdminSorteioRoute,
   AdminUsuariosRoute: AdminUsuariosRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

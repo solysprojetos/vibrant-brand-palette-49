@@ -77,9 +77,9 @@ avisa que falta.
    as leituras das outras recepcionistas.
 
 A recepção não vê e-mail nem telefone de ninguém, e ler o mesmo ingresso duas
-vezes nunca conta duas presenças. A página antiga `/checkin` (aberta pela
-câmera comum do celular, com a senha do painel de inscrições) continua
-funcionando do mesmo jeito.
+vezes nunca conta duas presenças. As páginas antigas `/painel` e `/checkin`
+(com a senha do painel de inscrições) continuam funcionando para quem não tem
+login; quem está logada no `/admin` entra nelas sem senha.
 
 ---
 

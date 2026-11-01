@@ -249,7 +249,7 @@ export function PaginaDashboard() {
               valor={data.inscricoes}
               detalhe={`de ${LIMITE_INSCRICOES} vagas · ${Math.max(0, LIMITE_INSCRICOES - data.inscricoes)} restantes`}
               icone={ClipboardList}
-              para="/painel"
+              para="/admin/inscricoes"
               atraso={120}
               progresso={data.inscricoes / LIMITE_INSCRICOES}
             />

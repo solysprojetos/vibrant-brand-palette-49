@@ -1,0 +1,1104 @@
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import {
+  ArrowLeft,
+  Download,
+  ExternalLink,
+  Gift,
+  LayoutDashboard,
+  Loader2,
+  LogOut,
+  Menu,
+  RefreshCw,
+  ScanLine,
+  Search,
+  Users,
+  X,
+} from "lucide-react";
+import {
+  ENDPOINT_PAINEL,
+  INSCRICOES_ABERTAS,
+  LIMITE_INSCRICOES,
+  SITE_URL,
+  proximoEncontro,
+} from "@/config/conteudo";
+import { assetUrl } from "@/lib/asset-url";
+import { supabase } from "@/lib/supabase";
+import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
+
+/**
+ * Painel de inscricoes — a lista de quem se inscreveu.
+ *
+ * Vive dentro do painel /admin (Inscricoes e Sorteio) e tambem na pagina
+ * /painel, que continua aceitando a senha antiga para quem nao tem login.
+ *
+ * Endereco discreto e fora do buscador (robots noindex): nao ha link para ele
+ * em nenhuma pagina do site. A pagina nao fala direto com o banco; ela chama a
+ * Edge Function "painel", que exige a senha em todo pedido. A senha fica no
+ * sessionStorage, entao ela some quando a aba e fechada.
+ */
+
+type Inscricao = {
+  id: string;
+  criado_em: string;
+  nome: string;
+  telefone: string;
+  email: string;
+  frequenta_igreja: boolean;
+  igreja: string | null;
+  codigo: string;
+  email_enviado_em: string | null;
+  whatsapp_enviado_em: string | null;
+  checkin_em: string | null;
+};
+
+type Aba = "visao" | "inscricoes";
+
+const CHAVE_SENHA = "mc-painel-senha";
+
+const CAMPO =
+  "w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]";
+
+/**
+ * Mensagem do ingresso, para mandar na mao enquanto o envio automatico nao
+ * esta ligado (ou para reenviar a quem perdeu o e-mail).
+ *
+ * O QR nao viaja como imagem: vai o endereco que desenha o mesmo QR do e-mail,
+ * apontando para a pagina de baixa de presenca.
+ */
+function mensagemDoIngresso(inscricao: Inscricao): string {
+  const checkin = `${SITE_URL}/checkin/?c=${encodeURIComponent(inscricao.codigo)}`;
+  const qr = `https://api.qrserver.com/v1/create-qr-code/?size=600x600&margin=12&data=${encodeURIComponent(checkin)}`;
+  const bruto = inscricao.nome.trim().split(/\s+/)[0] ?? "";
+  const primeiro = bruto ? bruto[0] + bruto.slice(1).toLocaleLowerCase("pt-BR") : "";
+
+  return [
+    `Oi${primeiro ? `, ${primeiro}` : ""}! Sua inscrição no Mulheres Curadas está confirmada.`,
+    "",
+    `Seu ingresso: ${inscricao.codigo}`,
+    `QR code: ${qr}`,
+    "",
+    "Guarde esta mensagem — é só apresentar o QR code na entrada do encontro.",
+  ].join("\n");
+}
+
+/** wa.me exige o numero com o codigo do pais e so digitos. */
+function linkWhatsapp(inscricao: Inscricao): string {
+  const digitos = inscricao.telefone.replace(/\D/g, "");
+  const numero = digitos.startsWith("55") ? digitos : `55${digitos}`;
+  return `https://wa.me/${numero}?text=${encodeURIComponent(mensagemDoIngresso(inscricao))}`;
+}
+
+function linkEmail(inscricao: Inscricao): string {
+  return `mailto:${inscricao.email}?subject=${encodeURIComponent(
+    "Seu ingresso — Mulheres Curadas",
+  )}&body=${encodeURIComponent(mensagemDoIngresso(inscricao))}`;
+}
+
+function formatarData(valor: string | null): string {
+  if (!valor) return "—";
+  return new Date(valor).toLocaleString("pt-BR", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+/** Escapa o campo para CSV: aspas dobradas e o valor todo entre aspas. */
+function campoCsv(valor: string): string {
+  return `"${valor.replace(/"/g, '""')}"`;
+}
+
+function baixarCsv(inscricoes: Inscricao[]): void {
+  const cabecalho = [
+    "Data",
+    "Nome",
+    "Telefone",
+    "E-mail",
+    "Frequenta igreja",
+    "Igreja",
+    "Codigo",
+    "E-mail enviado",
+    "WhatsApp enviado",
+    "Presenca",
+  ];
+  const linhas = inscricoes.map((i) =>
+    [
+      formatarData(i.criado_em),
+      i.nome,
+      i.telefone,
+      i.email,
+      i.frequenta_igreja ? "Sim" : "Não",
+      i.igreja ?? "",
+      i.codigo,
+      formatarData(i.email_enviado_em),
+      formatarData(i.whatsapp_enviado_em),
+      formatarData(i.checkin_em),
+    ]
+      .map(campoCsv)
+      .join(";"),
+  );
+
+  // O BOM no comeco faz o Excel abrir os acentos certos.
+  const conteudo = `\uFEFF${[cabecalho.map(campoCsv).join(";"), ...linhas].join("\r\n")}`;
+  const url = URL.createObjectURL(new Blob([conteudo], { type: "text/csv;charset=utf-8" }));
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = `inscricoes-${new Date().toISOString().slice(0, 10)}.csv`;
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
+type Props = {
+  /** Dentro do painel /admin: sem cabecalho e menu proprios. */
+  embutido?: boolean;
+  abaInicial?: Aba;
+  /** Abre direto na tela do sorteio. */
+  sorteioInicial?: boolean;
+  /** No modo embutido, o que fazer ao fechar o sorteio. */
+  aoFecharSorteio?: () => void;
+};
+
+export function Painel({
+  embutido = false,
+  abaInicial = "visao",
+  sorteioInicial = false,
+  aoFecharSorteio,
+}: Props) {
+  const [senha, setSenha] = useState("");
+  const [autenticado, setAutenticado] = useState(false);
+  const [inscricoes, setInscricoes] = useState<Inscricao[]>([]);
+  const [busca, setBusca] = useState("");
+  const [aba, setAba] = useState<Aba>(abaInicial);
+  const [menuAberto, setMenuAberto] = useState(false);
+  // Sorteio do dia: quem ja ganhou nao volta para o globo ate fechar o painel.
+  const [sorteioAberto, setSorteioAberto] = useState(false);
+  const [apenasPresentes, setApenasPresentes] = useState(true);
+  const [vencedora, setVencedora] = useState<Inscricao | null>(null);
+  const [sorteando, setSorteando] = useState(false);
+  const [jaSorteadas, setJaSorteadas] = useState<Set<string>>(new Set());
+  const [carregando, setCarregando] = useState(false);
+  const [erro, setErro] = useState("");
+
+  // Quem ja entrou no painel /admin (administracao ou edicao) abre a lista
+  // sem senha: a leitura vai direto ao banco, pela sessao do Supabase Auth,
+  // e as politicas RLS so liberam a tabela de inscricoes para a equipe.
+  const [modoAdmin, setModoAdmin] = useState(false);
+  const modoAdminRef = useRef(false);
+  const abrirSorteioAoEntrar = sorteioInicial;
+  const [checandoSessao, setChecandoSessao] = useState(true);
+
+  const chamar = useCallback(async (senhaUsada: string, corpo: Record<string, unknown>) => {
+    if (modoAdminRef.current) {
+      if (corpo.acao === "checkin" || corpo.acao === "desfazer") {
+        const { data, error } = await supabase().rpc("mc_checkin_marcar", {
+          p_codigo: String(corpo.codigo ?? ""),
+          p_desfazer: corpo.acao === "desfazer",
+        });
+        if (error) throw new Error("Não foi possível salvar a presença.");
+        const linha = (
+          data as
+            | {
+                id: string;
+                nome: string;
+                codigo: string;
+                checkin_em: string | null;
+                ja_estava: boolean;
+              }[]
+            | null
+        )?.[0];
+        if (!linha) throw new Error("Código não encontrado.");
+        return { ok: true, inscricao: linha, jaEstava: linha.ja_estava };
+      }
+      const { data, error } = await supabase()
+        .from("inscricoes")
+        .select(
+          "id, criado_em, nome, telefone, email, frequenta_igreja, igreja, codigo, email_enviado_em, whatsapp_enviado_em, checkin_em",
+        )
+        .order("criado_em", { ascending: false })
+        .limit(2000);
+      if (error) throw new Error("Não foi possível carregar as inscrições.");
+      return { ok: true, inscricoes: data ?? [] };
+    }
+
+    let resposta: Response;
+    try {
+      resposta = await fetch(ENDPOINT_PAINEL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "x-senha": senhaUsada },
+        body: JSON.stringify(corpo),
+      });
+    } catch {
+      // Sem internet, ou o servico fora do ar, o navegador so diz
+      // "Failed to fetch". Aqui isso vira uma frase que explica o que houve.
+      throw new Error("Não conseguimos falar com o servidor. Verifique sua conexão.");
+    }
+    const dados = await resposta.json().catch(() => ({}));
+    if (!resposta.ok) throw new Error(dados.erro ?? `Resposta ${resposta.status}`);
+    return dados;
+  }, []);
+
+  const carregar = useCallback(
+    async (senhaUsada: string) => {
+      setCarregando(true);
+      setErro("");
+      try {
+        const dados = await chamar(senhaUsada, { acao: "listar" });
+        setInscricoes(dados.inscricoes ?? []);
+        setAutenticado(true);
+        if (!modoAdminRef.current) sessionStorage.setItem(CHAVE_SENHA, senhaUsada);
+      } catch (falha) {
+        setErro(falha instanceof Error ? falha.message : "Não foi possível carregar.");
+        setAutenticado(false);
+        if (!modoAdminRef.current) sessionStorage.removeItem(CHAVE_SENHA);
+      } finally {
+        setCarregando(false);
+      }
+    },
+    [chamar],
+  );
+
+  // Com login do painel /admin a lista abre sozinha; senao, se a senha ainda
+  // esta guardada na aba, tambem.
+  useEffect(() => {
+    let ativo = true;
+    (async () => {
+      try {
+        const { data } = await supabase().auth.getSession();
+        if (data.session) {
+          const { data: acesso } = await supabase()
+            .from("mc_equipe_acesso")
+            .select("papel")
+            .eq("user_id", data.session.user.id)
+            .maybeSingle();
+          if (ativo && (acesso?.papel === "admin" || acesso?.papel === "editor")) {
+            modoAdminRef.current = true;
+            setModoAdmin(true);
+            setChecandoSessao(false);
+            void carregar("");
+            return;
+          }
+        }
+      } catch {
+        /* sem sessao do painel: segue o caminho da senha */
+      }
+      if (!ativo) return;
+      setChecandoSessao(false);
+      const guardada = sessionStorage.getItem(CHAVE_SENHA);
+      if (guardada) {
+        setSenha(guardada);
+        void carregar(guardada);
+      }
+    })();
+    return () => {
+      ativo = false;
+    };
+  }, [carregar]);
+
+  // Atalho "Sorteio" do menu /admin: abre a tela do sorteio assim que a lista chega.
+  useEffect(() => {
+    if (autenticado && abrirSorteioAoEntrar) {
+      setVencedora(null);
+      setSorteioAberto(true);
+    }
+  }, [autenticado, abrirSorteioAoEntrar]);
+
+  const alternarPresenca = async (inscricao: Inscricao) => {
+    const acao = inscricao.checkin_em ? "desfazer" : "checkin";
+    try {
+      const dados = await chamar(senha, { acao, codigo: inscricao.codigo });
+      setInscricoes((atual) =>
+        atual.map((i) =>
+          i.id === inscricao.id ? { ...i, checkin_em: dados.inscricao.checkin_em } : i,
+        ),
+      );
+    } catch (falha) {
+      setErro(falha instanceof Error ? falha.message : "Não foi possível salvar a presença.");
+    }
+  };
+
+  /** Sorteia com o gerador criptografico, sem vicio de arredondamento. */
+  const sortear = () => {
+    const globo = inscricoes.filter(
+      (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
+    );
+    if (globo.length === 0) {
+      setVencedora(null);
+      return;
+    }
+
+    setSorteando(true);
+    setVencedora(null);
+
+    // Suspense de sorteio: nomes passam rapido antes de parar na escolhida.
+    let passos = 0;
+    const total = 18;
+    const roda = () => {
+      const indice = crypto.getRandomValues(new Uint32Array(1))[0] % globo.length;
+      const escolhida = globo[indice];
+      setVencedora(escolhida);
+      passos += 1;
+      if (passos < total) {
+        setTimeout(roda, 60 + passos * 14);
+      } else {
+        setSorteando(false);
+        setJaSorteadas((atual) => new Set(atual).add(escolhida.id));
+      }
+    };
+    roda();
+  };
+
+  const abrirSorteio = () => {
+    setVencedora(null);
+    setSorteioAberto(true);
+  };
+
+  const sair = () => {
+    if (modoAdmin) {
+      // Veio do painel /admin: volta para la sem encerrar o login.
+      window.location.href = `${import.meta.env.BASE_URL}admin/`;
+      return;
+    }
+    sessionStorage.removeItem(CHAVE_SENHA);
+    setSenha("");
+    setAutenticado(false);
+    setInscricoes([]);
+  };
+
+  if (!autenticado && embutido) {
+    if (checandoSessao || carregando) {
+      return (
+        <div
+          className="flex items-center justify-center gap-3 py-16 text-sm text-foreground/55"
+          role="status"
+        >
+          <Loader2 aria-hidden="true" className="h-5 w-5 animate-spin text-primary" />
+          Carregando as inscrições…
+        </div>
+      );
+    }
+    return (
+      <p role="alert" className="rounded-2xl bg-destructive/10 px-6 py-4 text-sm text-destructive">
+        {erro || "Seu acesso não permite ver as inscrições."}
+      </p>
+    );
+  }
+
+  if (!autenticado) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-background px-6 text-foreground">
+        <form
+          className="w-full max-w-sm text-center"
+          onSubmit={(evento) => {
+            evento.preventDefault();
+            void carregar(senha);
+          }}
+        >
+          <p translate="no" className="eyebrow text-primary/80">
+            Mulheres Curadas
+          </p>
+          {/* translate="no" impede o tradutor do navegador de reescrever o
+            titulo — ele chegou a trocar "inscricoes" por "indicacoes". */}
+          <h1 translate="no" className="mt-4 text-display text-3xl text-primary">
+            Painel de inscrições
+          </h1>
+          <label htmlFor="senha" className="sr-only">
+            Senha do painel
+          </label>
+          <input
+            id="senha"
+            type="password"
+            autoComplete="current-password"
+            value={senha}
+            onChange={(e) => setSenha(e.target.value)}
+            disabled={carregando}
+            className={`${CAMPO} mt-8 text-center`}
+            placeholder="Senha"
+          />
+          <button
+            type="submit"
+            disabled={carregando || !senha}
+            className="mt-4 flex min-h-[44px] w-full items-center justify-center gap-3 rounded-full bg-primary px-6 py-4 text-xs uppercase tracking-[0.25em] text-primary-foreground transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {carregando && <Loader2 aria-hidden="true" className="h-4 w-4 animate-spin" />}
+            {carregando ? "Entrando" : "Entrar"}
+          </button>
+          {erro && (
+            <p role="alert" className="mt-4 text-sm text-destructive">
+              {erro}
+            </p>
+          )}
+          <Link
+            to="/"
+            className="mt-8 inline-flex min-h-[44px] items-center gap-2 text-xs uppercase tracking-[0.25em] text-primary/70 transition-colors hover:text-primary"
+          >
+            <ArrowLeft aria-hidden="true" className="h-4 w-4" />
+            Voltar ao site
+          </Link>
+        </form>
+      </div>
+    );
+  }
+
+  const termo = busca.trim().toLocaleLowerCase("pt-BR");
+  const filtradas = termo
+    ? inscricoes.filter((i) =>
+        [i.nome, i.email, i.telefone, i.codigo, i.igreja ?? ""]
+          .join(" ")
+          .toLocaleLowerCase("pt-BR")
+          .includes(termo),
+      )
+    : inscricoes;
+  const presentes = inscricoes.filter((i) => i.checkin_em).length;
+  const porEmail = inscricoes.filter((i) => i.email_enviado_em).length;
+  const porWhatsapp = inscricoes.filter((i) => i.whatsapp_enviado_em).length;
+  const semIngresso = inscricoes.filter(
+    (i) => !i.email_enviado_em && !i.whatsapp_enviado_em,
+  ).length;
+  const frequentam = inscricoes.filter((i) => i.frequenta_igreja).length;
+  const umaSemana = Date.now() - 7 * 24 * 60 * 60 * 1000;
+  const naSemana = inscricoes.filter((i) => new Date(i.criado_em).getTime() >= umaSemana).length;
+  const porcentagemPresentes = inscricoes.length
+    ? Math.round((presentes / inscricoes.length) * 100)
+    : 0;
+
+  const irPara = (destino: Aba) => {
+    setAba(destino);
+    setMenuAberto(false);
+    window.scrollTo({ top: 0 });
+  };
+
+  const itemMenu = (ativo: boolean) =>
+    `flex min-h-[44px] w-full items-center gap-3 rounded-xl px-4 text-left text-sm transition-colors ${
+      ativo
+        ? "bg-primary font-semibold text-primary-foreground"
+        : "text-foreground/75 hover:bg-accent hover:text-foreground"
+    }`;
+
+  const cartoes = [
+    {
+      titulo: "Inscritas",
+      valor: inscricoes.length,
+      detalhe: `de ${LIMITE_INSCRICOES} vagas · ${Math.max(0, LIMITE_INSCRICOES - inscricoes.length)} restantes · ${naSemana} nos últimos 7 dias`,
+    },
+    {
+      titulo: "Presença confirmada",
+      valor: presentes,
+      detalhe: `${porcentagemPresentes}% das inscritas fizeram check-in`,
+    },
+    {
+      titulo: "Ingressos enviados",
+      valor: inscricoes.length - semIngresso,
+      detalhe: `${porEmail} por e-mail · ${porWhatsapp} por WhatsApp`,
+    },
+    {
+      titulo: "Frequentam igreja",
+      valor: frequentam,
+      detalhe: `${inscricoes.length - frequentam} ainda não frequentam`,
+    },
+  ];
+
+  const conteudo = (
+    <>
+      {erro && (
+        <p
+          role="alert"
+          className="mb-6 rounded-2xl bg-destructive/10 px-6 py-4 text-sm text-destructive"
+        >
+          {erro}
+        </p>
+      )}
+
+      {aba === "visao" ? (
+        <>
+          <h1 translate="no" className="sr-only">
+            Visão geral
+          </h1>
+          <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+            {cartoes.map((cartao) => (
+              <div
+                key={cartao.titulo}
+                className="rounded-2xl border border-border bg-card p-6 shadow-sm"
+              >
+                <p className="text-sm text-foreground/70">{cartao.titulo}</p>
+                <p className="mt-3 font-sans text-4xl font-bold text-primary">{cartao.valor}</p>
+                <p className="mt-3 text-xs text-muted-foreground">{cartao.detalhe}</p>
+              </div>
+            ))}
+          </div>
+
+          <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2 className="font-sans text-xl font-semibold text-foreground">Encontros</h2>
+                <p className="mt-1 text-sm text-foreground/70">
+                  Data, situação no site e inscritas de cada encontro.
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => irPara("inscricoes")}
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                <Users aria-hidden="true" className="h-4 w-4" />
+                Ver inscritas
+              </button>
+            </div>
+
+            <div className="mt-6 flex flex-wrap items-center gap-5 border-t border-border pt-6">
+              <img
+                src={assetUrl("/imagens/encontros-capa.jpg")}
+                alt=""
+                aria-hidden="true"
+                className="h-20 w-32 shrink-0 rounded-xl object-cover"
+              />
+              <div className="min-w-0 flex-1">
+                <p className="font-semibold text-foreground">
+                  {proximoEncontro.nome || "Encontro Mulheres Curadas"}
+                </p>
+                <p className="mt-1 text-sm text-foreground/70">
+                  {proximoEncontro.data
+                    ? `${proximoEncontro.data}${proximoEncontro.horario ? ` · ${proximoEncontro.horario}` : ""}`
+                    : "Data a definir"}
+                </p>
+                <div className="mt-2 flex flex-wrap gap-2 text-xs font-medium">
+                  <span className="rounded-full bg-accent px-3 py-1 text-accent-foreground">
+                    No site
+                  </span>
+                  <span
+                    className={`rounded-full px-3 py-1 ${
+                      INSCRICOES_ABERTAS
+                        ? "bg-primary/10 text-primary"
+                        : "bg-muted text-muted-foreground"
+                    }`}
+                  >
+                    {!INSCRICOES_ABERTAS
+                      ? "Em breve inscrições"
+                      : inscricoes.length >= LIMITE_INSCRICOES
+                        ? "Vagas esgotadas"
+                        : "Inscrições abertas"}
+                  </span>
+                </div>
+              </div>
+              <div className="text-right">
+                <p className="text-3xl font-bold text-foreground">{inscricoes.length}</p>
+                <p className="text-xs text-foreground/70">de {LIMITE_INSCRICOES} vagas</p>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-6 rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+            <div className="flex flex-wrap items-start justify-between gap-4">
+              <div>
+                <h2 className="font-sans text-xl font-semibold text-foreground">
+                  Últimas inscrições
+                </h2>
+                <p className="mt-1 text-sm text-foreground/70">Quem entrou mais recentemente.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => irPara("inscricoes")}
+                className="min-h-[44px] text-sm font-medium text-primary underline underline-offset-4 hover:opacity-80"
+              >
+                Ver todas
+              </button>
+            </div>
+            {inscricoes.length === 0 ? (
+              <p className="mt-6 border-t border-border pt-6 text-sm text-foreground/60">
+                Nenhuma inscrição por enquanto.
+              </p>
+            ) : (
+              <ul className="mt-6 divide-y divide-border border-t border-border">
+                {inscricoes.slice(0, 5).map((inscricao) => (
+                  <li
+                    key={inscricao.id}
+                    className="flex flex-wrap items-center justify-between gap-3 py-4"
+                  >
+                    <div className="min-w-0">
+                      <p className="font-medium text-foreground">{inscricao.nome}</p>
+                      <p className="text-xs text-foreground/60">
+                        {formatarData(inscricao.criado_em)} · {inscricao.codigo}
+                      </p>
+                    </div>
+                    <span
+                      className={`rounded-full px-3 py-1 text-xs font-medium ${
+                        inscricao.checkin_em
+                          ? "bg-primary text-primary-foreground"
+                          : "bg-accent text-accent-foreground"
+                      }`}
+                    >
+                      {inscricao.checkin_em ? "Presente" : "Inscrita"}
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+          </section>
+        </>
+      ) : (
+        <section className="rounded-2xl border border-border bg-card p-6 shadow-sm md:p-8">
+          <div className="flex flex-wrap items-start gap-4">
+            <div>
+              <h1 translate="no" className="font-sans text-xl font-semibold text-foreground">
+                Inscrições
+              </h1>
+              <p className="mt-1 text-sm text-foreground/70">
+                <strong className="text-primary">{inscricoes.length}</strong> inscritas ·{" "}
+                <strong className="text-primary">{presentes}</strong> com presença confirmada
+              </p>
+            </div>
+            <div className="ml-auto flex w-full flex-wrap gap-3 sm:w-auto">
+              <div className="relative w-full sm:w-72">
+                <Search
+                  aria-hidden="true"
+                  className="pointer-events-none absolute left-5 top-1/2 h-4 w-4 -translate-y-1/2 text-primary/50"
+                />
+                <label htmlFor="busca" className="sr-only">
+                  Buscar inscrição
+                </label>
+                <input
+                  id="busca"
+                  type="search"
+                  value={busca}
+                  onChange={(e) => setBusca(e.target.value)}
+                  className={`${CAMPO} pl-12`}
+                  placeholder="Buscar por nome, e-mail, código"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => baixarCsv(filtradas)}
+                className="inline-flex min-h-[44px] items-center gap-2 rounded-xl bg-primary px-5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              >
+                <Download aria-hidden="true" className="h-4 w-4" />
+                Baixar planilha
+              </button>
+            </div>
+          </div>
+
+          {filtradas.length === 0 ? (
+            <p className="mt-12 text-center text-sm text-foreground/60">
+              {inscricoes.length === 0
+                ? "Nenhuma inscrição por enquanto."
+                : "Nenhuma inscrição encontrada para essa busca."}
+            </p>
+          ) : (
+            <div className="mt-8 overflow-x-auto rounded-3xl border border-primary/10">
+              <table className="w-full min-w-[52rem] border-collapse text-left text-sm">
+                <thead>
+                  <tr className="border-b border-primary/10 text-[0.65rem] uppercase tracking-[0.18em] text-primary/70">
+                    <th scope="col" className="px-5 py-4 font-normal">
+                      Inscrição
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-normal">
+                      Nome
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-normal">
+                      Contato
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-normal">
+                      Igreja
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-normal">
+                      Ingresso
+                    </th>
+                    <th scope="col" className="px-5 py-4 font-normal">
+                      Presença
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtradas.map((inscricao) => (
+                    <tr key={inscricao.id} className="border-b border-primary/5 last:border-0">
+                      <td className="px-5 py-4 align-top text-foreground/60">
+                        {formatarData(inscricao.criado_em)}
+                      </td>
+                      <td className="px-5 py-4 align-top">{inscricao.nome}</td>
+                      <td className="px-5 py-4 align-top text-foreground/70">
+                        <a
+                          href={`mailto:${inscricao.email}`}
+                          className="underline underline-offset-4 hover:text-primary"
+                        >
+                          {inscricao.email}
+                        </a>
+                        <br />
+                        <a
+                          href={`tel:${inscricao.telefone.replace(/\D/g, "")}`}
+                          className="hover:text-primary"
+                        >
+                          {inscricao.telefone}
+                        </a>
+                      </td>
+                      <td className="px-5 py-4 align-top text-foreground/70">
+                        {inscricao.frequenta_igreja ? (inscricao.igreja ?? "Sim") : "Não frequenta"}
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        <span className="tracking-[0.12em] text-primary">{inscricao.codigo}</span>
+                        <br />
+                        <span className="text-xs text-foreground/50">
+                          {inscricao.email_enviado_em ? "E-mail enviado" : "E-mail não enviado"}
+                          {" · "}
+                          {inscricao.whatsapp_enviado_em
+                            ? "WhatsApp enviado"
+                            : "WhatsApp não enviado"}
+                        </span>
+                        {/* Atalhos para mandar o ingresso na mao: abrem o
+                                WhatsApp e o programa de e-mail com tudo escrito. */}
+                        <span className="mt-2 flex gap-3 text-xs">
+                          <a
+                            href={linkWhatsapp(inscricao)}
+                            target="_blank"
+                            rel="noopener"
+                            className="text-primary underline underline-offset-4 hover:opacity-80"
+                          >
+                            WhatsApp
+                          </a>
+                          <a
+                            href={linkEmail(inscricao)}
+                            className="text-primary underline underline-offset-4 hover:opacity-80"
+                          >
+                            E-mail
+                          </a>
+                        </span>
+                      </td>
+                      <td className="px-5 py-4 align-top">
+                        <button
+                          type="button"
+                          onClick={() => void alternarPresenca(inscricao)}
+                          className={`min-h-[38px] rounded-full border px-4 text-xs uppercase tracking-[0.14em] transition-colors ${
+                            inscricao.checkin_em
+                              ? "border-primary bg-primary text-primary-foreground"
+                              : "border-primary/20 text-primary/70 hover:border-primary/50"
+                          }`}
+                        >
+                          {inscricao.checkin_em ? "Presente" : "Marcar presença"}
+                        </button>
+                        {inscricao.checkin_em && (
+                          <span className="mt-1 block text-xs text-foreground/50">
+                            {formatarData(inscricao.checkin_em)}
+                          </span>
+                        )}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </section>
+      )}
+    </>
+  );
+
+  const sorteio = (
+    <>
+      {/* Tela do sorteio: cobre tudo e mostra o nome grande, para projetar. */}
+      {sorteioAberto && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Sorteio"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-primary px-6 text-primary-foreground"
+        >
+          <div className="w-full max-w-2xl text-center">
+            <p className="eyebrow opacity-70">Sorteio · Mulheres Curadas</p>
+
+            {(() => {
+              const globo = inscricoes.filter(
+                (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
+              );
+              const participantes = globo.length + (vencedora && !sorteando ? 1 : 0);
+              return (
+                <>
+                  {vencedora ? (
+                    <div aria-live="polite">
+                      <h2
+                        className={`mt-8 text-display text-4xl leading-tight md:text-6xl ${sorteando ? "opacity-60" : ""}`}
+                      >
+                        {vencedora.nome}
+                      </h2>
+                      {/* Nome e numero do ingresso giram juntos na roleta e
+                        ficam juntos no resultado, como no bilhete fisico. */}
+                      <p
+                        className={`mt-4 text-xl tracking-[0.18em] md:text-2xl ${sorteando ? "opacity-50" : "opacity-90"}`}
+                      >
+                        Ingresso {vencedora.codigo}
+                      </p>
+                    </div>
+                  ) : (
+                    <h2 className="mt-8 text-display text-4xl leading-tight opacity-80 md:text-5xl">
+                      {participantes === 0
+                        ? apenasPresentes
+                          ? "Ninguém no globo ainda: marque as presenças ou inclua todas."
+                          : "Todas já foram sorteadas."
+                        : `${participantes} participante${participantes === 1 ? "" : "s"} no globo.`}
+                    </h2>
+                  )}
+
+                  <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+                    <button
+                      type="button"
+                      onClick={sortear}
+                      disabled={sorteando || globo.length === 0}
+                      className="inline-flex min-h-[52px] items-center gap-3 rounded-full bg-primary-foreground px-10 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      <Gift aria-hidden="true" className="h-4 w-4" />
+                      {sorteando ? "Sorteando…" : vencedora ? "Sortear outra" : "Sortear"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setSorteioAberto(false);
+                        aoFecharSorteio?.();
+                      }}
+                      disabled={sorteando}
+                      className="min-h-[52px] rounded-full border border-primary-foreground/40 px-8 text-xs uppercase tracking-[0.2em] transition-colors hover:border-primary-foreground disabled:opacity-60"
+                    >
+                      Fechar
+                    </button>
+                  </div>
+
+                  <label className="mt-10 inline-flex min-h-[44px] cursor-pointer items-center gap-3 text-sm opacity-80">
+                    <input
+                      type="checkbox"
+                      checked={apenasPresentes}
+                      onChange={(e) => setApenasPresentes(e.target.checked)}
+                      disabled={sorteando}
+                      className="h-4 w-4 accent-[color:var(--rose-soft)]"
+                    />
+                    Sortear só entre as presentes (com check-in)
+                  </label>
+
+                  {jaSorteadas.size > 0 && (
+                    <p className="mt-3 text-xs opacity-60">
+                      {jaSorteadas.size} já sorteada{jaSorteadas.size === 1 ? "" : "s"} — não voltam
+                      ao globo até recarregar a página.
+                    </p>
+                  )}
+                </>
+              );
+            })()}
+          </div>
+        </div>
+      )}
+    </>
+  );
+
+  if (embutido) {
+    const abaBotao = (ativo: boolean) =>
+      `inline-flex min-h-[40px] items-center gap-2 rounded-full px-5 text-sm font-semibold transition ${
+        ativo
+          ? "bg-[color:var(--admin-vinho)] text-white"
+          : "bg-white text-foreground/70 ring-1 ring-[color:var(--admin-linha)] hover:text-foreground"
+      }`;
+    return (
+      <div className="text-foreground">
+        <div className="mb-6 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div>
+            <h1 className="text-display text-4xl leading-tight text-[color:var(--admin-vinho)] md:text-5xl">
+              Inscrições
+            </h1>
+            <p className="mt-2 text-[15px] text-foreground/65">
+              Quem se inscreveu no encontro, presenças, ingressos e sorteio.
+            </p>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => void carregar(senha)}
+              disabled={carregando}
+              className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-foreground/70 ring-1 ring-[color:var(--admin-linha)] transition hover:text-foreground disabled:opacity-60"
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={`h-4 w-4 ${carregando ? "animate-spin" : ""}`}
+              />
+              Atualizar
+            </button>
+            <button
+              type="button"
+              onClick={() => baixarCsv(inscricoes)}
+              className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-white px-4 text-sm font-semibold text-foreground/70 ring-1 ring-[color:var(--admin-linha)] transition hover:text-foreground"
+            >
+              <Download aria-hidden="true" className="h-4 w-4" />
+              Baixar planilha
+            </button>
+            <button
+              type="button"
+              onClick={abrirSorteio}
+              className="inline-flex min-h-[40px] items-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-5 text-sm font-semibold text-white transition hover:brightness-110"
+            >
+              <Gift aria-hidden="true" className="h-4 w-4" />
+              Sorteio
+            </button>
+          </div>
+        </div>
+        <div className="mb-6 flex gap-2" role="tablist">
+          <button
+            type="button"
+            role="tab"
+            aria-selected={aba === "visao"}
+            onClick={() => irPara("visao")}
+            className={abaBotao(aba === "visao")}
+          >
+            Visão geral
+          </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={aba === "inscricoes"}
+            onClick={() => irPara("inscricoes")}
+            className={abaBotao(aba === "inscricoes")}
+          >
+            Lista de inscritas
+          </button>
+        </div>
+        {conteudo}
+        {sorteio}
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-muted text-foreground">
+      {/* Barra do topo: logo da marca em branco sobre o vinho escuro. */}
+      <header className="sticky top-0 z-40 bg-foreground text-primary-foreground">
+        <div className="flex items-center justify-between gap-4 px-4 py-4 md:px-8">
+          <div className="flex items-center gap-3">
+            <img
+              src={assetUrl(logoMonogram.url)}
+              alt=""
+              aria-hidden="true"
+              width={349}
+              height={522}
+              className="h-11 w-auto brightness-0 invert"
+            />
+            <div translate="no" className="leading-tight">
+              <p className="text-[0.65rem] uppercase tracking-[0.25em] opacity-80">
+                Painel administrativo
+              </p>
+              <p className="text-display text-xl">Mulheres Curadas</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => void carregar(senha)}
+              disabled={carregando}
+              className="hidden min-h-[44px] items-center gap-2 rounded-xl border border-primary-foreground/30 px-4 text-sm font-medium transition-colors hover:border-primary-foreground disabled:opacity-60 sm:inline-flex"
+            >
+              <RefreshCw
+                aria-hidden="true"
+                className={`h-4 w-4 ${carregando ? "animate-spin" : ""}`}
+              />
+              Atualizar
+            </button>
+            <button
+              type="button"
+              onClick={sair}
+              className="hidden min-h-[44px] items-center gap-2 rounded-xl border border-primary-foreground/30 px-4 text-sm font-medium transition-colors hover:border-primary-foreground sm:inline-flex"
+            >
+              <LogOut aria-hidden="true" className="h-4 w-4" />
+              Sair
+            </button>
+            <button
+              type="button"
+              onClick={() => setMenuAberto((aberto) => !aberto)}
+              aria-expanded={menuAberto}
+              aria-controls="menu-painel"
+              aria-label={menuAberto ? "Fechar menu" : "Abrir menu"}
+              className="inline-flex h-11 w-11 items-center justify-center rounded-xl border border-primary-foreground/30 transition-colors hover:border-primary-foreground lg:hidden"
+            >
+              {menuAberto ? (
+                <X aria-hidden="true" className="h-5 w-5" />
+              ) : (
+                <Menu aria-hidden="true" className="h-5 w-5" />
+              )}
+            </button>
+          </div>
+        </div>
+      </header>
+
+      <div className="flex">
+        {/* Menu lateral: fixo no computador, gaveta no celular. */}
+        <nav
+          id="menu-painel"
+          aria-label="Seções do painel"
+          className={`${
+            menuAberto ? "block" : "hidden"
+          } fixed inset-x-0 top-[76px] bottom-0 z-30 overflow-y-auto border-r border-border bg-background p-4 lg:sticky lg:block lg:h-[calc(100vh-76px)] lg:w-64 lg:shrink-0`}
+        >
+          <ul className="space-y-1">
+            <li>
+              <button
+                type="button"
+                onClick={() => irPara("visao")}
+                className={itemMenu(aba === "visao")}
+              >
+                <LayoutDashboard aria-hidden="true" className="h-4 w-4" />
+                Visão geral
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => irPara("inscricoes")}
+                className={itemMenu(aba === "inscricoes")}
+              >
+                <Users aria-hidden="true" className="h-4 w-4" />
+                Inscrições
+              </button>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => {
+                  setMenuAberto(false);
+                  abrirSorteio();
+                }}
+                className={itemMenu(false)}
+              >
+                <Gift aria-hidden="true" className="h-4 w-4" />
+                Sorteio
+              </button>
+            </li>
+            <li>
+              <Link to="/checkin" search={{ c: "" }} className={itemMenu(false)}>
+                <ScanLine aria-hidden="true" className="h-4 w-4" />
+                Check-in na entrada
+              </Link>
+            </li>
+            <li>
+              <button
+                type="button"
+                onClick={() => baixarCsv(inscricoes)}
+                className={itemMenu(false)}
+              >
+                <Download aria-hidden="true" className="h-4 w-4" />
+                Baixar planilha
+              </button>
+            </li>
+          </ul>
+          <div className="mt-6 space-y-1 border-t border-border pt-6">
+            <Link to="/" className={itemMenu(false)}>
+              <ExternalLink aria-hidden="true" className="h-4 w-4" />
+              Ver site público
+            </Link>
+            <button type="button" onClick={sair} className={`${itemMenu(false)} sm:hidden`}>
+              <LogOut aria-hidden="true" className="h-4 w-4" />
+              Sair
+            </button>
+          </div>
+        </nav>
+
+        <main className="min-w-0 flex-1 px-4 py-6 md:px-8 md:py-8">
+          <div className="mx-auto max-w-6xl">{conteudo}</div>
+        </main>
+      </div>
+
+      {sorteio}
+    </div>
+  );
+}

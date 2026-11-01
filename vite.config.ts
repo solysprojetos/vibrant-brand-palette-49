@@ -30,6 +30,8 @@ export default defineConfig({
         // abrir direto pelo endereco no GitHub Pages.
         { path: "/admin" },
         { path: "/admin/checkin" },
+        { path: "/admin/inscricoes" },
+        { path: "/admin/sorteio" },
         { path: "/admin/eventos" },
         { path: "/admin/galeria" },
         { path: "/admin/mensagens" },

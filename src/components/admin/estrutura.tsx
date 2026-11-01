@@ -37,8 +37,6 @@ type ItemMenu = {
   /** Papeis que veem o item. */
   papeis: Acesso["papel"][];
   externo?: boolean;
-  /** Parametros do endereco (ex.: abrir /painel direto no sorteio). */
-  busca?: Record<string, string | boolean>;
 };
 
 const EQUIPE: Acesso["papel"][] = ["admin", "editor"];
@@ -61,15 +59,8 @@ const MENU: ItemMenu[] = [
   },
   { para: "/admin/conteudo", rotulo: "Conteúdo do site", icone: FileText, papeis: EQUIPE },
   { para: "/admin/equipe", rotulo: "Equipe", icone: Users, papeis: EQUIPE },
-  { para: "/painel", rotulo: "Inscrições", icone: ClipboardList, papeis: EQUIPE, externo: true },
-  {
-    para: "/painel",
-    busca: { sorteio: true },
-    rotulo: "Sorteio",
-    icone: Gift,
-    papeis: EQUIPE,
-    externo: true,
-  },
+  { para: "/admin/inscricoes", rotulo: "Inscrições", icone: ClipboardList, papeis: EQUIPE },
+  { para: "/admin/sorteio", rotulo: "Sorteio", icone: Gift, papeis: EQUIPE },
   { para: "/admin/usuarios", rotulo: "Usuários e acesso", icone: ShieldCheck, papeis: ["admin"] },
 ];
 
@@ -126,7 +117,6 @@ function BarraLateral({ aoNavegar }: { aoNavegar?: () => void }) {
               <li key={item.rotulo}>
                 <Link
                   to={item.para}
-                  search={item.busca}
                   onClick={aoNavegar}
                   aria-current={marcado ? "page" : undefined}
                   className={`flex min-h-[44px] items-center gap-3 rounded-2xl px-4 text-[15px] transition ${
