@@ -13,6 +13,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CheckinRouteImport } from './routes/checkin'
 import { Route as EventosRouteImport } from './routes/eventos'
+import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as InscricaoRouteImport } from './routes/inscricao'
 import { Route as PainelRouteImport } from './routes/painel'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
@@ -45,6 +46,11 @@ const CheckinRoute = CheckinRouteImport.update({
 const EventosRoute = EventosRouteImport.update({
   id: '/eventos',
   path: '/eventos',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const GaleriaRoute = GaleriaRouteImport.update({
+  id: '/galeria',
+  path: '/galeria',
   getParentRoute: () => rootRouteImport,
 } as any)
 const InscricaoRoute = InscricaoRouteImport.update({
@@ -118,6 +124,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/checkin': typeof CheckinRoute
   '/eventos': typeof EventosRoute
+  '/galeria': typeof GaleriaRoute
   '/inscricao': typeof InscricaoRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
@@ -136,6 +143,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
   '/eventos': typeof EventosRoute
+  '/galeria': typeof GaleriaRoute
   '/inscricao': typeof InscricaoRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
@@ -156,6 +164,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/checkin': typeof CheckinRoute
   '/eventos': typeof EventosRoute
+  '/galeria': typeof GaleriaRoute
   '/inscricao': typeof InscricaoRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
@@ -177,6 +186,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkin'
     | '/eventos'
+    | '/galeria'
     | '/inscricao'
     | '/painel'
     | '/politica-de-privacidade'
@@ -195,6 +205,7 @@ export interface FileRouteTypes {
     | '/'
     | '/checkin'
     | '/eventos'
+    | '/galeria'
     | '/inscricao'
     | '/painel'
     | '/politica-de-privacidade'
@@ -214,6 +225,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/checkin'
     | '/eventos'
+    | '/galeria'
     | '/inscricao'
     | '/painel'
     | '/politica-de-privacidade'
@@ -234,6 +246,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CheckinRoute: typeof CheckinRoute
   EventosRoute: typeof EventosRoute
+  GaleriaRoute: typeof GaleriaRoute
   InscricaoRoute: typeof InscricaoRoute
   PainelRoute: typeof PainelRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
@@ -267,6 +280,13 @@ declare module '@tanstack/react-router' {
       path: '/eventos'
       fullPath: '/eventos'
       preLoaderRoute: typeof EventosRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/galeria': {
+      id: '/galeria'
+      path: '/galeria'
+      fullPath: '/galeria'
+      preLoaderRoute: typeof GaleriaRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/inscricao': {
@@ -396,6 +416,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CheckinRoute: CheckinRoute,
   EventosRoute: EventosRoute,
+  GaleriaRoute: GaleriaRoute,
   InscricaoRoute: InscricaoRoute,
   PainelRoute: PainelRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,

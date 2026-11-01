@@ -26,6 +26,7 @@ export default defineConfig({
         { path: "/" },
         { path: "/inscricao" },
         { path: "/politica-de-privacidade" },
+        { path: "/galeria" },
         // Painel administrativo: cada secao vira um index.html proprio, para
         // abrir direto pelo endereco no GitHub Pages.
         { path: "/admin" },

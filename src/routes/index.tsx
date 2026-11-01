@@ -12,34 +12,7 @@ import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import flowers from "@/assets/flowers.asset.json";
 import mirror from "@/assets/mirror.asset.json";
-import momento1 from "@/assets/momento-1.asset.json";
-import momento2 from "@/assets/momento-2.asset.json";
-import momento3 from "@/assets/momento-3.asset.json";
-import momento4 from "@/assets/momento-4.asset.json";
-import momento5 from "@/assets/momento-5.asset.json";
-import momento6 from "@/assets/momento-6.asset.json";
-import momento7 from "@/assets/momento-7.asset.json";
-import momento8 from "@/assets/momento-8.asset.json";
-import momento9 from "@/assets/momento-9.asset.json";
-
-// As descricoes acompanham cada foto para que quem usa leitor de tela ouca o
-// que esta na imagem, e nao apenas "Momento 3".
-const momentos = [
-  {
-    asset: momento2,
-    alt: "Salão do encontro com mulheres de pé, em oração, com as mãos sobre o peito",
-  },
-  { asset: momento3, alt: "Participante de braços erguidos em adoração diante do palco" },
-  { asset: momento4, alt: "Duas participantes em um longo abraço durante o encontro" },
-  { asset: momento5, alt: "Participante de mãos unidas em oração" },
-  { asset: momento6, alt: "Participantes de pé, cantando juntas no salão do encontro" },
-  { asset: momento7, alt: "Participante de olhos fechados, com a mão sobre o coração" },
-  { asset: momento8, alt: "Participante em oração, à mesa, durante o encontro" },
-  {
-    asset: momento9,
-    alt: "Participantes de pé entre as mesas, de olhos fechados e mãos sobre o coração",
-  },
-];
+import { MOMENTO_DESTAQUE, momentos } from "@/lib/momentos";
 
 // Um lugar so para os links do menu: o menu do computador e o do celular leem
 // desta lista, entao nunca ficam diferentes um do outro.
@@ -404,8 +377,8 @@ function Index() {
             <div className="grid grid-cols-2 gap-4 md:grid-cols-4 md:gap-6">
               <div className="col-span-2 row-span-2 aspect-[3/4] md:aspect-square overflow-hidden rounded-3xl relative">
                 <ImagemResponsiva
-                  src={momento1.url}
-                  alt="Palestrante ao microfone diante do painel Mulheres Curadas"
+                  src={MOMENTO_DESTAQUE.asset.url}
+                  alt={MOMENTO_DESTAQUE.alt}
                   sizes="(min-width: 1280px) 590px, (min-width: 768px) 46vw, 48vw"
                   className="h-full w-full object-cover object-top transition-transform duration-700 hover:scale-105"
                 />
@@ -424,6 +397,14 @@ function Index() {
                   />
                 </div>
               ))}
+            </div>
+            <div className="mt-10 text-center">
+              <Link
+                to="/galeria"
+                className="inline-flex min-h-[48px] items-center rounded-full border border-primary/30 px-8 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:bg-primary hover:text-primary-foreground"
+              >
+                Galeria de fotos
+              </Link>
             </div>
           </div>
         </section>

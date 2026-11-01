@@ -97,9 +97,9 @@ login; quem está logada no `/admin` entra nelas sem senha.
 | **Inscrições e sorteio**    | Abre o `/painel` de inscrições que já existia.                                                                                                             |
 | **Usuários e acesso**       | Criar acesso (administração, edição ou recepção), mudar papel, definir nova senha, remover.                                                                |
 
-Galeria, mensagens, conteúdo e equipe ficam **guardados no painel**: como o
-site não muda, eles ainda não aparecem nas páginas públicas. Quando quiserem
-colocar no ar, é só pedir — os dados já estarão lá.
+Mensagens, conteúdo e equipe ficam **guardados no painel**: ainda não aparecem
+nas páginas públicas. Quando quiserem colocar no ar, é só pedir — os dados já
+estarão lá. A galeria já está no site.
 
 ---
 
