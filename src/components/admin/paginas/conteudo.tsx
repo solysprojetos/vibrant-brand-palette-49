@@ -86,7 +86,7 @@ export function PaginaConteudo() {
     <>
       <CabecalhoPagina
         titulo="Conteúdo do site"
-        descricao="Edite os textos institucionais, a idealizadora, contatos e redes sociais — sem precisar de programador."
+        descricao="Edite os textos institucionais, a idealizadora, contatos e redes sociais — sem precisar de programador. Fica guardado no painel. O site atual ainda não mostra esta seção — ela entra no ar quando vocês decidirem publicar."
       />
       <Tabs defaultValue="sobre">
         <TabsList className="mb-6 h-auto flex-wrap gap-1 rounded-full bg-white p-1 ring-1 ring-[color:var(--admin-linha)]">
@@ -338,7 +338,7 @@ export function PaginaConteudo() {
           <section className={`${CARTAO} space-y-5 p-6 md:p-8`}>
             <Campo
               rotulo="Mensagem da idealizadora"
-              dica="Aparece na página Sobre e na página de mensagens, em destaque, assinada pela idealizadora."
+              dica="Mensagem assinada pela idealizadora, para usar quando a página Sobre for publicada."
             >
               {(i) => (
                 <textarea
@@ -351,8 +351,8 @@ export function PaginaConteudo() {
               )}
             </Campo>
             <Interruptor
-              rotulo="Depoimentos da página inicial vindos do painel"
-              descricao="Mostra na home os testemunhos marcados como destaque. Desligado, a home mantém os depoimentos atuais."
+              rotulo="Usar os testemunhos em destaque do painel"
+              descricao="Preferência guardada para quando os depoimentos da página inicial passarem a vir do painel. Hoje a página inicial não muda."
               marcado={form.inicio.mostrar_ultimas_mensagens}
               aoMudar={(v) => inicio("mostrar_ultimas_mensagens", v)}
             />

@@ -1,9 +1,7 @@
-import { useMontado } from "@/lib/use-montado";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft } from "lucide-react";
 import { assetUrl } from "@/lib/asset-url";
 import { Evento } from "@/components/evento";
-import { DetalheEvento, EventosDoPainel } from "@/components/site/eventos-painel";
 import { SITE_URL, proximoEncontro } from "@/config/conteudo";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
@@ -16,10 +14,6 @@ import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 const DESCRICAO = `Encontro Mulheres Curadas: 9 de novembro, às 18h30, na ${proximoEncontro.local}. Garanta sua vaga.`;
 
 export const Route = createFileRoute("/eventos")({
-  // ?e=slug abre um evento cadastrado no painel /admin.
-  validateSearch: (busca: Record<string, unknown>): { e?: string } => ({
-    e: typeof busca.e === "string" && busca.e ? busca.e : undefined,
-  }),
   component: PaginaEvento,
   head: () => ({
     meta: [
@@ -35,9 +29,6 @@ export const Route = createFileRoute("/eventos")({
 });
 
 function PaginaEvento() {
-  const busca = Route.useSearch();
-  const montado = useMontado();
-  const e = montado ? busca.e : undefined;
   return (
     <div className="min-h-screen bg-background text-foreground">
       <header className="border-b border-primary/10">
@@ -74,14 +65,7 @@ function PaginaEvento() {
       </header>
 
       <main className="mx-auto max-w-6xl px-4 py-10 md:px-6 md:py-16">
-        {e ? (
-          <DetalheEvento slug={e} />
-        ) : (
-          <>
-            <Evento />
-            <EventosDoPainel />
-          </>
-        )}
+        <Evento />
       </main>
     </div>
   );

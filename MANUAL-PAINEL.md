@@ -2,150 +2,119 @@
 
 Endereço: **https://www.mulherescuradas.com/admin/**
 
-Pelo painel a equipe atualiza o site sozinha, sem programador: eventos, fotos,
-testemunhos, textos institucionais, equipe, contatos e acessos. Tudo o que é
-salvo aparece no site na hora.
-
-O que **já existia continua igual**: a página inicial, a inscrição com QR code,
-o check-in e o painel de inscrições (`/painel`, com senha própria). O painel novo
-só acrescenta coisas.
+O painel é só da equipe. **O site público não muda nada**: a página inicial,
+`/eventos`, a inscrição com QR code, o `/checkin` e o painel de inscrições
+(`/painel`, com a senha própria) continuam exatamente como estão.
 
 ---
 
-## 1. Configuração (uma vez só, cerca de 10 minutos)
+## 1. Configuração (uma vez só)
 
-Tudo é feito no painel do Supabase do projeto
-`vdjovchltmyhuvlwxzwr` (https://supabase.com/dashboard/project/vdjovchltmyhuvlwxzwr).
+Tudo no painel do Supabase do projeto `vdjovchltmyhuvlwxzwr`
+(https://supabase.com/dashboard/project/vdjovchltmyhuvlwxzwr), menu
+**SQL Editor** → **New query** → colar → **Run**. Nesta ordem:
 
-### 1.1 Criar as tabelas do painel
+| #   | O que colar                                                          | O que faz                                                                                                     |
+| --- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| 1   | `supabase/migrations/20261101120000_painel_administrativo.sql`       | Tabelas do painel, regras de segurança e o espaço das fotos.                                                  |
+| 2   | `supabase/migrations/20261101130000_recepcao_e_checkin.sql`          | Papel de recepção, check-in pelo painel e o encontro de **9 de novembro** já cadastrado (CC Visão Profética). |
+| 3   | `criar-acessos-painel.sql` (enviado à parte, **não fica no GitHub**) | Cria os logins da Karoline, do Juan e das 3 recepcionistas.                                                   |
 
-1. Menu **SQL Editor** → **New query**.
-2. Copie todo o conteúdo do arquivo
-   `supabase/migrations/20261101120000_painel_administrativo.sql` e cole.
-3. Clique em **Run**. Deve aparecer "Success".
+Os três podem ser rodados de novo sem duplicar nada. Nenhum deles apaga dados
+nem muda a tabela de inscrições (o 2 só acrescenta a coluna "quem confirmou a
+entrada").
 
-Pode rodar de novo sem medo: o arquivo não apaga nada e não mexe na tabela de
-inscrições (só acrescenta uma permissão de leitura para quem entrar no painel).
+### Acessos criados pelo arquivo 3
 
-### 1.2 Criar a primeira administradora
+| Pessoa             | Login                                                 | Acesso               |
+| ------------------ | ----------------------------------------------------- | -------------------- |
+| Karoline Rodrigues | karoline@mulherescuradas.com                          | Administração (tudo) |
+| Juan               | juan@mulherescuradas.com                              | Administração (tudo) |
+| Recepção 1, 2 e 3  | recepcao1@, recepcao2@, recepcao3@mulherescuradas.com | Só o check-in        |
 
-1. Menu **Authentication** → **Users** → **Add user** → **Create new user**.
-2. Preencha o e-mail e uma senha forte e marque **Auto Confirm User**.
-3. Volte ao **SQL Editor** e rode (trocando o e-mail e o nome):
+As senhas iniciais vão na lista entregue junto com o arquivo. Cada pessoa troca
+a sua clicando no próprio nome, no rodapé do menu do painel.
 
-```sql
-insert into public.mc_equipe_acesso (user_id, nome, email, papel)
-select id, 'Pastora Karoline Rodrigues', email, 'admin'
-from auth.users
-where email = 'EMAIL-DA-ADMINISTRADORA@exemplo.com';
-```
+> Esses e-mails servem de login mesmo sem caixa de e-mail criada. Só o
+> "Esqueci minha senha" depende de a caixa existir; sem ela, quem administra
+> define uma senha nova em **Usuários e acesso** (ícone da chave).
 
-Pronto: com esse e-mail e senha já dá para entrar em `/admin/`. As próximas
-pessoas da equipe são criadas pelo próprio painel (item 1.3).
+### Função de usuários (para criar acessos pelo painel depois)
 
-### 1.3 Publicar a função de usuários (para "Usuários e acesso")
+Menu **Edge Functions** → **Deploy a new function** → **Via Editor**, nome
+`admin-usuarios`, colar `supabase/functions/admin-usuarios/index.ts` →
+**Deploy**. Sem ela o resto do painel funciona; só a tela "Usuários e acesso"
+avisa que falta.
 
-Criar login para outra pessoa exige uma chave secreta que nunca pode ficar no
-site. Por isso essa parte roda numa função do Supabase.
+### Recomendado no Supabase
 
-1. Menu **Edge Functions** → **Deploy a new function** → **Via Editor**.
-2. Nome da função: `admin-usuarios`.
-3. Apague o exemplo, cole todo o conteúdo de
-   `supabase/functions/admin-usuarios/index.ts` e clique em **Deploy**.
-
-(Quem usa o terminal pode rodar `supabase functions deploy admin-usuarios`.)
-
-Enquanto ela não estiver publicada, a tela "Usuários e acesso" avisa isso — o
-resto do painel funciona normalmente.
-
-### 1.4 Endereços do login e recuperação de senha
-
-Menu **Authentication** → **URL Configuration**:
-
-- **Site URL**: `https://www.mulherescuradas.com`
-- **Redirect URLs**: acrescente `https://www.mulherescuradas.com/admin/`
-
-Assim o link de "Esqueci minha senha" volta para o painel.
-
-### 1.5 Fechar o cadastro público (recomendado)
-
-Menu **Authentication** → **Sign In / Providers** → desligue
-**Allow new users to sign up**. Só a equipe cria contas, pelo painel.
+- **Authentication → URL Configuration**: Site URL
+  `https://www.mulherescuradas.com` e, em Redirect URLs,
+  `https://www.mulherescuradas.com/admin/`.
+- **Authentication → Sign In / Providers**: desligar **Allow new users to sign
+  up** (só a equipe cria contas).
 
 ---
 
-## 2. Usando o painel
+## 2. Check-in da entrada (recepção)
 
-| Seção                       | O que dá para fazer                                                                                                                                                                                                                                                                          |
-| --------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **Dashboard**               | Números do site (eventos, fotos, mensagens, contatos não lidos, inscrições), últimas publicações, próximos eventos e atalhos.                                                                                                                                                                |
-| **Eventos**                 | Cadastrar, editar e excluir; banner; data e horário de início e fim; local, endereço e mapa; programação (com ordem); informações adicionais; link de inscrição e WhatsApp; publicar/despublicar; marcar como realizado. O site separa sozinho em _próximos_, _em andamento_ e _realizados_. |
-| **Galeria de fotos**        | Criar álbuns (título, descrição, data, evento); enviar várias fotos de uma vez (arrastando ou escolhendo); legenda em cada foto; estrela para a foto de capa; arrastar ou usar as setas para mudar a ordem; excluir fotos ou o álbum. As fotos ficam na **qualidade original**.              |
-| **Mensagens e testemunhos** | Testemunhos, histórias de transformação, mensagens de fé, reflexões e vídeos (link do YouTube ou Vimeo). Marque **Destaque** para o texto aparecer nos depoimentos da página inicial.                                                                                                        |
-| **Conteúdo do site**        | História, missão, visão, valores, propósito, foto; idealizadora (nome, texto e foto); mensagem da idealizadora; e-mail, Instagram, WhatsApp, endereço e mapa.                                                                                                                                |
-| **Equipe**                  | Pessoas exibidas na página Sobre, com foto, função e ordem.                                                                                                                                                                                                                                  |
-| **Contatos recebidos**      | Mensagens do formulário de contato. Responder por e-mail ou WhatsApp com um toque; marcar como lida; excluir. O número dourado no menu mostra as não lidas.                                                                                                                                  |
-| **Inscrições**              | Abre o painel de inscrições que já existia (`/painel`), com check-in, sorteio e planilha.                                                                                                                                                                                                    |
-| **Usuários e acesso**       | (só administradoras) Criar acesso para a equipe, escolher o papel, definir nova senha e remover acesso.                                                                                                                                                                                      |
+1. A recepcionista abre **mulherescuradas.com/admin** no celular e entra com o
+   login dela. O painel abre direto no **Check-in da entrada** — é a única tela
+   que ela vê.
+2. **Ler QR code**: toca em _Abrir câmera_ e aponta para o QR do ingresso
+   (no e-mail ou no print). Funciona no Android e no iPhone.
+3. **Buscar nome**: digita parte do nome (sem precisar de acento) ou o código
+   `MC-XXXX-XXXX` e toca em _Confirmar entrada_.
+4. A tela responde na hora:
+   - **verde** — entrada confirmada;
+   - **amarelo** — o ingresso já foi usado (mostra a hora e quem confirmou);
+   - **vermelho** — ingresso não encontrado.
+5. O contador no topo mostra presenças / inscritas e se atualiza sozinho com
+   as leituras das outras recepcionistas.
 
-**Papéis**: _Administradora_ faz tudo, inclusive gerenciar acessos. _Editora_
-cuida de todo o conteúdo, mas não mexe em acessos.
-
-Clicando no próprio nome (embaixo, no menu) cada pessoa troca a sua senha e o
-nome usado na saudação do dashboard.
-
-### Páginas novas do site
-
-- `/sobre/` — história, missão, visão, valores, propósito, idealizadora e equipe.
-- `/eventos/` — o bloco do encontro que já existia, seguido dos eventos do painel.
-  Cada evento tem página própria (`/eventos/?e=...`) com programação, mapa,
-  inscrição e WhatsApp.
-- `/galeria/` — álbuns em grade editorial, foto ampliada com setas, deslizar no
-  celular e botão de compartilhar.
-- `/mensagens/` — testemunhos, mensagens, reflexões e vídeos, com filtro.
-- `/contato/` — Instagram, WhatsApp, e-mail, endereço e formulário.
-
-Na página inicial foram acrescentados só links (menu, rodapé, "Conheça nossa
-história", "Ver a galeria completa"). Os depoimentos da home passam a mostrar os
-testemunhos marcados como destaque; sem nenhum destaque, continuam os de antes.
-
-> Dica: o encontro de 9 de novembro continua aparecendo pelo bloco fixo de
-> `/eventos/`. Se cadastrar esse mesmo encontro no painel, ele aparece duas
-> vezes — deixe-o como rascunho ou cadastre a partir do próximo.
+A recepção não vê e-mail nem telefone de ninguém, e ler o mesmo ingresso duas
+vezes nunca conta duas presenças. A página antiga `/checkin` (aberta pela
+câmera comum do celular, com a senha do painel de inscrições) continua
+funcionando do mesmo jeito.
 
 ---
 
-## 3. Publicação
+## 3. O painel para a administração
 
-O site é publicado automaticamente pelo GitHub Pages a cada alteração na
-branch `main` (workflow `.github/workflows/deploy-pages.yml`). O conteúdo do
-painel **não precisa de nova publicação**: ele é lido do Supabase na hora.
+| Seção                       | O que faz                                                                                                                                                  |
+| --------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Dashboard**               | Saudação, eventos (cadastrados, próximos, realizados), inscrições e vagas restantes, presenças confirmadas, fotos, últimas publicações e próximos eventos. |
+| **Check-in da entrada**     | O mesmo da recepção.                                                                                                                                       |
+| **Eventos**                 | Cadastrar, editar, excluir; banner; data e horário; local e endereço; programação; link de inscrição e WhatsApp; publicar e marcar como realizado.         |
+| **Galeria de fotos**        | Álbuns, envio de várias fotos de uma vez na qualidade original, legenda, capa e ordem.                                                                     |
+| **Mensagens e testemunhos** | Testemunhos, histórias, mensagens, reflexões e vídeos.                                                                                                     |
+| **Conteúdo do site**        | História, missão, visão, valores, propósito, idealizadora, contatos e redes.                                                                               |
+| **Equipe**                  | Pessoas da equipe com foto e função.                                                                                                                       |
+| **Inscrições e sorteio**    | Abre o `/painel` de inscrições que já existia.                                                                                                             |
+| **Usuários e acesso**       | Criar acesso (administração, edição ou recepção), mudar papel, definir nova senha, remover.                                                                |
 
-Para testar no computador:
-
-```bash
-bun install
-```
-
-```bash
-bun run dev
-```
-
-Para apontar o site para outro projeto do Supabase, defina no build as
-variáveis `VITE_SUPABASE_URL` e `VITE_SUPABASE_PUBLISHABLE_KEY`.
+Galeria, mensagens, conteúdo e equipe ficam **guardados no painel**: como o
+site não muda, eles ainda não aparecem nas páginas públicas. Quando quiserem
+colocar no ar, é só pedir — os dados já estarão lá.
 
 ---
 
-## 4. Segurança
+## 4. Publicação
 
-- O login é do **Supabase Auth**. Ter login não basta: só entra no painel quem
-  está na tabela `mc_equipe_acesso`.
-- As regras (**RLS**) ficam no banco, não na tela: visitante só lê o que está
-  publicado e só pode **enviar** contato (nunca ler); escrever, apagar e ver
-  rascunhos é só para a equipe. Ninguém consegue se promover a administradora.
-- As imagens ficam no bucket `mc-imagens`: qualquer pessoa vê pela URL, mas só a
-  equipe envia, troca ou apaga — e o bucket não pode ser listado. Aceita apenas
-  imagens de até 25 MB.
-- O site usa apenas a chave **publishable** (pública por natureza). A chave
-  `service_role` fica só dentro da função `admin-usuarios`, no Supabase.
-- As páginas `/admin/` ficam fora dos buscadores (`noindex`).
+O site é publicado pelo GitHub Pages a cada alteração na branch `main`
+(`.github/workflows/deploy-pages.yml`). O que é salvo no painel não precisa de
+nova publicação: fica no Supabase e aparece na hora.
+
+---
+
+## 5. Segurança
+
+- Login pelo **Supabase Auth**. Ter login não basta: só entra no painel quem
+  está em `mc_equipe_acesso`, e cada papel só vê o que pode.
+- As regras ficam no banco (RLS), não na tela: visitante só lê o que está
+  publicado; editar é só para administração e edição; a recepção só usa as
+  funções de check-in; ninguém se promove sozinho.
+- O site usa apenas a chave **publishable** (pública). A `service_role` fica só
+  dentro da função `admin-usuarios`, no Supabase.
+- O arquivo de acessos tem senhas: guarde fora do GitHub (o repositório é
+  público) e peça para cada pessoa trocar a senha no primeiro acesso.

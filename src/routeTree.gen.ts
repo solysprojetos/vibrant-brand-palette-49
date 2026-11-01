@@ -12,16 +12,12 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as CheckinRouteImport } from './routes/checkin'
-import { Route as ContatoRouteImport } from './routes/contato'
 import { Route as EventosRouteImport } from './routes/eventos'
-import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as InscricaoRouteImport } from './routes/inscricao'
-import { Route as MensagensRouteImport } from './routes/mensagens'
 import { Route as PainelRouteImport } from './routes/painel'
 import { Route as PoliticaDePrivacidadeRouteImport } from './routes/politica-de-privacidade'
-import { Route as SobreRouteImport } from './routes/sobre'
 import { Route as AdminIndexRouteImport } from './routes/admin/index'
-import { Route as AdminContatosRouteImport } from './routes/admin/contatos'
+import { Route as AdminCheckinRouteImport } from './routes/admin/checkin'
 import { Route as AdminConteudoRouteImport } from './routes/admin/conteudo'
 import { Route as AdminEquipeRouteImport } from './routes/admin/equipe'
 import { Route as AdminEventosRouteImport } from './routes/admin/eventos'
@@ -44,29 +40,14 @@ const CheckinRoute = CheckinRouteImport.update({
   path: '/checkin',
   getParentRoute: () => rootRouteImport,
 } as any)
-const ContatoRoute = ContatoRouteImport.update({
-  id: '/contato',
-  path: '/contato',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const EventosRoute = EventosRouteImport.update({
   id: '/eventos',
   path: '/eventos',
   getParentRoute: () => rootRouteImport,
 } as any)
-const GaleriaRoute = GaleriaRouteImport.update({
-  id: '/galeria',
-  path: '/galeria',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const InscricaoRoute = InscricaoRouteImport.update({
   id: '/inscricao',
   path: '/inscricao',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const MensagensRoute = MensagensRouteImport.update({
-  id: '/mensagens',
-  path: '/mensagens',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PainelRoute = PainelRouteImport.update({
@@ -79,19 +60,14 @@ const PoliticaDePrivacidadeRoute = PoliticaDePrivacidadeRouteImport.update({
   path: '/politica-de-privacidade',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SobreRoute = SobreRouteImport.update({
-  id: '/sobre',
-  path: '/sobre',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminContatosRoute = AdminContatosRouteImport.update({
-  id: '/contatos',
-  path: '/contatos',
+const AdminCheckinRoute = AdminCheckinRouteImport.update({
+  id: '/checkin',
+  path: '/checkin',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminConteudoRoute = AdminConteudoRouteImport.update({
@@ -129,15 +105,11 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkin': typeof CheckinRoute
-  '/contato': typeof ContatoRoute
   '/eventos': typeof EventosRoute
-  '/galeria': typeof GaleriaRoute
   '/inscricao': typeof InscricaoRoute
-  '/mensagens': typeof MensagensRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
-  '/sobre': typeof SobreRoute
-  '/admin/contatos': typeof AdminContatosRoute
+  '/admin/checkin': typeof AdminCheckinRoute
   '/admin/conteudo': typeof AdminConteudoRoute
   '/admin/equipe': typeof AdminEquipeRoute
   '/admin/eventos': typeof AdminEventosRoute
@@ -149,15 +121,11 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/checkin': typeof CheckinRoute
-  '/contato': typeof ContatoRoute
   '/eventos': typeof EventosRoute
-  '/galeria': typeof GaleriaRoute
   '/inscricao': typeof InscricaoRoute
-  '/mensagens': typeof MensagensRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
-  '/sobre': typeof SobreRoute
-  '/admin/contatos': typeof AdminContatosRoute
+  '/admin/checkin': typeof AdminCheckinRoute
   '/admin/conteudo': typeof AdminConteudoRoute
   '/admin/equipe': typeof AdminEquipeRoute
   '/admin/eventos': typeof AdminEventosRoute
@@ -171,15 +139,11 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/checkin': typeof CheckinRoute
-  '/contato': typeof ContatoRoute
   '/eventos': typeof EventosRoute
-  '/galeria': typeof GaleriaRoute
   '/inscricao': typeof InscricaoRoute
-  '/mensagens': typeof MensagensRoute
   '/painel': typeof PainelRoute
   '/politica-de-privacidade': typeof PoliticaDePrivacidadeRoute
-  '/sobre': typeof SobreRoute
-  '/admin/contatos': typeof AdminContatosRoute
+  '/admin/checkin': typeof AdminCheckinRoute
   '/admin/conteudo': typeof AdminConteudoRoute
   '/admin/equipe': typeof AdminEquipeRoute
   '/admin/eventos': typeof AdminEventosRoute
@@ -194,15 +158,11 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkin'
-    | '/contato'
     | '/eventos'
-    | '/galeria'
     | '/inscricao'
-    | '/mensagens'
     | '/painel'
     | '/politica-de-privacidade'
-    | '/sobre'
-    | '/admin/contatos'
+    | '/admin/checkin'
     | '/admin/conteudo'
     | '/admin/equipe'
     | '/admin/eventos'
@@ -214,15 +174,11 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/checkin'
-    | '/contato'
     | '/eventos'
-    | '/galeria'
     | '/inscricao'
-    | '/mensagens'
     | '/painel'
     | '/politica-de-privacidade'
-    | '/sobre'
-    | '/admin/contatos'
+    | '/admin/checkin'
     | '/admin/conteudo'
     | '/admin/equipe'
     | '/admin/eventos'
@@ -235,15 +191,11 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/checkin'
-    | '/contato'
     | '/eventos'
-    | '/galeria'
     | '/inscricao'
-    | '/mensagens'
     | '/painel'
     | '/politica-de-privacidade'
-    | '/sobre'
-    | '/admin/contatos'
+    | '/admin/checkin'
     | '/admin/conteudo'
     | '/admin/equipe'
     | '/admin/eventos'
@@ -257,14 +209,10 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
   CheckinRoute: typeof CheckinRoute
-  ContatoRoute: typeof ContatoRoute
   EventosRoute: typeof EventosRoute
-  GaleriaRoute: typeof GaleriaRoute
   InscricaoRoute: typeof InscricaoRoute
-  MensagensRoute: typeof MensagensRoute
   PainelRoute: typeof PainelRoute
   PoliticaDePrivacidadeRoute: typeof PoliticaDePrivacidadeRoute
-  SobreRoute: typeof SobreRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -290,13 +238,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CheckinRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/contato': {
-      id: '/contato'
-      path: '/contato'
-      fullPath: '/contato'
-      preLoaderRoute: typeof ContatoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/eventos': {
       id: '/eventos'
       path: '/eventos'
@@ -304,25 +245,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EventosRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/galeria': {
-      id: '/galeria'
-      path: '/galeria'
-      fullPath: '/galeria'
-      preLoaderRoute: typeof GaleriaRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/inscricao': {
       id: '/inscricao'
       path: '/inscricao'
       fullPath: '/inscricao'
       preLoaderRoute: typeof InscricaoRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/mensagens': {
-      id: '/mensagens'
-      path: '/mensagens'
-      fullPath: '/mensagens'
-      preLoaderRoute: typeof MensagensRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/painel': {
@@ -339,13 +266,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PoliticaDePrivacidadeRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sobre': {
-      id: '/sobre'
-      path: '/sobre'
-      fullPath: '/sobre'
-      preLoaderRoute: typeof SobreRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin/': {
       id: '/admin/'
       path: '/'
@@ -353,11 +273,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminIndexRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/contatos': {
-      id: '/admin/contatos'
-      path: '/contatos'
-      fullPath: '/admin/contatos'
-      preLoaderRoute: typeof AdminContatosRouteImport
+    '/admin/checkin': {
+      id: '/admin/checkin'
+      path: '/checkin'
+      fullPath: '/admin/checkin'
+      preLoaderRoute: typeof AdminCheckinRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/conteudo': {
@@ -406,7 +326,7 @@ declare module '@tanstack/react-router' {
 }
 
 interface AdminRouteChildren {
-  AdminContatosRoute: typeof AdminContatosRoute
+  AdminCheckinRoute: typeof AdminCheckinRoute
   AdminConteudoRoute: typeof AdminConteudoRoute
   AdminEquipeRoute: typeof AdminEquipeRoute
   AdminEventosRoute: typeof AdminEventosRoute
@@ -417,7 +337,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
-  AdminContatosRoute: AdminContatosRoute,
+  AdminCheckinRoute: AdminCheckinRoute,
   AdminConteudoRoute: AdminConteudoRoute,
   AdminEquipeRoute: AdminEquipeRoute,
   AdminEventosRoute: AdminEventosRoute,
@@ -433,14 +353,10 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
   CheckinRoute: CheckinRoute,
-  ContatoRoute: ContatoRoute,
   EventosRoute: EventosRoute,
-  GaleriaRoute: GaleriaRoute,
   InscricaoRoute: InscricaoRoute,
-  MensagensRoute: MensagensRoute,
   PainelRoute: PainelRoute,
   PoliticaDePrivacidadeRoute: PoliticaDePrivacidadeRoute,
-  SobreRoute: SobreRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

@@ -23,7 +23,7 @@ type Usuario = {
   user_id: string;
   nome: string;
   email: string;
-  papel: "admin" | "editor";
+  papel: "admin" | "editor" | "recepcao";
   criado_em: string;
   ultimo_acesso: string | null;
 };
@@ -95,7 +95,7 @@ export function PaginaUsuarios() {
     <>
       <CabecalhoPagina
         titulo="Usuários e acesso"
-        descricao="Quem pode entrar no painel. Administradoras gerenciam tudo; editoras cuidam do conteúdo, sem mexer em acessos."
+        descricao="Quem pode entrar no painel. Administração gerencia tudo; edição cuida de eventos, fotos e textos; a recepção só faz o check-in da entrada (pelo nome ou QR code)."
         acoes={
           <button type="button" onClick={() => setCriando(true)} className={BOTAO_PRIMARIO}>
             <UserPlus className="h-4 w-4" aria-hidden="true" /> Novo acesso
@@ -146,10 +146,11 @@ export function PaginaUsuarios() {
                   }
                   className={`${CAMPO} w-auto rounded-full py-2`}
                 >
-                  <option value="admin">Administradora</option>
-                  <option value="editor">Editora</option>
+                  <option value="admin">Administrador(a)</option>
+                  <option value="editor">Editor(a)</option>
+                  <option value="recepcao">Recepção</option>
                 </select>
-                {u.papel === "admin" && <Selo tom="rosa">Admin</Selo>}
+                {u.papel === "recepcao" && <Selo tom="dourado">Check-in</Selo>}
                 <button
                   type="button"
                   onClick={() => setTrocandoSenha(u)}
@@ -213,7 +214,7 @@ function NovoAcesso({
   aoFechar: () => void;
   aoCriar: (c: Record<string, string>) => Promise<boolean>;
 }) {
-  const [form, setForm] = useState({ nome: "", email: "", senha: gerarSenha(), papel: "editor" });
+  const [form, setForm] = useState({ nome: "", email: "", senha: gerarSenha(), papel: "recepcao" });
   const [salvando, setSalvando] = useState(false);
 
   const enviar = async (e: FormEvent) => {
@@ -222,7 +223,7 @@ function NovoAcesso({
     const ok = await aoCriar(form);
     setSalvando(false);
     if (ok) {
-      setForm({ nome: "", email: "", senha: gerarSenha(), papel: "editor" });
+      setForm({ nome: "", email: "", senha: gerarSenha(), papel: "recepcao" });
       aoFechar();
     }
   };
@@ -282,8 +283,9 @@ function NovoAcesso({
                 value={form.papel}
                 onChange={(e) => setForm({ ...form, papel: e.target.value })}
               >
-                <option value="editor">Editora — cuida do conteúdo</option>
-                <option value="admin">Administradora — tudo, inclusive acessos</option>
+                <option value="recepcao">Recepção — só o check-in da entrada</option>
+                <option value="editor">Editor(a) — eventos, fotos e textos</option>
+                <option value="admin">Administrador(a) — tudo, inclusive acessos</option>
               </select>
             )}
           </Campo>

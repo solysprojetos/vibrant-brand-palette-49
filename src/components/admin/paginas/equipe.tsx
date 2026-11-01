@@ -93,7 +93,7 @@ export function PaginaEquipe() {
     <>
       <CabecalhoPagina
         titulo="Equipe"
-        descricao="Quem serve no Mulheres Curadas. A equipe publicada aparece na página Sobre."
+        descricao="Quem serve no Mulheres Curadas, com foto e função. Fica guardado no painel. O site atual ainda não mostra esta seção — ela entra no ar quando vocês decidirem publicar."
         acoes={
           <button
             type="button"

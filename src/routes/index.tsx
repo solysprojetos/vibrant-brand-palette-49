@@ -48,11 +48,9 @@ const navegacao = [
   ["#sobre", "Sobre"],
   ["#pilares", "Pilares"],
   ["#momentos", "Momentos"],
-  ["/galeria/", "Galeria"],
-  ["/mensagens/", "Mensagens"],
   ["#depoimentos", "Depoimentos"],
   ["#duvidas", "Dúvidas"],
-  ["/contato/", "Contato"],
+  ["#contato", "Contato"],
 ];
 
 const DESCRICAO =
@@ -359,14 +357,8 @@ function Index() {
                 É um convite para viver a transformação, florescer em Cristo e refletir Sua graça
                 por onde passar, porque quem é curada, também cura.
               </p>
-              <div className="mt-10 flex flex-wrap items-center gap-x-8 gap-y-3 text-primary">
+              <div className="mt-10 text-primary">
                 <span className="eyebrow">Est. em fé</span>
-                <Link
-                  to="/sobre"
-                  className="inline-flex min-h-[44px] items-center text-xs uppercase tracking-[0.3em] underline-offset-8 hover:underline"
-                >
-                  Conheça nossa história
-                </Link>
               </div>
             </div>
           </div>
@@ -432,14 +424,6 @@ function Index() {
                   />
                 </div>
               ))}
-            </div>
-            <div className="mt-10 text-center">
-              <Link
-                to="/galeria"
-                className="inline-flex min-h-[44px] items-center text-xs uppercase tracking-[0.3em] text-primary underline-offset-8 hover:underline"
-              >
-                Ver a galeria completa
-              </Link>
             </div>
           </div>
         </section>
@@ -528,28 +512,6 @@ function Index() {
           </div>
 
           <div className="flex flex-col items-center gap-2 md:items-end">
-            <nav
-              aria-label="Páginas do site"
-              className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1 md:justify-end"
-            >
-              {(
-                [
-                  ["/sobre", "Sobre nós"],
-                  ["/eventos", "Eventos"],
-                  ["/galeria", "Galeria"],
-                  ["/mensagens", "Mensagens"],
-                  ["/contato", "Contato"],
-                ] as const
-              ).map(([para, texto]) => (
-                <Link
-                  key={para}
-                  to={para}
-                  className="inline-flex min-h-[44px] items-center text-xs text-primary/80 underline-offset-4 transition-colors hover:text-primary hover:underline"
-                >
-                  {texto}
-                </Link>
-              ))}
-            </nav>
             <div className="flex flex-wrap items-center justify-center gap-x-5 gap-y-1">
               <Link
                 to="/politica-de-privacidade"

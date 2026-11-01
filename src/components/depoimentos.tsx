@@ -1,7 +1,5 @@
-import { Link } from "@tanstack/react-router";
 import { Quote } from "lucide-react";
-import { depoimentos as depoimentosFixos } from "@/config/conteudo";
-import { useConteudoSite, usePublicacoesPublicas } from "@/lib/cms/consultas";
+import { depoimentos } from "@/config/conteudo";
 
 /**
  * "Historias de transformacao": tres cards prontos para depoimentos reais
@@ -9,25 +7,6 @@ import { useConteudoSite, usePublicacoesPublicas } from "@/lib/cms/consultas";
  * os cards ficam em estado de espera — nenhum nome, foto ou frase e inventado.
  */
 export function Depoimentos() {
-  // Testemunhos marcados como "destaque" no painel /admin ocupam os cards.
-  // Sem nenhum (ou com o banco fora do ar), ficam os de src/config/conteudo.ts.
-  const { data: conteudo } = useConteudoSite();
-  const { data: publicacoes } = usePublicacoesPublicas();
-  const destaques = (publicacoes ?? [])
-    .filter((p) => p.destaque && (p.resumo || p.conteudo).trim())
-    .slice(0, 3)
-    .map((p) => ({
-      nome: p.autora || p.titulo,
-      contexto: p.contexto,
-      texto: p.resumo || p.conteudo,
-      slug: p.slug,
-    }));
-  const usarPainel = conteudo?.inicio.mostrar_ultimas_mensagens !== false && destaques.length > 0;
-  const depoimentos: { nome: string; contexto: string; texto: string; slug?: string }[] = usarPainel
-    ? destaques
-    : depoimentosFixos;
-  const temMensagens = (publicacoes ?? []).length > 0;
-
   return (
     <section id="depoimentos" className="scroll-mt-24 py-24 md:py-28">
       <div className="mx-auto max-w-7xl px-6 md:px-12">
@@ -54,21 +33,12 @@ export function Depoimentos() {
                 {preenchido ? (
                   <figure className="mt-6 flex flex-1 flex-col">
                     <blockquote className="flex-1 text-base leading-relaxed text-foreground/75">
-                      <p className="line-clamp-[10]">{d.texto}</p>
+                      <p>{d.texto}</p>
                     </blockquote>
                     <figcaption className="mt-8">
                       <p className="text-display text-2xl text-primary">{d.nome}</p>
                       {d.contexto.trim() && (
                         <p className="eyebrow mt-2 text-[0.6rem] text-primary/50">{d.contexto}</p>
-                      )}
-                      {d.slug && (
-                        <Link
-                          to="/mensagens"
-                          search={{ p: d.slug }}
-                          className="mt-4 inline-flex min-h-[44px] items-center text-xs uppercase tracking-[0.2em] text-primary underline-offset-8 hover:underline"
-                        >
-                          Ler a história
-                        </Link>
                       )}
                     </figcaption>
                   </figure>
@@ -81,17 +51,6 @@ export function Depoimentos() {
             );
           })}
         </ul>
-
-        {temMensagens && (
-          <div className="mt-12 text-center">
-            <Link
-              to="/mensagens"
-              className="inline-flex min-h-[44px] items-center text-xs uppercase tracking-[0.3em] text-primary underline-offset-8 hover:underline"
-            >
-              Ver todas as mensagens e testemunhos
-            </Link>
-          </div>
-        )}
       </div>
     </section>
   );

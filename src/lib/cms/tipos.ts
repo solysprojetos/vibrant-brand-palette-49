@@ -93,7 +93,7 @@ export type Acesso = {
   user_id: string;
   nome: string;
   email: string;
-  papel: "admin" | "editor";
+  papel: "admin" | "editor" | "recepcao";
 };
 
 export const TIPOS_PUBLICACAO: Record<TipoPublicacao, { rotulo: string; plural: string }> = {
@@ -102,4 +102,10 @@ export const TIPOS_PUBLICACAO: Record<TipoPublicacao, { rotulo: string; plural: 
   mensagem: { rotulo: "Mensagem de fé", plural: "Mensagens" },
   reflexao: { rotulo: "Reflexão", plural: "Reflexões" },
   video: { rotulo: "Vídeo especial", plural: "Vídeos" },
+};
+
+export const ROTULO_PAPEL: Record<Acesso["papel"], string> = {
+  admin: "Administrador(a)",
+  editor: "Editor(a)",
+  recepcao: "Recepção",
 };

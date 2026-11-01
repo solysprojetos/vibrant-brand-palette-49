@@ -130,12 +130,13 @@
    site publico nao e afetado por nada daqui.
 --------------------------------------------------------------------------- */
 .admin-raiz {
-  --admin-vinho: #561230;
-  --admin-vinho-claro: #7d1f45;
-  --admin-rosado: #f5e4e8;
-  --admin-linha: #f0e4e3;
-  --admin-fundo: #f7f2ee;
-  --admin-dourado: #c9a46a;
+  /* Mesmas cores do site: vinho/framboesa da marca, rose e o creme do fundo. */
+  --admin-vinho: var(--clay);
+  --admin-vinho-claro: var(--rose-deep);
+  --admin-rosado: color-mix(in oklch, var(--rose-soft) 16%, var(--cream));
+  --admin-linha: color-mix(in oklch, var(--rose-soft) 22%, var(--cream));
+  --admin-fundo: var(--cream);
+  --admin-dourado: var(--rose-soft);
   background-color: var(--admin-fundo);
   font-weight: 400;
 }
@@ -148,8 +149,13 @@
 
 .admin-barra {
   background:
-    radial-gradient(120% 60% at 0% 0%, rgb(255 255 255 / 0.07), transparent 60%),
-    linear-gradient(175deg, #4a0f29 0%, #6b1a3c 55%, #561230 100%);
+    radial-gradient(120% 60% at 0% 0%, rgb(255 255 255 / 0.1), transparent 60%),
+    linear-gradient(
+      175deg,
+      color-mix(in oklch, var(--clay) 88%, black) 0%,
+      var(--clay) 55%,
+      color-mix(in oklch, var(--clay) 80%, var(--wine)) 100%
+    );
 }
 
 @keyframes admin-surgir {

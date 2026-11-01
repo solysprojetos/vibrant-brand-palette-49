@@ -78,7 +78,7 @@ function ListaPublicacoes() {
     <>
       <CabecalhoPagina
         titulo="Mensagens e testemunhos"
-        descricao="Testemunhos, histórias de transformação, mensagens de fé, reflexões e vídeos especiais."
+        descricao="Testemunhos, histórias de transformação, mensagens de fé, reflexões e vídeos especiais. Fica guardado no painel. O site atual ainda não mostra esta seção — ela entra no ar quando vocês decidirem publicar."
         acoes={
           <Link to="/admin/mensagens" search={{ id: "novo" }} className={BOTAO_PRIMARIO}>
             <Plus className="h-4 w-4" aria-hidden="true" /> Nova publicação
@@ -129,7 +129,7 @@ function ListaPublicacoes() {
           <EstadoVazio
             icone={<MessageSquareHeart className="h-6 w-6" aria-hidden="true" />}
             titulo="Nada por aqui ainda"
-            texto="Publique o primeiro testemunho — os marcados como destaque aparecem na página inicial."
+            texto="Cadastre o primeiro testemunho, mensagem ou vídeo."
             acao={
               <Link to="/admin/mensagens" search={{ id: "novo" }} className={BOTAO_PRIMARIO}>
                 <Plus className="h-4 w-4" aria-hidden="true" /> Nova publicação
@@ -367,7 +367,7 @@ function EditorPublicacao({ id }: { id: string }) {
               )}
             </Campo>
           </div>
-          <Campo rotulo="Resumo" dica="Aparece nos cartões e nos depoimentos da página inicial.">
+          <Campo rotulo="Resumo" dica="Versão curta, para cartões e depoimentos.">
             {(i) => (
               <textarea
                 id={i}
@@ -423,8 +423,8 @@ function EditorPublicacao({ id }: { id: string }) {
               aoMudar={(v) => muda("publicado", v)}
             />
             <Interruptor
-              rotulo="Destaque na página inicial"
-              descricao="Entra nos depoimentos da home (até 3)."
+              rotulo="Destaque"
+              descricao="Separa os melhores para os depoimentos (até 3)."
               marcado={form.destaque}
               aoMudar={(v) => muda("destaque", v)}
             />

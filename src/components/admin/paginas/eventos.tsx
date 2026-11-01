@@ -128,7 +128,7 @@ function ListaEventos() {
     <>
       <CabecalhoPagina
         titulo="Eventos"
-        descricao="Cadastre encontros, publique no site e marque como realizados quando acontecerem."
+        descricao="Cadastro dos encontros: data, local, programação e link de inscrição. A página do site continua com o bloco atual do encontro; esta lista organiza o painel e o check-in."
         acoes={
           <Link to="/admin/eventos" search={{ id: "novo" }} className={BOTAO_PRIMARIO}>
             <Plus className="h-4 w-4" aria-hidden="true" />

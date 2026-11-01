@@ -176,11 +176,13 @@ export function ConfirmarExclusao({
   texto,
   aoConfirmar,
   children,
+  rotuloAcao = "Excluir",
 }: {
   titulo: string;
   texto: string;
   aoConfirmar: () => void | Promise<void>;
   children: ReactNode;
+  rotuloAcao?: string;
 }) {
   return (
     <AlertDialog>
@@ -198,7 +200,7 @@ export function ConfirmarExclusao({
             className="rounded-full bg-destructive text-white hover:bg-destructive/90"
             onClick={() => void aoConfirmar()}
           >
-            Excluir
+            {rotuloAcao}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

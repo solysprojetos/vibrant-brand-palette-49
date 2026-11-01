@@ -21,7 +21,7 @@ function json(corpo: unknown, status = 200): Response {
   });
 }
 
-const PAPEIS = new Set(["admin", "editor"]);
+const PAPEIS = new Set(["admin", "editor", "recepcao"]);
 
 function emailValido(valor: unknown): valor is string {
   return typeof valor === "string" && /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,}$/.test(valor.trim());

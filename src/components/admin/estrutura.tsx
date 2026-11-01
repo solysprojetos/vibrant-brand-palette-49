@@ -1,17 +1,16 @@
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
-import { Link, useRouterState } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
+import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import {
   CalendarHeart,
   ClipboardList,
   ExternalLink,
   FileText,
   Images,
-  Inbox,
   LayoutGrid,
   Loader2,
   LogOut,
   Menu,
+  QrCode,
   MessageSquareHeart,
   ShieldCheck,
   UserRound,
@@ -24,6 +23,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/u
 import { assetUrl } from "@/lib/asset-url";
 import { supabase } from "@/lib/supabase";
 import { traduzirErro } from "@/lib/cms/util";
+import { ROTULO_PAPEL, type Acesso } from "@/lib/cms/tipos";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 import logoWordmark from "@/assets/logo-wordmark-v2.asset.json";
 import { ProvedorSessao, useSessao } from "./sessao";
@@ -33,38 +33,40 @@ type ItemMenu = {
   para: string;
   rotulo: string;
   icone: typeof LayoutGrid;
-  soAdmin?: boolean;
+  /** Papeis que veem o item. */
+  papeis: Acesso["papel"][];
   externo?: boolean;
 };
 
-const MENU: ItemMenu[] = [
-  { para: "/admin", rotulo: "Dashboard", icone: LayoutGrid },
-  { para: "/admin/eventos", rotulo: "Eventos", icone: CalendarHeart },
-  { para: "/admin/galeria", rotulo: "Galeria de fotos", icone: Images },
-  { para: "/admin/mensagens", rotulo: "Mensagens e testemunhos", icone: MessageSquareHeart },
-  { para: "/admin/conteudo", rotulo: "Conteúdo do site", icone: FileText },
-  { para: "/admin/equipe", rotulo: "Equipe", icone: Users },
-  { para: "/admin/contatos", rotulo: "Contatos recebidos", icone: Inbox },
-  { para: "/painel", rotulo: "Inscrições", icone: ClipboardList, externo: true },
-  { para: "/admin/usuarios", rotulo: "Usuários e acesso", icone: ShieldCheck, soAdmin: true },
-];
+const EQUIPE: Acesso["papel"][] = ["admin", "editor"];
 
-/** Contatos nao lidos, para o selo dourado do menu. */
-export function useNaoLidos(ativo: boolean) {
-  return useQuery({
-    queryKey: ["admin", "contatos", "nao-lidos"],
-    enabled: ativo,
-    refetchInterval: 60_000,
-    queryFn: async () => {
-      const { count, error } = await supabase()
-        .from("mc_contatos")
-        .select("id", { count: "exact", head: true })
-        .eq("lido", false);
-      if (error) throw error;
-      return count ?? 0;
-    },
-  });
-}
+const MENU: ItemMenu[] = [
+  { para: "/admin", rotulo: "Dashboard", icone: LayoutGrid, papeis: EQUIPE },
+  {
+    para: "/admin/checkin",
+    rotulo: "Check-in da entrada",
+    icone: QrCode,
+    papeis: ["admin", "editor", "recepcao"],
+  },
+  { para: "/admin/eventos", rotulo: "Eventos", icone: CalendarHeart, papeis: EQUIPE },
+  { para: "/admin/galeria", rotulo: "Galeria de fotos", icone: Images, papeis: EQUIPE },
+  {
+    para: "/admin/mensagens",
+    rotulo: "Mensagens e testemunhos",
+    icone: MessageSquareHeart,
+    papeis: EQUIPE,
+  },
+  { para: "/admin/conteudo", rotulo: "Conteúdo do site", icone: FileText, papeis: EQUIPE },
+  { para: "/admin/equipe", rotulo: "Equipe", icone: Users, papeis: EQUIPE },
+  {
+    para: "/painel",
+    rotulo: "Inscrições e sorteio",
+    icone: ClipboardList,
+    papeis: EQUIPE,
+    externo: true,
+  },
+  { para: "/admin/usuarios", rotulo: "Usuários e acesso", icone: ShieldCheck, papeis: ["admin"] },
+];
 
 function Marca({ claro = true }: { claro?: boolean }) {
   return (
@@ -91,7 +93,6 @@ function Marca({ claro = true }: { claro?: boolean }) {
 function BarraLateral({ aoNavegar }: { aoNavegar?: () => void }) {
   const { acesso, sair } = useSessao();
   const caminho = useRouterState({ select: (s) => s.location.pathname }).replace(/\/+$/, "") || "/";
-  const { data: naoLidos = 0 } = useNaoLidos(Boolean(acesso));
   const [contaAberta, setContaAberta] = useState(false);
 
   const ativo = (para: string) =>
@@ -113,7 +114,7 @@ function BarraLateral({ aoNavegar }: { aoNavegar?: () => void }) {
 
       <nav aria-label="Seções do painel" className="flex-1 overflow-y-auto px-3">
         <ul className="space-y-1">
-          {MENU.filter((item) => !item.soAdmin || acesso?.papel === "admin").map((item) => {
+          {MENU.filter((item) => acesso && item.papeis.includes(acesso.papel)).map((item) => {
             const Icone = item.icone;
             const marcado = !item.externo && ativo(item.para);
             return (
@@ -130,14 +131,6 @@ function BarraLateral({ aoNavegar }: { aoNavegar?: () => void }) {
                 >
                   <Icone className="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
                   <span className="flex-1 truncate">{item.rotulo}</span>
-                  {item.para === "/admin/contatos" && naoLidos > 0 && (
-                    <span
-                      className="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-[color:var(--admin-dourado)] px-1.5 text-[0.65rem] font-bold text-[color:var(--admin-vinho)]"
-                      aria-label={`${naoLidos} não lidos`}
-                    >
-                      {naoLidos}
-                    </span>
-                  )}
                 </Link>
               </li>
             );
@@ -167,7 +160,7 @@ function BarraLateral({ aoNavegar }: { aoNavegar?: () => void }) {
             <span className="min-w-0">
               <span className="block truncate text-sm font-semibold">{nome}</span>
               <span className="block text-[0.62rem] uppercase tracking-[0.22em] text-white/60">
-                {acesso?.papel === "admin" ? "Administradora" : "Editora"}
+                {acesso ? ROTULO_PAPEL[acesso.papel] : ""}
               </span>
             </span>
           </button>
@@ -238,10 +231,7 @@ function MinhaConta({ aberta, aoFechar }: { aberta: boolean; aoFechar: () => voi
           </DialogTitle>
         </DialogHeader>
         <form onSubmit={salvar} className="space-y-4">
-          <Campo
-            rotulo="Como quer ser chamada"
-            dica='Aparece na saudação do dashboard. Ex.: "Pastora Karoline".'
-          >
+          <Campo rotulo="Como quer ser chamada" dica="Aparece na saudação do dashboard.">
             {(id) => (
               <input
                 id={id}
@@ -481,8 +471,16 @@ function Portao({ children }: { children: ReactNode }) {
   const [gavetaAberta, setGavetaAberta] = useState(false);
   const caminho = useRouterState({ select: (s) => s.location.pathname });
 
+  const navegar = useNavigate();
   // Fecha a gaveta do celular quando a pagina muda.
   useEffect(() => setGavetaAberta(false), [caminho]);
+
+  // A recepcao so usa o check-in: qualquer outro endereco do painel leva para la.
+  // (O banco tambem barra: a recepcao nao le nem altera nada alem disso.)
+  const soCheckin = acesso?.papel === "recepcao" && !/\/admin\/checkin\/?$/.test(caminho);
+  useEffect(() => {
+    if (soCheckin) void navegar({ to: "/admin/checkin", replace: true });
+  }, [soCheckin, navegar]);
 
   if (carregando) {
     return (
@@ -495,6 +493,7 @@ function Portao({ children }: { children: ReactNode }) {
   if (redefinindoSenha && sessao) return <NovaSenha />;
   if (!sessao) return <Entrar />;
   if (!acesso) return <SemAcesso />;
+  if (soCheckin) return null;
 
   return (
     <div className="admin-raiz min-h-screen lg:flex">

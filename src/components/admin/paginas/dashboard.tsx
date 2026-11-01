@@ -8,7 +8,7 @@ import {
   ClipboardList,
   FileText,
   ImagePlus,
-  Inbox,
+  QrCode,
   MessageSquareHeart,
   Plus,
 } from "lucide-react";
@@ -51,9 +51,9 @@ function saudacao(): string {
 }
 
 /** Conta linhas sem baixar nenhuma (head + count). */
-async function contar(tabela: string, soNaoLidos = false): Promise<number> {
+async function contar(tabela: string, soPresentes = false): Promise<number> {
   const base = supabase().from(tabela).select("id", { count: "exact", head: true });
-  const { count, error } = await (soNaoLidos ? base.eq("lido", false) : base);
+  const { count, error } = await (soPresentes ? base.not("checkin_em", "is", null) : base);
   if (error) throw error;
   return count ?? 0;
 }
@@ -63,41 +63,29 @@ function useResumo() {
     queryKey: ["admin", "dashboard"],
     queryFn: async () => {
       const cliente = supabase();
-      const [
-        eventosR,
-        fotos,
-        albuns,
-        publicacoes,
-        naoLidos,
-        inscricoes,
-        eventosRec,
-        pubsRec,
-        albunsRec,
-      ] = await Promise.all([
-        cliente.from("mc_eventos").select("id, slug, titulo, inicio, fim, realizado, publicado"),
-        contar("mc_fotos"),
-        contar("mc_albuns"),
-        contar("mc_publicacoes"),
-        contar("mc_contatos", true),
-        // Inscricoes: a leitura depende da politica da migracao do painel;
-        // se ainda nao existir, o cartao mostra so o traco.
-        contar("inscricoes").catch(() => null),
-        cliente
-          .from("mc_eventos")
-          .select("id, titulo, publicado, atualizado_em")
-          .order("atualizado_em", { ascending: false })
-          .limit(5),
-        cliente
-          .from("mc_publicacoes")
-          .select("id, titulo, tipo, publicado, atualizado_em")
-          .order("atualizado_em", { ascending: false })
-          .limit(5),
-        cliente
-          .from("mc_albuns")
-          .select("id, titulo, publicado, atualizado_em")
-          .order("atualizado_em", { ascending: false })
-          .limit(5),
-      ]);
+      const [eventosR, fotos, albuns, inscricoes, presentes, eventosRec, pubsRec, albunsRec] =
+        await Promise.all([
+          cliente.from("mc_eventos").select("id, slug, titulo, inicio, fim, realizado, publicado"),
+          contar("mc_fotos"),
+          contar("mc_albuns"),
+          contar("inscricoes"),
+          contar("inscricoes", true),
+          cliente
+            .from("mc_eventos")
+            .select("id, titulo, publicado, atualizado_em")
+            .order("atualizado_em", { ascending: false })
+            .limit(5),
+          cliente
+            .from("mc_publicacoes")
+            .select("id, titulo, tipo, publicado, atualizado_em")
+            .order("atualizado_em", { ascending: false })
+            .limit(5),
+          cliente
+            .from("mc_albuns")
+            .select("id, titulo, publicado, atualizado_em")
+            .order("atualizado_em", { ascending: false })
+            .limit(5),
+        ]);
       if (eventosR.error) throw eventosR.error;
       const eventos = (eventosR.data ?? []) as Pick<
         Evento,
@@ -144,9 +132,8 @@ function useResumo() {
         realizados,
         fotos,
         albuns,
-        publicacoes,
-        naoLidos,
         inscricoes,
+        presentes,
         ultimas,
       };
     },
@@ -160,6 +147,7 @@ function Indicador({
   icone: Icone,
   para,
   atraso,
+  progresso,
 }: {
   titulo: string;
   valor: number | string;
@@ -167,6 +155,8 @@ function Indicador({
   icone: typeof CalendarHeart;
   para: string;
   atraso: number;
+  /** 0 a 1: barra fina embaixo do numero. */
+  progresso?: number;
 }) {
   return (
     <Link
@@ -183,6 +173,14 @@ function Indicador({
       <p className="mt-auto pt-4 text-display text-4xl sm:text-5xl leading-none text-[color:var(--admin-vinho)]">
         {valor}
       </p>
+      {progresso !== undefined && (
+        <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-[color:var(--admin-rosado)]">
+          <div
+            className="h-full rounded-full bg-[color:var(--admin-vinho)]"
+            style={{ width: `${Math.min(100, Math.max(0, progresso * 100))}%` }}
+          />
+        </div>
+      )}
       {detalhe && <p className="mt-2 text-xs text-foreground/55">{detalhe}</p>}
     </Link>
   );
@@ -191,10 +189,8 @@ function Indicador({
 export function PaginaDashboard() {
   const { acesso } = useSessao();
   const { data, isLoading, error } = useResumo();
-  const primeiroNome = (acesso?.nome || "").trim().split(/\s+/)[0];
-  const tratamento = /^(pastora|pra\.?|missionária|irmã)$/i.test(primeiroNome)
-    ? (acesso?.nome ?? "").trim().split(/\s+/).slice(0, 2).join(" ")
-    : primeiroNome;
+  // So o primeiro nome: "Bom dia, Karoline!".
+  const primeiroNome = (acesso?.nome || "").trim().split(/\s+/)[0] ?? "";
 
   return (
     <>
@@ -202,7 +198,7 @@ export function PaginaDashboard() {
         <div>
           <h1 className="text-display text-5xl leading-tight text-[color:var(--admin-vinho)] md:text-6xl">
             {saudacao()}
-            {tratamento ? `, ${tratamento}` : ""}!
+            {primeiroNome ? `, ${primeiroNome}` : ""}!
           </h1>
           <p className="mt-2 text-[15px] text-foreground/65">
             Acompanhe os números do site e acesse rapidamente as principais ações.
@@ -249,55 +245,35 @@ export function PaginaDashboard() {
               atraso={80}
             />
             <Indicador
+              titulo="Inscrições"
+              valor={data.inscricoes}
+              detalhe={`de ${LIMITE_INSCRICOES} vagas · ${Math.max(0, LIMITE_INSCRICOES - data.inscricoes)} restantes`}
+              icone={ClipboardList}
+              para="/painel"
+              atraso={120}
+              progresso={data.inscricoes / LIMITE_INSCRICOES}
+            />
+            <Indicador
+              titulo="Presenças confirmadas"
+              valor={data.presentes}
+              detalhe={
+                data.inscricoes
+                  ? `${Math.round((data.presentes / data.inscricoes) * 100)}% das inscritas`
+                  : "Check-in pelo nome ou QR code"
+              }
+              icone={QrCode}
+              para="/admin/checkin"
+              atraso={160}
+            />
+            <Indicador
               titulo="Fotos publicadas"
               valor={data.fotos}
               detalhe={`${data.albuns} ${data.albuns === 1 ? "álbum" : "álbuns"}`}
               icone={Camera}
               para="/admin/galeria"
-              atraso={120}
-            />
-            <Indicador
-              titulo="Mensagens e testemunhos"
-              valor={data.publicacoes}
-              icone={MessageSquareHeart}
-              para="/admin/mensagens"
-              atraso={160}
-            />
-            <Indicador
-              titulo="Contatos não lidos"
-              valor={data.naoLidos}
-              icone={Inbox}
-              para="/admin/contatos"
               atraso={200}
             />
           </div>
-
-          {data.inscricoes !== null && (
-            <Link
-              to="/painel"
-              className={`${CARTAO} admin-surgir mt-5 flex flex-col gap-4 p-6 transition hover:shadow-[0_18px_40px_-20px_rgba(86,18,48,0.35)] sm:flex-row sm:items-center`}
-              style={{ animationDelay: "240ms" }}
-            >
-              <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-[color:var(--admin-rosado)] text-[color:var(--admin-vinho)]">
-                <ClipboardList className="h-5 w-5" aria-hidden="true" />
-              </span>
-              <div className="flex-1">
-                <p className="text-[15px] text-foreground/70">Inscrições do próximo encontro</p>
-                <div className="mt-2 h-2 overflow-hidden rounded-full bg-[color:var(--admin-rosado)]">
-                  <div
-                    className="h-full rounded-full bg-[color:var(--admin-vinho)] transition-all"
-                    style={{
-                      width: `${Math.min(100, (data.inscricoes / LIMITE_INSCRICOES) * 100)}%`,
-                    }}
-                  />
-                </div>
-              </div>
-              <p className="text-display text-4xl text-[color:var(--admin-vinho)]">
-                {data.inscricoes}
-                <span className="text-xl text-foreground/45"> / {LIMITE_INSCRICOES}</span>
-              </p>
-            </Link>
-          )}
 
           <div className="mt-8 grid gap-6 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
             <section className={`${CARTAO} p-6 md:p-8`}>

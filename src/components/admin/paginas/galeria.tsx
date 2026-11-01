@@ -99,7 +99,7 @@ function ListaAlbuns() {
     <>
       <CabecalhoPagina
         titulo="Galeria de fotos"
-        descricao="Organize as fotos em álbuns por evento. As imagens são guardadas na qualidade original."
+        descricao="Organize as fotos em álbuns por evento. As imagens são guardadas na qualidade original. Fica guardado no painel. O site atual ainda não mostra esta seção — ela entra no ar quando vocês decidirem publicar."
         acoes={
           <button type="button" onClick={() => setCriando(true)} className={BOTAO_PRIMARIO}>
             <Plus className="h-4 w-4" aria-hidden="true" />
