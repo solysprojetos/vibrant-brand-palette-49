@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -23,6 +23,7 @@ import {
   proximoEncontro,
 } from "@/config/conteudo";
 import { assetUrl } from "@/lib/asset-url";
+import { supabase } from "@/lib/supabase";
 import logoMonogram from "@/assets/logo-monogram-v2.asset.json";
 
 /**
@@ -148,6 +149,11 @@ function baixarCsv(inscricoes: Inscricao[]): void {
 }
 
 export const Route = createFileRoute("/painel")({
+  // /painel?sorteio=1 abre direto na tela do sorteio (atalho do menu /admin).
+  validateSearch: (busca: Record<string, unknown>): { sorteio?: boolean } => ({
+    sorteio:
+      busca.sorteio === true || busca.sorteio === 1 || busca.sorteio === "1" ? true : undefined,
+  }),
   component: Painel,
   head: () => ({
     meta: [
@@ -174,7 +180,46 @@ function Painel() {
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
+  // Quem ja entrou no painel /admin (administracao ou edicao) abre a lista
+  // sem senha: a leitura vai direto ao banco, pela sessao do Supabase Auth,
+  // e as politicas RLS so liberam a tabela de inscricoes para a equipe.
+  const [modoAdmin, setModoAdmin] = useState(false);
+  const modoAdminRef = useRef(false);
+  const { sorteio: abrirSorteioAoEntrar } = Route.useSearch();
+
   const chamar = useCallback(async (senhaUsada: string, corpo: Record<string, unknown>) => {
+    if (modoAdminRef.current) {
+      if (corpo.acao === "checkin" || corpo.acao === "desfazer") {
+        const { data, error } = await supabase().rpc("mc_checkin_marcar", {
+          p_codigo: String(corpo.codigo ?? ""),
+          p_desfazer: corpo.acao === "desfazer",
+        });
+        if (error) throw new Error("Não foi possível salvar a presença.");
+        const linha = (
+          data as
+            | {
+                id: string;
+                nome: string;
+                codigo: string;
+                checkin_em: string | null;
+                ja_estava: boolean;
+              }[]
+            | null
+        )?.[0];
+        if (!linha) throw new Error("Código não encontrado.");
+        return { ok: true, inscricao: linha, jaEstava: linha.ja_estava };
+      }
+      const { data, error } = await supabase()
+        .from("inscricoes")
+        .select(
+          "id, criado_em, nome, telefone, email, frequenta_igreja, igreja, codigo, email_enviado_em, whatsapp_enviado_em, checkin_em",
+        )
+        .order("criado_em", { ascending: false })
+        .limit(2000);
+      if (error) throw new Error("Não foi possível carregar as inscrições.");
+      return { ok: true, inscricoes: data ?? [] };
+    }
+
     let resposta: Response;
     try {
       resposta = await fetch(ENDPOINT_PAINEL, {
@@ -200,11 +245,11 @@ function Painel() {
         const dados = await chamar(senhaUsada, { acao: "listar" });
         setInscricoes(dados.inscricoes ?? []);
         setAutenticado(true);
-        sessionStorage.setItem(CHAVE_SENHA, senhaUsada);
+        if (!modoAdminRef.current) sessionStorage.setItem(CHAVE_SENHA, senhaUsada);
       } catch (falha) {
         setErro(falha instanceof Error ? falha.message : "Não foi possível carregar.");
         setAutenticado(false);
-        sessionStorage.removeItem(CHAVE_SENHA);
+        if (!modoAdminRef.current) sessionStorage.removeItem(CHAVE_SENHA);
       } finally {
         setCarregando(false);
       }
@@ -212,14 +257,48 @@ function Painel() {
     [chamar],
   );
 
-  // Se a senha ainda esta guardada na aba, a lista abre sozinha.
+  // Com login do painel /admin a lista abre sozinha; senao, se a senha ainda
+  // esta guardada na aba, tambem.
   useEffect(() => {
-    const guardada = sessionStorage.getItem(CHAVE_SENHA);
-    if (guardada) {
-      setSenha(guardada);
-      void carregar(guardada);
-    }
+    let ativo = true;
+    (async () => {
+      try {
+        const { data } = await supabase().auth.getSession();
+        if (data.session) {
+          const { data: acesso } = await supabase()
+            .from("mc_equipe_acesso")
+            .select("papel")
+            .eq("user_id", data.session.user.id)
+            .maybeSingle();
+          if (ativo && (acesso?.papel === "admin" || acesso?.papel === "editor")) {
+            modoAdminRef.current = true;
+            setModoAdmin(true);
+            void carregar("");
+            return;
+          }
+        }
+      } catch {
+        /* sem sessao do painel: segue o caminho da senha */
+      }
+      if (!ativo) return;
+      const guardada = sessionStorage.getItem(CHAVE_SENHA);
+      if (guardada) {
+        setSenha(guardada);
+        void carregar(guardada);
+      }
+    })();
+    return () => {
+      ativo = false;
+    };
   }, [carregar]);
+
+  // Atalho "Sorteio" do menu /admin: abre a tela do sorteio assim que a lista chega.
+  useEffect(() => {
+    if (autenticado && abrirSorteioAoEntrar) {
+      setVencedora(null);
+      setSorteioAberto(true);
+    }
+  }, [autenticado, abrirSorteioAoEntrar]);
 
   const alternarPresenca = async (inscricao: Inscricao) => {
     const acao = inscricao.checkin_em ? "desfazer" : "checkin";
@@ -272,6 +351,11 @@ function Painel() {
   };
 
   const sair = () => {
+    if (modoAdmin) {
+      // Veio do painel /admin: volta para la sem encerrar o login.
+      window.location.href = `${import.meta.env.BASE_URL}admin/`;
+      return;
+    }
     sessionStorage.removeItem(CHAVE_SENHA);
     setSenha("");
     setAutenticado(false);

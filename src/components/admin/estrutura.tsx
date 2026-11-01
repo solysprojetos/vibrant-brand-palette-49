@@ -5,6 +5,7 @@ import {
   ClipboardList,
   ExternalLink,
   FileText,
+  Gift,
   Images,
   LayoutGrid,
   Loader2,
@@ -36,6 +37,8 @@ type ItemMenu = {
   /** Papeis que veem o item. */
   papeis: Acesso["papel"][];
   externo?: boolean;
+  /** Parametros do endereco (ex.: abrir /painel direto no sorteio). */
+  busca?: Record<string, string | boolean>;
 };
 
 const EQUIPE: Acesso["papel"][] = ["admin", "editor"];
@@ -58,10 +61,12 @@ const MENU: ItemMenu[] = [
   },
   { para: "/admin/conteudo", rotulo: "Conteúdo do site", icone: FileText, papeis: EQUIPE },
   { para: "/admin/equipe", rotulo: "Equipe", icone: Users, papeis: EQUIPE },
+  { para: "/painel", rotulo: "Inscrições", icone: ClipboardList, papeis: EQUIPE, externo: true },
   {
     para: "/painel",
-    rotulo: "Inscrições e sorteio",
-    icone: ClipboardList,
+    busca: { sorteio: true },
+    rotulo: "Sorteio",
+    icone: Gift,
     papeis: EQUIPE,
     externo: true,
   },
@@ -118,9 +123,10 @@ function BarraLateral({ aoNavegar }: { aoNavegar?: () => void }) {
             const Icone = item.icone;
             const marcado = !item.externo && ativo(item.para);
             return (
-              <li key={item.para}>
+              <li key={item.rotulo}>
                 <Link
                   to={item.para}
+                  search={item.busca}
                   onClick={aoNavegar}
                   aria-current={marcado ? "page" : undefined}
                   className={`flex min-h-[44px] items-center gap-3 rounded-2xl px-4 text-[15px] transition ${
