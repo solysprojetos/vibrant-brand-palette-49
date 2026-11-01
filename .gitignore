@@ -30,3 +30,8 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Senhas e acessos do painel: nunca no repositorio (ele e publico)
+acessos-painel*
+criar-acessos*.sql
+*.senhas*

@@ -1,4 +1,8 @@
 User-agent: *
 Allow: /
+# Areas da equipe: fora dos buscadores.
+Disallow: /admin
+Disallow: /painel
+Disallow: /checkin
 
 Sitemap: https://www.mulherescuradas.com/sitemap.xml
