@@ -10,6 +10,10 @@ O painel é só da equipe. **O site público não muda nada**: a página inicial
 
 ## 1. Configuração (uma vez só)
 
+> **Já feito em 1º de novembro de 2026.** As tabelas, a função
+> `admin-usuarios` e os cinco acessos abaixo já estão no projeto. Esta seção
+> fica aqui só como registro, para o caso de um projeto novo.
+
 Tudo no painel do Supabase do projeto `vdjovchltmyhuvlwxzwr`
 (https://supabase.com/dashboard/project/vdjovchltmyhuvlwxzwr), menu
 **SQL Editor** → **New query** → colar → **Run**. Nesta ordem:
