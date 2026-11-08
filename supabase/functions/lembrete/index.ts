@@ -39,7 +39,8 @@ const BREVO_EMBUTIDA = "";
 const RESEND_EMBUTIDA = "";
 
 const REMETENTE_NOME = Deno.env.get("EMAIL_REMETENTE_NOME") ?? "Mulheres Curadas";
-const REMETENTE_EMAIL = Deno.env.get("EMAIL_REMETENTE_EMAIL") ?? "contato@mulherescuradas.com";
+// Precisa ser um remetente validado no Brevo; hoje so este e.
+const REMETENTE_EMAIL = Deno.env.get("EMAIL_REMETENTE_EMAIL") ?? "solysprojetos@gmail.com";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://www.mulherescuradas.com";
 
