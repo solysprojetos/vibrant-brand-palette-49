@@ -35,6 +35,7 @@ function json(corpo: unknown, status = 200): Response {
  * funcao tenta o Resend (RESEND_API_KEY), que a inscricao ja usa.
  */
 const CHAVE_EMBUTIDA = "";
+const BREVO_EMBUTIDA = "";
 const RESEND_EMBUTIDA = "";
 
 const REMETENTE_NOME = Deno.env.get("EMAIL_REMETENTE_NOME") ?? "Mulheres Curadas";
@@ -111,7 +112,7 @@ type Inscrita = { id: string; nome: string; email: string; codigo: string };
 type Transporte = { nome: "brevo" | "resend"; chave: string };
 
 function transporte(): Transporte | null {
-  const brevo = Deno.env.get("BREVO_API_KEY");
+  const brevo = Deno.env.get("BREVO_API_KEY") || BREVO_EMBUTIDA;
   if (brevo) return { nome: "brevo", chave: brevo };
   const resend = Deno.env.get("RESEND_API_KEY") || RESEND_EMBUTIDA;
   if (resend) return { nome: "resend", chave: resend };
