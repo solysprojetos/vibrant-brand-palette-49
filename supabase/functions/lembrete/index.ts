@@ -27,12 +27,18 @@ function json(corpo: unknown, status = 200): Response {
 }
 
 /**
- * Chave do disparo e chave do Resend embutidas so na versao publicada no
- * Supabase. No repositorio ficam vazias de proposito, porque ele e publico.
- * Os segredos LEMBRETE_CHAVE e RESEND_API_KEY tem prioridade quando existirem.
+ * Chave do disparo embutida so na versao publicada no Supabase. No
+ * repositorio fica vazia de proposito, porque ele e publico. O segredo
+ * LEMBRETE_CHAVE tem prioridade quando existir.
+ *
+ * O envio sai pelo Brevo (segredo BREVO_API_KEY). Se ele nao existir, a
+ * funcao tenta o Resend (RESEND_API_KEY), que a inscricao ja usa.
  */
 const CHAVE_EMBUTIDA = "";
 const RESEND_EMBUTIDA = "";
+
+const REMETENTE_NOME = Deno.env.get("EMAIL_REMETENTE_NOME") ?? "Mulheres Curadas";
+const REMETENTE_EMAIL = Deno.env.get("EMAIL_REMETENTE_EMAIL") ?? "contato@mulherescuradas.com";
 
 const SITE = Deno.env.get("SITE_URL") ?? "https://www.mulherescuradas.com";
 
@@ -102,32 +108,87 @@ function corpoDoEmail(nome: string, codigo: string): string {
 
 type Inscrita = { id: string; nome: string; email: string; codigo: string };
 
-function mensagem(i: Inscrita) {
-  return {
-    from: Deno.env.get("EMAIL_REMETENTE") ?? "Mulheres Curadas <contato@mulherescuradas.com>",
-    to: [i.email],
-    reply_to: Deno.env.get("EMAIL_CONTATO") ?? undefined,
-    subject: ASSUNTO,
-    html: corpoDoEmail(i.nome, i.codigo),
-  };
+type Transporte = { nome: "brevo" | "resend"; chave: string };
+
+function transporte(): Transporte | null {
+  const brevo = Deno.env.get("BREVO_API_KEY");
+  if (brevo) return { nome: "brevo", chave: brevo };
+  const resend = Deno.env.get("RESEND_API_KEY") || RESEND_EMBUTIDA;
+  if (resend) return { nome: "resend", chave: resend };
+  return null;
 }
 
 const espera = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-/** Manda em lotes de ate 100 pelo envio em lote do Resend. */
-async function enviarLote(chave: string, lote: Inscrita[]): Promise<boolean> {
+/** Tenta ate tres vezes quando o servico pede calma (429) ou cai (5xx). */
+async function comRepeticao(pedido: () => Promise<Response>, rotulo: string): Promise<boolean> {
   for (let tentativa = 0; tentativa < 3; tentativa++) {
-    const resposta = await fetch("https://api.resend.com/emails/batch", {
-      method: "POST",
-      headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" },
-      body: JSON.stringify(lote.map(mensagem)),
-    });
+    const resposta = await pedido();
     if (resposta.ok) return true;
-    console.error("Resend recusou o lote:", resposta.status, await resposta.text());
+    console.error(`${rotulo} recusou o envio:`, resposta.status, await resposta.text());
     if (resposta.status !== 429 && resposta.status < 500) return false;
     await espera(1500 * (tentativa + 1));
   }
   return false;
+}
+
+/** Um e-mail por pedido, como a API do Brevo prefere. */
+function enviarBrevo(chave: string, i: Inscrita): Promise<boolean> {
+  return comRepeticao(
+    () =>
+      fetch("https://api.brevo.com/v3/smtp/email", {
+        method: "POST",
+        headers: {
+          "api-key": chave,
+          "Content-Type": "application/json",
+          Accept: "application/json",
+        },
+        body: JSON.stringify({
+          sender: { name: REMETENTE_NOME, email: REMETENTE_EMAIL },
+          to: [{ email: i.email, name: i.nome || undefined }],
+          replyTo: Deno.env.get("EMAIL_CONTATO")
+            ? { email: Deno.env.get("EMAIL_CONTATO") }
+            : undefined,
+          subject: ASSUNTO,
+          htmlContent: corpoDoEmail(i.nome, i.codigo),
+        }),
+      }),
+    "Brevo",
+  );
+}
+
+/** O Resend aceita ate 100 mensagens num pedido so. */
+function enviarResend(chave: string, lote: Inscrita[]): Promise<boolean> {
+  return comRepeticao(
+    () =>
+      fetch("https://api.resend.com/emails/batch", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${chave}`, "Content-Type": "application/json" },
+        body: JSON.stringify(
+          lote.map((i) => ({
+            from: `${REMETENTE_NOME} <${REMETENTE_EMAIL}>`,
+            to: [i.email],
+            reply_to: Deno.env.get("EMAIL_CONTATO") ?? undefined,
+            subject: ASSUNTO,
+            html: corpoDoEmail(i.nome, i.codigo),
+          })),
+        ),
+      }),
+    "Resend",
+  );
+}
+
+/** Devolve os ids que saíram. No Brevo vao de 8 em 8 ao mesmo tempo. */
+async function enviarLote(t: Transporte, lote: Inscrita[]): Promise<string[]> {
+  if (t.nome === "resend") return (await enviarResend(t.chave, lote)) ? lote.map((i) => i.id) : [];
+  const ok: string[] = [];
+  for (let i = 0; i < lote.length; i += 8) {
+    const grupo = lote.slice(i, i + 8);
+    const resultados = await Promise.all(grupo.map((x) => enviarBrevo(t.chave, x)));
+    resultados.forEach((deuCerto, k) => deuCerto && ok.push(grupo[k].id));
+    await espera(300);
+  }
+  return ok;
 }
 
 Deno.serve(async (req) => {
@@ -138,8 +199,8 @@ Deno.serve(async (req) => {
   if (!chaveDisparo || req.headers.get("x-chave") !== chaveDisparo) {
     return json({ erro: "Não autorizado." }, 401);
   }
-  const resend = Deno.env.get("RESEND_API_KEY") || RESEND_EMBUTIDA;
-  if (!resend) return json({ erro: "RESEND_API_KEY ausente." }, 500);
+  const t = transporte();
+  if (!t) return json({ erro: "Nenhuma chave de e-mail: configure BREVO_API_KEY." }, 500);
 
   try {
     const dados = await req.json().catch(() => ({}));
@@ -151,10 +212,10 @@ Deno.serve(async (req) => {
     if (dados.acao === "teste") {
       const email = String(dados.email ?? "").trim();
       if (!email) return json({ erro: "Informe o e-mail do teste." }, 400);
-      const ok = await enviarLote(resend, [
+      const ok = await enviarLote(t, [
         { id: "teste", nome: String(dados.nome ?? "Maria"), email, codigo: "MC-TEST-E123" },
       ]);
-      return json({ ok });
+      return json({ ok: ok.length === 1, servico: t.nome });
     }
 
     const { data, error } = await supabase
@@ -165,28 +226,26 @@ Deno.serve(async (req) => {
     if (error) throw error;
     const pendentes = (data ?? []) as Inscrita[];
 
-    if (dados.acao !== "enviar") return json({ ok: true, pendentes: pendentes.length });
+    if (dados.acao !== "enviar") {
+      return json({ ok: true, pendentes: pendentes.length, servico: t.nome });
+    }
 
     let enviadas = 0;
     let falhas = 0;
     for (let i = 0; i < pendentes.length; i += 100) {
       const lote = pendentes.slice(i, i + 100);
-      if (await enviarLote(resend, lote)) {
+      const saiu = await enviarLote(t, lote);
+      if (saiu.length) {
         const { error: erroMarca } = await supabase
           .from("inscricoes")
           .update({ lembrete_enviado_em: new Date().toISOString() })
-          .in(
-            "id",
-            lote.map((x) => x.id),
-          );
+          .in("id", saiu);
         if (erroMarca) console.error("Falha ao registrar o envio:", erroMarca);
-        enviadas += lote.length;
-      } else {
-        falhas += lote.length;
       }
-      await espera(700);
+      enviadas += saiu.length;
+      falhas += lote.length - saiu.length;
     }
-    return json({ ok: falhas === 0, enviadas, falhas });
+    return json({ ok: falhas === 0, enviadas, falhas, servico: t.nome });
   } catch (erro) {
     console.error(erro);
     return json({ erro: "Falha no disparo." }, 500);
