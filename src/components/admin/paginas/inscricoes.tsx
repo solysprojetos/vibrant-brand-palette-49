@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
@@ -56,6 +56,28 @@ type Inscricao = {
 type Aba = "visao" | "inscricoes";
 
 const CHAVE_SENHA = "mc-painel-senha";
+/** Ganhadoras guardadas no aparelho, para quem abre o sorteio pela senha (/painel). */
+const CHAVE_GANHADORAS = "mc-sorteio-ganhadoras";
+
+type Ganhadora = { premio: string | null; em: string };
+
+function lerGanhadorasLocais(): Record<string, Ganhadora> {
+  try {
+    const bruto = localStorage.getItem(CHAVE_GANHADORAS);
+    const dados = bruto ? (JSON.parse(bruto) as unknown) : null;
+    return dados && typeof dados === "object" ? (dados as Record<string, Ganhadora>) : {};
+  } catch {
+    return {};
+  }
+}
+
+function guardarGanhadorasLocais(dados: Record<string, Ganhadora>): void {
+  try {
+    localStorage.setItem(CHAVE_GANHADORAS, JSON.stringify(dados));
+  } catch {
+    // Armazenamento bloqueado: vale so enquanto a pagina estiver aberta.
+  }
+}
 
 const CAMPO =
   "w-full rounded-full border border-primary/20 bg-background px-6 py-3 text-base text-foreground outline-none transition-all placeholder:text-foreground/40 focus:border-primary focus:ring-2 focus:ring-[color:var(--rose-soft)]";
@@ -176,14 +198,19 @@ export function Painel({
   const [menuAberto, setMenuAberto] = useState(false);
   // Sorteio do dia: quem ja ganhou nao volta para o globo ate fechar o painel.
   const [sorteioAberto, setSorteioAberto] = useState(false);
-  const [apenasPresentes, setApenasPresentes] = useState(true);
+  // Regra do encontro: so participa do sorteio quem fez check-in na entrada.
   // Varios premios iguais (ex.: "a empresa X deu 10 kits") saem de uma vez:
   // a quantidade define quantas pessoas diferentes sao sorteadas juntas.
   const [quantidade, setQuantidade] = useState(1);
   const [premio, setPremio] = useState("");
   const [vencedoras, setVencedoras] = useState<Inscricao[]>([]);
   const [sorteando, setSorteando] = useState(false);
-  const [jaSorteadas, setJaSorteadas] = useState<Set<string>>(new Set());
+  // Quem ja ganhou nao participa de novo. Com login do /admin fica gravado no
+  // banco (mc_sorteio_ganhadoras), valendo para qualquer aparelho e depois de
+  // recarregar; pela senha do /painel fica guardado no proprio aparelho.
+  const [ganhadoras, setGanhadoras] = useState<Record<string, Ganhadora>>({});
+  const [avisoSorteio, setAvisoSorteio] = useState("");
+  const jaSorteadas = useMemo(() => new Set(Object.keys(ganhadoras)), [ganhadoras]);
   const [carregando, setCarregando] = useState(false);
   const [erro, setErro] = useState("");
 
@@ -324,6 +351,44 @@ export function Painel({
     }
   };
 
+  /** Le do banco quem ja ganhou (so com login do /admin). */
+  const buscarGanhadoras = useCallback(async (): Promise<Record<string, Ganhadora>> => {
+    const { data, error } = await supabase()
+      .from("mc_sorteio_ganhadoras")
+      .select("inscricao_id, premio, sorteado_em");
+    if (error) throw error;
+    const lidas: Record<string, Ganhadora> = {};
+    for (const g of (data ?? []) as {
+      inscricao_id: string;
+      premio: string | null;
+      sorteado_em: string;
+    }[]) {
+      lidas[g.inscricao_id] = { premio: g.premio, em: g.sorteado_em };
+    }
+    return lidas;
+  }, []);
+
+  // Assim que a lista abre, carrega quem ja ganhou.
+  useEffect(() => {
+    if (!autenticado) return;
+    if (!modoAdmin) {
+      setGanhadoras(lerGanhadorasLocais());
+      return;
+    }
+    let ativo = true;
+    buscarGanhadoras()
+      .then((lidas) => ativo && setGanhadoras(lidas))
+      .catch(() => {
+        if (ativo)
+          setAvisoSorteio(
+            "Não foi possível ler as ganhadoras do banco. Confira se a migração do sorteio foi aplicada.",
+          );
+      });
+    return () => {
+      ativo = false;
+    };
+  }, [autenticado, modoAdmin, buscarGanhadoras]);
+
   /** Indice aleatorio pelo gerador criptografico, sem vicio de arredondamento. */
   const aleatorio = (limite: number): number => {
     const teto = Math.floor(0x1_0000_0000 / limite) * limite;
@@ -344,15 +409,25 @@ export function Painel({
     return copia.slice(0, total);
   };
 
-  const sortear = () => {
-    const globo = inscricoes.filter(
-      (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
-    );
+  const sortear = async () => {
+    setAvisoSorteio("");
+    let conhecidas = ganhadoras;
+    if (modoAdmin) {
+      // Outro aparelho pode ter sorteado agora ha pouco: confere no banco antes.
+      try {
+        conhecidas = { ...ganhadoras, ...(await buscarGanhadoras()) };
+        setGanhadoras(conhecidas);
+      } catch {
+        /* segue com o que ja sabe; o registro abaixo ainda barra repeticao */
+      }
+    }
+    const globo = inscricoes.filter((i) => !(i.id in conhecidas) && Boolean(i.checkin_em));
     if (globo.length === 0) {
       setVencedoras([]);
       return;
     }
     const n = Math.max(1, Math.min(quantidade, globo.length));
+    const nomeDoPremio = premio.trim() || null;
 
     setSorteando(true);
     setVencedoras([]);
@@ -366,13 +441,35 @@ export function Painel({
       passos += 1;
       if (passos < total) {
         setTimeout(roda, 60 + passos * 14);
-      } else {
-        setSorteando(false);
-        setJaSorteadas((atual) => {
-          const novo = new Set(atual);
-          escolhidas.forEach((e) => novo.add(e.id));
-          return novo;
-        });
+        return;
+      }
+      setSorteando(false);
+      const agora = new Date().toISOString();
+      setGanhadoras((atual) => {
+        const novo = { ...atual };
+        escolhidas.forEach((e) => (novo[e.id] = { premio: nomeDoPremio, em: agora }));
+        if (!modoAdminRef.current) guardarGanhadorasLocais(novo);
+        return novo;
+      });
+      if (modoAdminRef.current) {
+        void (async () => {
+          const { data, error } = await supabase().rpc("mc_sorteio_registrar", {
+            p_ids: escolhidas.map((e) => e.id),
+            p_premio: nomeDoPremio,
+          });
+          if (error) {
+            setAvisoSorteio(
+              "Atenção: as ganhadoras não foram gravadas no banco (verifique a internet). Elas continuam fora do globo nesta tela.",
+            );
+            return;
+          }
+          const gravadas = new Set((data ?? []) as string[]);
+          const repetidas = escolhidas.filter((e) => !gravadas.has(e.id));
+          if (repetidas.length > 0)
+            setAvisoSorteio(
+              `${repetidas.map((r) => r.nome).join(", ")} já tinha${repetidas.length > 1 ? "m" : ""} ganhado em outro aparelho. Sorteie de novo para ${repetidas.length > 1 ? "esses prêmios" : "esse prêmio"}.`,
+            );
+        })();
       }
     };
     roda();
@@ -843,7 +940,7 @@ export function Painel({
 
             {(() => {
               const globo = inscricoes.filter(
-                (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
+                (i) => !jaSorteadas.has(i.id) && Boolean(i.checkin_em),
               );
               const participantes = globo.length + (sorteando ? 0 : vencedoras.length);
               const varias = vencedoras.length > 1;
@@ -900,9 +997,9 @@ export function Painel({
                   ) : (
                     <h2 className="mt-8 text-display text-4xl leading-tight opacity-80 md:text-5xl">
                       {participantes === 0
-                        ? apenasPresentes
-                          ? "Ninguém no globo ainda: marque as presenças ou inclua todas."
-                          : "Todas já foram sorteadas."
+                        ? inscricoes.some((i) => i.checkin_em)
+                          ? "Todas as presentes já ganharam."
+                          : "Ninguém no globo ainda: o sorteio é só para quem fez check-in."
                         : `${participantes} participante${participantes === 1 ? "" : "s"} no globo.`}
                     </h2>
                   )}
@@ -947,15 +1044,15 @@ export function Painel({
                   <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
                     <button
                       type="button"
-                      onClick={sortear}
+                      onClick={() => void sortear()}
                       disabled={sorteando || globo.length === 0}
                       className="inline-flex min-h-[52px] items-center gap-3 rounded-full bg-primary-foreground px-10 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <Gift aria-hidden="true" className="h-4 w-4" />
                       {sorteando
                         ? "Sorteando…"
-                        : quantidade > 1
-                          ? `Sortear ${Math.min(quantidade, Math.max(globo.length, 1))}`
+                        : quantidade > 1 && globo.length > 0
+                          ? `Sortear ${Math.min(quantidade, globo.length)}`
                           : vencedoras.length > 0
                             ? "Sortear outra"
                             : "Sortear"}
@@ -973,21 +1070,12 @@ export function Painel({
                     </button>
                   </div>
 
-                  <label className="mt-6 inline-flex min-h-[44px] cursor-pointer items-center gap-3 text-sm opacity-80">
-                    <input
-                      type="checkbox"
-                      checked={apenasPresentes}
-                      onChange={(e) => setApenasPresentes(e.target.checked)}
-                      disabled={sorteando}
-                      className="h-4 w-4 accent-[color:var(--rose-soft)]"
-                    />
-                    Sortear só entre as presentes (com check-in)
-                  </label>
-
-                  {jaSorteadas.size > 0 && (
-                    <p className="mt-3 text-xs opacity-60">
-                      {jaSorteadas.size} já sorteada{jaSorteadas.size === 1 ? "" : "s"} — não voltam
-                      ao globo até recarregar a página.
+                  {avisoSorteio && (
+                    <p
+                      role="alert"
+                      className="mx-auto mt-4 max-w-xl rounded-2xl bg-primary-foreground px-4 py-3 text-sm text-primary"
+                    >
+                      {avisoSorteio}
                     </p>
                   )}
                 </>
