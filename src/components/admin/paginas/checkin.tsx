@@ -213,9 +213,9 @@ export function PaginaCheckin() {
             </p>
           )}
         </div>
-        <div className={`${CARTAO} flex items-center gap-4 px-5 py-3`} aria-live="polite">
+        <div className={`${CARTAO} flex shrink-0 items-center gap-4 px-5 py-3`} aria-live="polite">
           <UserCheck className="h-6 w-6 text-[color:var(--admin-vinho)]" aria-hidden="true" />
-          <p className="text-display text-4xl leading-none text-[color:var(--admin-vinho)]">
+          <p className="text-display text-4xl leading-none whitespace-nowrap text-[color:var(--admin-vinho)]">
             {presentes}
             <span className="text-xl text-foreground/45"> / {inscritas.length}</span>
           </p>
@@ -275,9 +275,11 @@ export function PaginaCheckin() {
           }}
         />
       ) : modo === "qr" ? (
-        <>
+        // No notebook a camera fica numa coluna estreita e as ultimas entradas
+        // ao lado; no celular, uma embaixo da outra.
+        <div className="lg:grid lg:grid-cols-[minmax(0,340px)_minmax(0,1fr)] lg:items-start lg:gap-5">
           <LeitorQr ocupado={marcando !== null} aoLer={(codigo) => void marcar(codigo)} />
-          <section className={`${CARTAO} mt-5 p-4 md:p-6`}>
+          <section className={`${CARTAO} mt-5 p-4 md:p-6 lg:mt-0`}>
             <div className="flex items-baseline justify-between gap-3">
               <h2 className="text-lg font-semibold text-[color:var(--admin-vinho)]">
                 Últimas entradas
@@ -304,7 +306,7 @@ export function PaginaCheckin() {
               </ul>
             )}
           </section>
-        </>
+        </div>
       ) : (
         <section className={`${CARTAO} p-4 md:p-6`}>
           <label className="relative block">
@@ -764,7 +766,7 @@ function LeitorQr({ aoLer, ocupado }: { aoLer: (codigo: string) => void; ocupado
 
   return (
     <section className={`${CARTAO} overflow-hidden`}>
-      <div className="relative mx-auto aspect-square w-full max-w-md overflow-hidden bg-[#1d0b12] sm:mt-4 sm:aspect-[4/3] sm:rounded-3xl">
+      <div className="relative mx-auto aspect-square w-full max-w-sm overflow-hidden bg-[#1d0b12] sm:mt-4 sm:aspect-[4/3] sm:w-[calc(100%-2rem)] sm:rounded-3xl">
         <video
           ref={video}
           playsInline
@@ -774,7 +776,7 @@ function LeitorQr({ aoLer, ocupado }: { aoLer: (codigo: string) => void; ocupado
         <canvas ref={tela} className="hidden" />
         {estado === "lendo" && (
           <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-            <div className="h-56 w-56 rounded-3xl border-4 border-white/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
+            <div className="aspect-square h-[70%] max-h-56 rounded-3xl border-4 border-white/80 shadow-[0_0_0_9999px_rgba(0,0,0,0.35)]" />
           </div>
         )}
         {estado !== "lendo" && (
@@ -803,7 +805,7 @@ function LeitorQr({ aoLer, ocupado }: { aoLer: (codigo: string) => void; ocupado
           </div>
         )}
       </div>
-      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-3 p-4 sm:flex-row sm:items-center lg:flex-col lg:items-stretch">
         {estado === "lendo" && (
           <button
             type="button"
@@ -831,7 +833,7 @@ function LeitorQr({ aoLer, ocupado }: { aoLer: (codigo: string) => void; ocupado
             id="codigo-manual"
             value={manual}
             onChange={(e) => setManual(e.target.value.toUpperCase())}
-            placeholder="Código: MC-XXXX-XXXX"
+            placeholder="MC-XXXX-XXXX"
             autoCapitalize="characters"
             className="min-w-0 flex-1 rounded-full border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] px-4 py-2.5 font-mono text-base outline-none focus:border-[color:var(--admin-vinho)]/40"
           />
