@@ -83,6 +83,7 @@ export function PaginaCheckin() {
   const cliente = useQueryClient();
   const [modo, setModo] = useState<"qr" | "nome" | "inscrever">("qr");
   const [busca, setBusca] = useState("");
+  const [filtro, setFiltro] = useState<"faltam" | "presentes" | "todas">("faltam");
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [marcando, setMarcando] = useState<string | null>(null);
 
@@ -158,16 +159,44 @@ export function PaginaCheckin() {
   const inscritas = useMemo(() => lista.data ?? [], [lista.data]);
   const presentes = inscritas.filter((i) => i.checkin_em).length;
 
+  const buscando = normalizar(busca.trim()).length >= 2;
+
+  // Com algo digitado procura em todas; sem nada, mostra a lista inteira
+  // pelo filtro escolhido (quem falta entrar, quem ja entrou ou todas).
   const encontradas = useMemo(() => {
     const termo = normalizar(busca.trim());
-    if (termo.length < 2) return [];
-    const codigo = extrairCodigo(busca);
-    return inscritas
-      .filter((i) =>
-        codigo ? i.codigo === codigo : normalizar(`${i.nome} ${i.codigo}`).includes(termo),
-      )
-      .slice(0, 30);
-  }, [busca, inscritas]);
+    if (termo.length >= 2) {
+      const codigo = extrairCodigo(busca);
+      return inscritas
+        .filter((i) =>
+          codigo ? i.codigo === codigo : normalizar(`${i.nome} ${i.codigo}`).includes(termo),
+        )
+        .slice(0, 50);
+    }
+    return inscritas.filter((i) =>
+      filtro === "todas" ? true : filtro === "presentes" ? i.checkin_em : !i.checkin_em,
+    );
+  }, [busca, inscritas, filtro]);
+
+  // Ultimas entradas confirmadas (de qualquer recepcionista), mais recentes primeiro.
+  const ultimas = useMemo(
+    () =>
+      inscritas
+        .filter((i) => i.checkin_em)
+        .sort((a, b) => (b.checkin_em ?? "").localeCompare(a.checkin_em ?? ""))
+        .slice(0, 8),
+    [inscritas],
+  );
+
+  const linha = (i: Inscrita) => (
+    <LinhaInscrita
+      key={i.id}
+      inscrita={i}
+      marcando={marcando === i.codigo}
+      aoConfirmar={() => void marcar(i.codigo)}
+      aoDesfazer={() => marcar(i.codigo, true)}
+    />
+  );
 
   return (
     <>
@@ -246,7 +275,36 @@ export function PaginaCheckin() {
           }}
         />
       ) : modo === "qr" ? (
-        <LeitorQr ocupado={marcando !== null} aoLer={(codigo) => void marcar(codigo)} />
+        <>
+          <LeitorQr ocupado={marcando !== null} aoLer={(codigo) => void marcar(codigo)} />
+          <section className={`${CARTAO} mt-5 p-4 md:p-6`}>
+            <div className="flex items-baseline justify-between gap-3">
+              <h2 className="text-lg font-semibold text-[color:var(--admin-vinho)]">
+                Últimas entradas
+              </h2>
+              <button
+                type="button"
+                onClick={() => {
+                  setBusca("");
+                  setFiltro("todas");
+                  setModo("nome");
+                }}
+                className="min-h-[44px] text-sm font-semibold text-[color:var(--admin-vinho)] underline-offset-4 hover:underline"
+              >
+                Ver lista completa
+              </button>
+            </div>
+            {ultimas.length === 0 ? (
+              <p className="py-6 text-center text-sm text-foreground/60">
+                Nenhuma entrada confirmada ainda.
+              </p>
+            ) : (
+              <ul className="mt-1 divide-y divide-[color:var(--admin-linha)]">
+                {ultimas.map(linha)}
+              </ul>
+            )}
+          </section>
+        </>
       ) : (
         <section className={`${CARTAO} p-4 md:p-6`}>
           <label className="relative block">
@@ -259,65 +317,105 @@ export function PaginaCheckin() {
               autoFocus
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              placeholder="Digite o nome ou o código (MC-…)"
-              className="w-full rounded-2xl border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] py-3.5 pr-4 pl-12 text-lg sm:py-4 outline-none focus:border-[color:var(--admin-vinho)]/40 focus:ring-4 focus:ring-[color:var(--admin-vinho)]/10"
+              placeholder="Nome ou código do ingresso"
+              className="w-full rounded-2xl border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] py-3.5 pr-4 pl-12 text-lg outline-none focus:border-[color:var(--admin-vinho)]/40 focus:ring-4 focus:ring-[color:var(--admin-vinho)]/10 sm:py-4"
             />
           </label>
-          {busca.trim().length >= 2 && (
-            <ul className="mt-3 divide-y divide-[color:var(--admin-linha)]">
-              {encontradas.length === 0 && (
-                <li className="py-6 text-center text-sm text-foreground/60">
-                  Ninguém encontrado com “{busca}”.
-                </li>
-              )}
-              {encontradas.map((i) => (
-                <li key={i.id} className="flex items-center gap-3 py-3">
-                  <div className="min-w-0 flex-1">
-                    <p className="line-clamp-2 text-[17px] leading-snug font-semibold break-words text-foreground/90">
-                      {nomeBonito(i.nome)}
-                    </p>
-                    <p className="mt-0.5 line-clamp-2 text-xs break-words text-foreground/55">
-                      {i.codigo}
-                      {i.igreja && ` · ${i.igreja}`}
-                      {i.checkin_em &&
-                        ` · entrou às ${formatarHora(i.checkin_em)}${i.checkin_por ? ` (${i.checkin_por})` : ""}`}
-                    </p>
-                  </div>
-                  {i.checkin_em ? (
-                    <ConfirmarExclusao
-                      titulo="Desfazer esta entrada?"
-                      texto={`${nomeBonito(i.nome)} volta a aparecer como não presente.`}
-                      aoConfirmar={() => marcar(i.codigo, true)}
-                      rotuloAcao="Desfazer"
-                    >
-                      <button
-                        type="button"
-                        className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-3 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200 sm:gap-2 sm:px-4"
-                      >
-                        <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
-                        Presente
-                      </button>
-                    </ConfirmarExclusao>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={() => void marcar(i.codigo)}
-                      disabled={marcando === i.codigo}
-                      className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60 sm:px-5"
-                    >
-                      {marcando === i.codigo && (
-                        <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
-                      )}
-                      Confirmar<span className="hidden sm:inline"> entrada</span>
-                    </button>
-                  )}
-                </li>
+          {!buscando && (
+            <div className="mt-3 flex flex-wrap gap-2" role="group" aria-label="Filtrar a lista">
+              {(
+                [
+                  ["faltam", `Faltam entrar (${inscritas.length - presentes})`],
+                  ["presentes", `Já entraram (${presentes})`],
+                  ["todas", `Todas (${inscritas.length})`],
+                ] as const
+              ).map(([chave, rotulo]) => (
+                <button
+                  key={chave}
+                  type="button"
+                  onClick={() => setFiltro(chave)}
+                  aria-pressed={filtro === chave}
+                  className={`min-h-[40px] rounded-full px-4 text-sm font-semibold ring-1 transition ${
+                    filtro === chave
+                      ? "bg-[color:var(--admin-vinho)] text-white ring-[color:var(--admin-vinho)]"
+                      : "bg-white text-foreground/70 ring-[color:var(--admin-linha)]"
+                  }`}
+                >
+                  {rotulo}
+                </button>
               ))}
-            </ul>
+            </div>
           )}
+          <ul className="mt-3 divide-y divide-[color:var(--admin-linha)]">
+            {encontradas.length === 0 && (
+              <li className="py-6 text-center text-sm text-foreground/60">
+                {buscando
+                  ? `Ninguém encontrado com “${busca}”.`
+                  : filtro === "faltam"
+                    ? "Todas as inscritas já entraram."
+                    : "Ninguém nesta lista ainda."}
+              </li>
+            )}
+            {encontradas.map(linha)}
+          </ul>
         </section>
       )}
     </>
+  );
+}
+
+/** Uma pessoa da lista: nome, codigo, igreja e o botao de entrada. */
+function LinhaInscrita({
+  inscrita: i,
+  marcando,
+  aoConfirmar,
+  aoDesfazer,
+}: {
+  inscrita: Inscrita;
+  marcando: boolean;
+  aoConfirmar: () => void;
+  aoDesfazer: () => Promise<void> | void;
+}) {
+  return (
+    <li className="flex items-center gap-3 py-3">
+      <div className="min-w-0 flex-1">
+        <p className="line-clamp-2 text-[17px] leading-snug font-semibold break-words text-foreground/90">
+          {nomeBonito(i.nome)}
+        </p>
+        <p className="mt-0.5 line-clamp-2 text-xs break-words text-foreground/55">
+          {i.codigo}
+          {i.igreja && ` · ${i.igreja}`}
+          {i.checkin_em &&
+            ` · entrou às ${formatarHora(i.checkin_em)}${i.checkin_por ? ` (${i.checkin_por})` : ""}`}
+        </p>
+      </div>
+      {i.checkin_em ? (
+        <ConfirmarExclusao
+          titulo="Desfazer esta entrada?"
+          texto={`${nomeBonito(i.nome)} volta a aparecer como não presente.`}
+          aoConfirmar={aoDesfazer}
+          rotuloAcao="Desfazer"
+        >
+          <button
+            type="button"
+            className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-3 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200 sm:gap-2 sm:px-4"
+          >
+            <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
+            Presente
+          </button>
+        </ConfirmarExclusao>
+      ) : (
+        <button
+          type="button"
+          onClick={aoConfirmar}
+          disabled={marcando}
+          className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60 sm:px-5"
+        >
+          {marcando && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
+          Confirmar<span className="hidden sm:inline"> entrada</span>
+        </button>
+      )}
+    </li>
   );
 }
 
