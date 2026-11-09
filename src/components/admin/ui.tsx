@@ -18,7 +18,7 @@ import { enviarImagem, traduzirErro } from "@/lib/cms/util";
 
 /* Estilos base do painel, no mesmo desenho da imagem de referencia. */
 export const CAMPO =
-  "w-full rounded-xl border border-border bg-white px-4 py-2.5 text-[15px] text-foreground outline-none transition placeholder:text-foreground/35 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:opacity-60";
+  "w-full rounded-xl border border-border bg-white px-4 py-3 text-base text-foreground sm:py-2.5 sm:text-[15px] outline-none transition placeholder:text-foreground/35 focus:border-primary/50 focus:ring-4 focus:ring-primary/10 disabled:opacity-60";
 
 export const BOTAO_PRIMARIO =
   "inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-6 text-sm font-semibold text-white shadow-sm transition hover:brightness-110 disabled:cursor-not-allowed disabled:opacity-60";

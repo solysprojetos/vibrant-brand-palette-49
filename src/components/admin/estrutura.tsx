@@ -264,7 +264,7 @@ function MinhaConta({ aberta, aoFechar }: { aberta: boolean; aoFechar: () => voi
 
 function TelaCentral({ children }: { children: ReactNode }) {
   return (
-    <div className="admin-raiz relative flex min-h-screen items-center justify-center overflow-hidden px-5 py-12">
+    <div className="admin-raiz relative flex min-h-[100dvh] items-center justify-center overflow-hidden px-4 py-6 sm:px-5 sm:py-12">
       <div
         aria-hidden="true"
         className="absolute inset-0 -z-0"
@@ -273,7 +273,7 @@ function TelaCentral({ children }: { children: ReactNode }) {
             "radial-gradient(60% 50% at 85% 10%, rgb(180 26 64 / 0.10), transparent 70%), radial-gradient(50% 40% at 10% 90%, rgb(208 133 119 / 0.16), transparent 70%)",
         }}
       />
-      <div className="admin-surgir relative w-full max-w-md rounded-[2rem] border border-[color:var(--admin-linha)] bg-white/90 p-8 shadow-[0_30px_80px_-30px_rgba(86,18,48,0.35)] backdrop-blur md:p-10">
+      <div className="admin-surgir relative w-full max-w-md rounded-[2rem] border border-[color:var(--admin-linha)] bg-white/90 px-5 py-7 shadow-[0_30px_80px_-30px_rgba(86,18,48,0.35)] backdrop-blur sm:p-8 md:p-10">
         <div className="flex justify-center">
           <Marca claro={false} />
         </div>
@@ -324,7 +324,7 @@ function Entrar() {
 
   return (
     <TelaCentral>
-      <h1 className="mt-8 text-center text-display text-4xl text-[color:var(--admin-vinho)]">
+      <h1 className="mt-6 text-center text-display text-[2rem] leading-tight text-[color:var(--admin-vinho)] sm:mt-8 sm:text-4xl">
         {modo === "entrar" ? "Bem-vinda de volta" : "Recuperar senha"}
       </h1>
       <p className="mt-2 text-center text-sm text-foreground/60">
@@ -332,12 +332,16 @@ function Entrar() {
           ? "Entre com o e-mail e a senha da equipe."
           : "Enviaremos um link para você criar uma nova senha."}
       </p>
-      <form onSubmit={modo === "entrar" ? entrar : recuperar} className="mt-8 space-y-4">
+      <form onSubmit={modo === "entrar" ? entrar : recuperar} className="mt-6 space-y-4 sm:mt-8">
         <Campo rotulo="E-mail">
           {(id) => (
             <input
               id={id}
               type="email"
+              inputMode="email"
+              autoCapitalize="none"
+              autoCorrect="off"
+              spellCheck={false}
               required
               autoComplete="email"
               className={CAMPO}
@@ -369,7 +373,11 @@ function Entrar() {
             {erro}
           </p>
         )}
-        <button type="submit" disabled={enviando} className={`${BOTAO_PRIMARIO} w-full`}>
+        <button
+          type="submit"
+          disabled={enviando}
+          className={`${BOTAO_PRIMARIO} min-h-[50px] w-full text-base sm:min-h-[44px] sm:text-sm`}
+        >
           {enviando && <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />}
           {modo === "entrar" ? (enviando ? "Entrando" : "Entrar") : "Enviar link"}
         </button>

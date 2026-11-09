@@ -260,7 +260,7 @@ export function PaginaCheckin() {
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
               placeholder="Digite o nome ou o código (MC-…)"
-              className="w-full rounded-2xl border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] py-4 pr-4 pl-12 text-lg outline-none focus:border-[color:var(--admin-vinho)]/40 focus:ring-4 focus:ring-[color:var(--admin-vinho)]/10"
+              className="w-full rounded-2xl border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] py-3.5 pr-4 pl-12 text-lg sm:py-4 outline-none focus:border-[color:var(--admin-vinho)]/40 focus:ring-4 focus:ring-[color:var(--admin-vinho)]/10"
             />
           </label>
           {busca.trim().length >= 2 && (
@@ -273,10 +273,10 @@ export function PaginaCheckin() {
               {encontradas.map((i) => (
                 <li key={i.id} className="flex items-center gap-3 py-3">
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-[17px] font-semibold text-foreground/90">
+                    <p className="line-clamp-2 text-[17px] leading-snug font-semibold break-words text-foreground/90">
                       {nomeBonito(i.nome)}
                     </p>
-                    <p className="truncate text-xs text-foreground/55">
+                    <p className="mt-0.5 line-clamp-2 text-xs break-words text-foreground/55">
                       {i.codigo}
                       {i.igreja && ` · ${i.igreja}`}
                       {i.checkin_em &&
@@ -292,7 +292,7 @@ export function PaginaCheckin() {
                     >
                       <button
                         type="button"
-                        className="inline-flex min-h-[44px] items-center gap-2 rounded-full bg-emerald-50 px-4 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200"
+                        className="inline-flex min-h-[44px] shrink-0 items-center gap-1.5 rounded-full bg-emerald-50 px-3 text-sm font-semibold text-emerald-800 ring-1 ring-emerald-200 sm:gap-2 sm:px-4"
                       >
                         <CheckCircle2 className="h-4 w-4" aria-hidden="true" />
                         Presente
@@ -303,12 +303,12 @@ export function PaginaCheckin() {
                       type="button"
                       onClick={() => void marcar(i.codigo)}
                       disabled={marcando === i.codigo}
-                      className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-5 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+                      className="inline-flex min-h-[44px] shrink-0 items-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-4 text-sm font-semibold text-white transition hover:brightness-110 disabled:opacity-60 sm:px-5"
                     >
                       {marcando === i.codigo && (
                         <Loader2 className="h-4 w-4 animate-spin" aria-hidden="true" />
                       )}
-                      Confirmar entrada
+                      Confirmar<span className="hidden sm:inline"> entrada</span>
                     </button>
                   )}
                 </li>
@@ -733,9 +733,9 @@ function LeitorQr({ aoLer, ocupado }: { aoLer: (codigo: string) => void; ocupado
             id="codigo-manual"
             value={manual}
             onChange={(e) => setManual(e.target.value.toUpperCase())}
-            placeholder="Ou digite o código: MC-XXXX-XXXX"
+            placeholder="Código: MC-XXXX-XXXX"
             autoCapitalize="characters"
-            className="min-w-0 flex-1 rounded-full border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] px-4 py-2.5 font-mono text-[15px] outline-none focus:border-[color:var(--admin-vinho)]/40"
+            className="min-w-0 flex-1 rounded-full border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] px-4 py-2.5 font-mono text-base outline-none focus:border-[color:var(--admin-vinho)]/40"
           />
           <button
             type="submit"
