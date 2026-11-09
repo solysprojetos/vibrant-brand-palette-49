@@ -177,7 +177,11 @@ export function Painel({
   // Sorteio do dia: quem ja ganhou nao volta para o globo ate fechar o painel.
   const [sorteioAberto, setSorteioAberto] = useState(false);
   const [apenasPresentes, setApenasPresentes] = useState(true);
-  const [vencedora, setVencedora] = useState<Inscricao | null>(null);
+  // Varios premios iguais (ex.: "a empresa X deu 10 kits") saem de uma vez:
+  // a quantidade define quantas pessoas diferentes sao sorteadas juntas.
+  const [quantidade, setQuantidade] = useState(1);
+  const [premio, setPremio] = useState("");
+  const [vencedoras, setVencedoras] = useState<Inscricao[]>([]);
   const [sorteando, setSorteando] = useState(false);
   const [jaSorteadas, setJaSorteadas] = useState<Set<string>>(new Set());
   const [carregando, setCarregando] = useState(false);
@@ -301,7 +305,7 @@ export function Painel({
   // Atalho "Sorteio" do menu /admin: abre a tela do sorteio assim que a lista chega.
   useEffect(() => {
     if (autenticado && abrirSorteioAoEntrar) {
-      setVencedora(null);
+      setVencedoras([]);
       setSorteioAberto(true);
     }
   }, [autenticado, abrirSorteioAoEntrar]);
@@ -320,39 +324,62 @@ export function Painel({
     }
   };
 
-  /** Sorteia com o gerador criptografico, sem vicio de arredondamento. */
+  /** Indice aleatorio pelo gerador criptografico, sem vicio de arredondamento. */
+  const aleatorio = (limite: number): number => {
+    const teto = Math.floor(0x1_0000_0000 / limite) * limite;
+    const numero = new Uint32Array(1);
+    do crypto.getRandomValues(numero);
+    while (numero[0] >= teto);
+    return numero[0] % limite;
+  };
+
+  /** Escolhe `n` pessoas diferentes (Fisher-Yates parcial). */
+  const escolher = (globo: Inscricao[], n: number): Inscricao[] => {
+    const copia = [...globo];
+    const total = Math.min(n, copia.length);
+    for (let i = 0; i < total; i++) {
+      const j = i + aleatorio(copia.length - i);
+      [copia[i], copia[j]] = [copia[j], copia[i]];
+    }
+    return copia.slice(0, total);
+  };
+
   const sortear = () => {
     const globo = inscricoes.filter(
       (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
     );
     if (globo.length === 0) {
-      setVencedora(null);
+      setVencedoras([]);
       return;
     }
+    const n = Math.max(1, Math.min(quantidade, globo.length));
 
     setSorteando(true);
-    setVencedora(null);
+    setVencedoras([]);
 
-    // Suspense de sorteio: nomes passam rapido antes de parar na escolhida.
+    // Suspense de sorteio: nomes passam rapido antes de parar nas escolhidas.
     let passos = 0;
     const total = 18;
     const roda = () => {
-      const indice = crypto.getRandomValues(new Uint32Array(1))[0] % globo.length;
-      const escolhida = globo[indice];
-      setVencedora(escolhida);
+      const escolhidas = escolher(globo, n);
+      setVencedoras(escolhidas);
       passos += 1;
       if (passos < total) {
         setTimeout(roda, 60 + passos * 14);
       } else {
         setSorteando(false);
-        setJaSorteadas((atual) => new Set(atual).add(escolhida.id));
+        setJaSorteadas((atual) => {
+          const novo = new Set(atual);
+          escolhidas.forEach((e) => novo.add(e.id));
+          return novo;
+        });
       }
     };
     roda();
   };
 
   const abrirSorteio = () => {
-    setVencedora(null);
+    setVencedoras([]);
     setSorteioAberto(true);
   };
 
@@ -809,32 +836,66 @@ export function Painel({
           role="dialog"
           aria-modal="true"
           aria-label="Sorteio"
-          className="fixed inset-0 z-50 flex items-center justify-center bg-primary px-6 text-primary-foreground"
+          className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-primary px-6 py-8 text-primary-foreground"
         >
-          <div className="w-full max-w-2xl text-center">
+          <div className="m-auto w-full max-w-3xl text-center">
             <p className="eyebrow opacity-70">Sorteio · Mulheres Curadas</p>
 
             {(() => {
               const globo = inscricoes.filter(
                 (i) => !jaSorteadas.has(i.id) && (!apenasPresentes || i.checkin_em),
               );
-              const participantes = globo.length + (vencedora && !sorteando ? 1 : 0);
+              const participantes = globo.length + (sorteando ? 0 : vencedoras.length);
+              const varias = vencedoras.length > 1;
               return (
                 <>
-                  {vencedora ? (
+                  {premio.trim() && (
+                    <p className="mt-6 text-lg opacity-90 md:text-2xl">{premio.trim()}</p>
+                  )}
+                  {vencedoras.length === 1 ? (
                     <div aria-live="polite">
                       <h2
                         className={`mt-8 text-display text-4xl leading-tight md:text-6xl ${sorteando ? "opacity-60" : ""}`}
                       >
-                        {vencedora.nome}
+                        {vencedoras[0].nome}
                       </h2>
                       {/* Nome e numero do ingresso giram juntos na roleta e
                         ficam juntos no resultado, como no bilhete fisico. */}
                       <p
                         className={`mt-4 text-xl tracking-[0.18em] md:text-2xl ${sorteando ? "opacity-50" : "opacity-90"}`}
                       >
-                        Ingresso {vencedora.codigo}
+                        Ingresso {vencedoras[0].codigo}
                       </p>
+                    </div>
+                  ) : varias ? (
+                    <div aria-live="polite" className="mt-6">
+                      <p className="eyebrow opacity-80">
+                        {sorteando
+                          ? `Sorteando ${vencedoras.length} ganhadoras…`
+                          : `${vencedoras.length} ganhadoras`}
+                      </p>
+                      <ol
+                        className={`mt-4 grid max-h-[55vh] gap-2 overflow-y-auto text-left sm:grid-cols-2 ${sorteando ? "opacity-60" : ""}`}
+                      >
+                        {vencedoras.map((v, indice) => (
+                          <li
+                            key={sorteando ? indice : v.id}
+                            className="flex items-baseline gap-3 rounded-2xl bg-primary-foreground/10 px-4 py-2.5"
+                          >
+                            <span className="w-6 shrink-0 text-right text-sm opacity-60">
+                              {indice + 1}.
+                            </span>
+                            <span className="min-w-0 flex-1">
+                              <span className="block text-lg leading-tight font-semibold md:text-xl">
+                                {v.nome}
+                              </span>
+                              <span className="block text-xs tracking-[0.14em] opacity-75">
+                                {v.codigo}
+                              </span>
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
                     </div>
                   ) : (
                     <h2 className="mt-8 text-display text-4xl leading-tight opacity-80 md:text-5xl">
@@ -846,7 +907,44 @@ export function Painel({
                     </h2>
                   )}
 
-                  <div className="mt-12 flex flex-wrap items-center justify-center gap-4">
+                  <div
+                    className={`flex flex-wrap items-end justify-center gap-3 ${varias ? "mt-6" : "mt-10"}`}
+                  >
+                    <label className="flex flex-col items-start gap-1 text-left text-xs opacity-90">
+                      Quantidade de prêmios
+                      <input
+                        type="number"
+                        inputMode="numeric"
+                        min={1}
+                        max={Math.max(1, globo.length)}
+                        value={quantidade}
+                        onChange={(e) => {
+                          const n = Math.floor(Number(e.target.value));
+                          setQuantidade(Number.isFinite(n) && n > 0 ? Math.min(n, 500) : 1);
+                        }}
+                        disabled={sorteando}
+                        className="min-h-[44px] w-28 rounded-full border border-primary-foreground/40 bg-transparent px-4 text-center text-lg outline-none focus:border-primary-foreground"
+                      />
+                    </label>
+                    <label className="flex flex-col items-start gap-1 text-left text-xs opacity-90">
+                      Prêmio (opcional)
+                      <input
+                        value={premio}
+                        onChange={(e) => setPremio(e.target.value)}
+                        placeholder="Ex.: Kits da Empresa X"
+                        maxLength={80}
+                        disabled={sorteando}
+                        className="min-h-[44px] w-60 rounded-full border border-primary-foreground/40 bg-transparent px-4 text-base outline-none placeholder:text-primary-foreground/50 focus:border-primary-foreground"
+                      />
+                    </label>
+                  </div>
+                  {quantidade > globo.length && globo.length > 0 && !sorteando && (
+                    <p className="mt-2 text-xs opacity-75">
+                      Só há {globo.length} no globo: serão sorteadas {globo.length}.
+                    </p>
+                  )}
+
+                  <div className="mt-6 flex flex-wrap items-center justify-center gap-4">
                     <button
                       type="button"
                       onClick={sortear}
@@ -854,7 +952,13 @@ export function Painel({
                       className="inline-flex min-h-[52px] items-center gap-3 rounded-full bg-primary-foreground px-10 text-xs uppercase tracking-[0.3em] text-primary transition-all hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-60"
                     >
                       <Gift aria-hidden="true" className="h-4 w-4" />
-                      {sorteando ? "Sorteando…" : vencedora ? "Sortear outra" : "Sortear"}
+                      {sorteando
+                        ? "Sorteando…"
+                        : quantidade > 1
+                          ? `Sortear ${Math.min(quantidade, Math.max(globo.length, 1))}`
+                          : vencedoras.length > 0
+                            ? "Sortear outra"
+                            : "Sortear"}
                     </button>
                     <button
                       type="button"
@@ -869,7 +973,7 @@ export function Painel({
                     </button>
                   </div>
 
-                  <label className="mt-10 inline-flex min-h-[44px] cursor-pointer items-center gap-3 text-sm opacity-80">
+                  <label className="mt-6 inline-flex min-h-[44px] cursor-pointer items-center gap-3 text-sm opacity-80">
                     <input
                       type="checkbox"
                       checked={apenasPresentes}
