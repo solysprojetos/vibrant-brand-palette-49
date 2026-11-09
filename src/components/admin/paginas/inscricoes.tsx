@@ -43,7 +43,8 @@ type Inscricao = {
   criado_em: string;
   nome: string;
   telefone: string;
-  email: string;
+  /** Vazio para quem foi inscrita na porta, pela recepcao. */
+  email: string | null;
   frequenta_igreja: boolean;
   igreja: string | null;
   codigo: string;
@@ -129,7 +130,7 @@ function baixarCsv(inscricoes: Inscricao[]): void {
       formatarData(i.criado_em),
       i.nome,
       i.telefone,
-      i.email,
+      i.email ?? "",
       i.frequenta_igreja ? "Sim" : "Não",
       i.igreja ?? "",
       i.codigo,
@@ -445,7 +446,7 @@ export function Painel({
   const termo = busca.trim().toLocaleLowerCase("pt-BR");
   const filtradas = termo
     ? inscricoes.filter((i) =>
-        [i.nome, i.email, i.telefone, i.codigo, i.igreja ?? ""]
+        [i.nome, i.email ?? "", i.telefone, i.codigo, i.igreja ?? ""]
           .join(" ")
           .toLocaleLowerCase("pt-BR")
           .includes(termo),
@@ -717,12 +718,18 @@ export function Painel({
                       </td>
                       <td className="px-5 py-4 align-top">{inscricao.nome}</td>
                       <td className="px-5 py-4 align-top text-foreground/70">
-                        <a
-                          href={`mailto:${inscricao.email}`}
-                          className="underline underline-offset-4 hover:text-primary"
-                        >
-                          {inscricao.email}
-                        </a>
+                        {inscricao.email ? (
+                          <a
+                            href={`mailto:${inscricao.email}`}
+                            className="underline underline-offset-4 hover:text-primary"
+                          >
+                            {inscricao.email}
+                          </a>
+                        ) : (
+                          <span className="text-xs text-foreground/50">
+                            Sem e-mail (inscrita na recepção)
+                          </span>
+                        )}
                         <br />
                         <a
                           href={`tel:${inscricao.telefone.replace(/\D/g, "")}`}
@@ -755,12 +762,14 @@ export function Painel({
                           >
                             WhatsApp
                           </a>
-                          <a
-                            href={linkEmail(inscricao)}
-                            className="text-primary underline underline-offset-4 hover:opacity-80"
-                          >
-                            E-mail
-                          </a>
+                          {inscricao.email && (
+                            <a
+                              href={linkEmail(inscricao)}
+                              className="text-primary underline underline-offset-4 hover:opacity-80"
+                            >
+                              E-mail
+                            </a>
+                          )}
                         </span>
                       </td>
                       <td className="px-5 py-4 align-top">

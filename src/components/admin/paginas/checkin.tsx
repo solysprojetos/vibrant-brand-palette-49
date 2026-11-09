@@ -9,10 +9,12 @@ import {
   RotateCcw,
   Search,
   UserCheck,
+  UserPlus,
   XCircle,
 } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
+import { mascaraTelefone } from "@/components/formulario-inscricao";
 import type { Evento } from "@/lib/cms/tipos";
 import { formatarData, formatarHora, traduzirErro } from "@/lib/cms/util";
 import { CARTAO, Carregando, ConfirmarExclusao, ErroCarregar } from "../ui";
@@ -21,7 +23,11 @@ import { CARTAO, Carregando, ConfirmarExclusao, ErroCarregar } from "../ui";
  * Check-in da entrada: a recepcao le o QR code do ingresso com a camera do
  * celular ou busca a pessoa pelo nome, e confirma a entrada.
  *
- * Tudo passa pelas funcoes mc_checkin_lista / mc_checkin_marcar do banco:
+ * Quem chega sem inscricao e inscrita ali mesmo (aba "Nova inscrição"): so
+ * nome completo, telefone e igreja. A pessoa ja entra como presente.
+ *
+ * Tudo passa pelas funcoes mc_checkin_lista / mc_checkin_marcar /
+ * mc_checkin_inscrever do banco:
  * a recepcao ve so nome, igreja e codigo (nunca e-mail ou telefone), e duas
  * leituras do mesmo ingresso nunca contam duas vezes.
  */
@@ -36,7 +42,7 @@ type Inscrita = {
 };
 
 type Resultado =
-  | { tipo: "ok"; nome: string; codigo: string }
+  | { tipo: "ok"; nome: string; codigo: string; nova?: boolean }
   | { tipo: "ja"; nome: string; quando: string; por: string | null }
   | { tipo: "nao-encontrado"; codigo: string }
   | { tipo: "desfeito"; nome: string };
@@ -75,7 +81,7 @@ function avisar(tipo: Resultado["tipo"]) {
 
 export function PaginaCheckin() {
   const cliente = useQueryClient();
-  const [modo, setModo] = useState<"qr" | "nome">("qr");
+  const [modo, setModo] = useState<"qr" | "nome" | "inscrever">("qr");
   const [busca, setBusca] = useState("");
   const [resultado, setResultado] = useState<Resultado | null>(null);
   const [marcando, setMarcando] = useState<string | null>(null);
@@ -192,11 +198,12 @@ export function PaginaCheckin() {
         </div>
       </div>
 
-      <div className="mb-5 grid grid-cols-2 gap-2 rounded-full bg-white p-1 ring-1 ring-[color:var(--admin-linha)] sm:inline-grid">
+      <div className="mb-5 grid grid-cols-3 gap-1 sm:gap-2 rounded-full bg-white p-1 ring-1 ring-[color:var(--admin-linha)] sm:inline-grid">
         {(
           [
             ["qr", "Ler QR code", QrCode],
             ["nome", "Buscar nome", Search],
+            ["inscrever", "Nova inscrição", UserPlus],
           ] as const
         ).map(([chave, rotulo, Icone]) => (
           <button
@@ -204,11 +211,11 @@ export function PaginaCheckin() {
             type="button"
             onClick={() => setModo(chave)}
             aria-pressed={modo === chave}
-            className={`inline-flex min-h-[44px] items-center justify-center gap-2 rounded-full px-5 text-sm font-semibold transition ${
+            className={`inline-flex min-h-[44px] items-center justify-center gap-1.5 rounded-full px-2 text-xs font-semibold transition sm:gap-2 sm:px-5 sm:text-sm ${
               modo === chave ? "bg-[color:var(--admin-vinho)] text-white" : "text-foreground/70"
             }`}
           >
-            <Icone className="h-4 w-4" aria-hidden="true" />
+            <Icone className="hidden h-4 w-4 shrink-0 min-[400px]:block" aria-hidden="true" />
             {rotulo}
           </button>
         ))}
@@ -220,6 +227,24 @@ export function PaginaCheckin() {
         <ErroCarregar erro={lista.error} />
       ) : lista.isLoading ? (
         <Carregando texto="Carregando a lista de inscritas" />
+      ) : modo === "inscrever" ? (
+        <FormularioNaPorta
+          aoInscrever={(nova) => {
+            cliente.setQueryData<Inscrita[]>(CHAVE, (atual) =>
+              [...(atual ?? []), nova].sort((a, b) => a.nome.localeCompare(b.nome, "pt-BR")),
+            );
+            void cliente.invalidateQueries({ queryKey: CHAVE });
+            void cliente.invalidateQueries({ queryKey: ["admin", "dashboard"] });
+            const r: Resultado = {
+              tipo: "ok",
+              nome: nomeBonito(nova.nome),
+              codigo: nova.codigo,
+              nova: true,
+            };
+            setResultado(r);
+            avisar(r.tipo);
+          }}
+        />
       ) : modo === "qr" ? (
         <LeitorQr ocupado={marcando !== null} aoLer={(codigo) => void marcar(codigo)} />
       ) : (
@@ -328,8 +353,11 @@ function AvisoResultado({
       <div className="min-w-0 flex-1">
         {resultado.tipo === "ok" && (
           <>
-            <p className="text-sm opacity-90">Entrada confirmada</p>
+            <p className="text-sm opacity-90">
+              {resultado.nova ? "Inscrição feita e entrada confirmada" : "Entrada confirmada"}
+            </p>
             <p className="text-2xl leading-tight font-semibold break-words">{resultado.nome}</p>
+            {resultado.nova && <p className="text-sm opacity-90">Ingresso {resultado.codigo}</p>}
           </>
         )}
         {resultado.tipo === "ja" && (
@@ -367,6 +395,181 @@ function AvisoResultado({
         </button>
       )}
     </div>
+  );
+}
+
+/**
+ * Inscricao feita na porta: nome completo, telefone e igreja (se frequentar).
+ * Sem e-mail. A pessoa ja sai daqui com a presenca confirmada.
+ */
+function FormularioNaPorta({ aoInscrever }: { aoInscrever: (nova: Inscrita) => void }) {
+  const [nome, setNome] = useState("");
+  const [telefone, setTelefone] = useState("");
+  const [temIgreja, setTemIgreja] = useState<"" | "sim" | "nao">("");
+  const [igreja, setIgreja] = useState("");
+  const [erros, setErros] = useState<Partial<Record<"nome" | "telefone" | "igreja", string>>>({});
+  const [enviando, setEnviando] = useState(false);
+  const primeiroCampo = useRef<HTMLInputElement>(null);
+
+  const campo =
+    "w-full rounded-2xl border border-[color:var(--admin-linha)] bg-[color:var(--admin-fundo)] px-4 py-3.5 text-lg outline-none focus:border-[color:var(--admin-vinho)]/40 focus:ring-4 focus:ring-[color:var(--admin-vinho)]/10";
+
+  const enviar = async (e: React.FormEvent) => {
+    e.preventDefault();
+    const novosErros: typeof erros = {};
+    const nomeLimpo = nome.trim().replace(/\s+/g, " ");
+    if (nomeLimpo.length < 3 || !nomeLimpo.includes(" "))
+      novosErros.nome = "Escreva o nome completo (nome e sobrenome).";
+    if (telefone.replace(/\D/g, "").length < 10)
+      novosErros.telefone = "Informe o DDD e o número, como (85) 90000-0000.";
+    if (!temIgreja) novosErros.igreja = "Escolha se frequenta alguma igreja.";
+    else if (temIgreja === "sim" && igreja.trim().length < 2)
+      novosErros.igreja = "Escreva o nome da igreja.";
+    setErros(novosErros);
+    if (Object.keys(novosErros).length > 0) return;
+
+    setEnviando(true);
+    try {
+      const { data, error } = await supabase().rpc("mc_checkin_inscrever", {
+        p_nome: nomeLimpo,
+        p_telefone: telefone.trim(),
+        p_igreja: temIgreja === "sim" ? igreja.trim() : null,
+      });
+      if (error) throw error;
+      const nova = (data as Inscrita[] | null)?.[0];
+      if (!nova) throw new Error("Algo deu errado. Tente de novo.");
+      aoInscrever(nova);
+      setNome("");
+      setTelefone("");
+      setTemIgreja("");
+      setIgreja("");
+      primeiroCampo.current?.focus();
+    } catch (erro) {
+      const msg = erro instanceof Object && "message" in erro ? String(erro.message) : "";
+      if (/LIMITE_DE_INSCRICOES/.test(msg)) toast.error("As vagas do encontro acabaram.");
+      else if (/NOME_INVALIDO/.test(msg)) toast.error("Escreva o nome completo.");
+      else if (/TELEFONE_INVALIDO/.test(msg))
+        toast.error("Telefone inválido: informe DDD e número.");
+      else if (/SEM_PERMISSAO/.test(msg)) toast.error("Seu usuário não tem acesso à recepção.");
+      else if (/mc_checkin_inscrever|could not find the function/i.test(msg))
+        toast.error(
+          "O banco ainda não tem a inscrição pela recepção. Rode a migração 20261109120000_inscricao_na_recepcao.sql no Supabase.",
+        );
+      else toast.error(traduzirErro(erro));
+    } finally {
+      setEnviando(false);
+    }
+  };
+
+  return (
+    <section className={`${CARTAO} p-4 md:p-6`}>
+      <h2 className="text-lg font-semibold text-[color:var(--admin-vinho)]">
+        Inscrever quem chegou sem inscrição
+      </h2>
+      <p className="mt-1 mb-5 text-sm text-foreground/60">
+        A pessoa já fica com a entrada confirmada.
+      </p>
+      <form onSubmit={(e) => void enviar(e)} noValidate className="flex flex-col gap-4">
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-semibold text-foreground/80">
+            Nome completo
+          </span>
+          <input
+            ref={primeiroCampo}
+            autoFocus
+            value={nome}
+            onChange={(e) => setNome(e.target.value)}
+            autoComplete="off"
+            autoCapitalize="words"
+            maxLength={120}
+            disabled={enviando}
+            aria-invalid={Boolean(erros.nome)}
+            className={campo}
+          />
+          {erros.nome && <span className="mt-1.5 block text-sm text-red-700">{erros.nome}</span>}
+        </label>
+
+        <label className="block">
+          <span className="mb-1.5 block text-sm font-semibold text-foreground/80">Telefone</span>
+          <input
+            type="tel"
+            inputMode="tel"
+            value={telefone}
+            onChange={(e) => setTelefone(mascaraTelefone(e.target.value))}
+            placeholder="(85) 90000-0000"
+            maxLength={16}
+            autoComplete="off"
+            disabled={enviando}
+            aria-invalid={Boolean(erros.telefone)}
+            className={campo}
+          />
+          {erros.telefone && (
+            <span className="mt-1.5 block text-sm text-red-700">{erros.telefone}</span>
+          )}
+        </label>
+
+        <fieldset>
+          <legend className="mb-1.5 text-sm font-semibold text-foreground/80">
+            Frequenta alguma igreja?
+          </legend>
+          <div className="grid grid-cols-2 gap-2">
+            {(
+              [
+                ["sim", "Sim"],
+                ["nao", "Não"],
+              ] as const
+            ).map(([valor, rotulo]) => (
+              <button
+                key={valor}
+                type="button"
+                onClick={() => setTemIgreja(valor)}
+                aria-pressed={temIgreja === valor}
+                disabled={enviando}
+                className={`min-h-[48px] rounded-2xl text-base font-semibold ring-1 transition ${
+                  temIgreja === valor
+                    ? "bg-[color:var(--admin-vinho)] text-white ring-[color:var(--admin-vinho)]"
+                    : "bg-[color:var(--admin-fundo)] text-foreground/75 ring-[color:var(--admin-linha)]"
+                }`}
+              >
+                {rotulo}
+              </button>
+            ))}
+          </div>
+          {temIgreja === "sim" && (
+            <label className="mt-3 block">
+              <span className="sr-only">Nome da igreja</span>
+              <input
+                autoFocus
+                value={igreja}
+                onChange={(e) => setIgreja(e.target.value)}
+                placeholder="Nome da igreja"
+                maxLength={120}
+                autoComplete="off"
+                disabled={enviando}
+                aria-invalid={Boolean(erros.igreja)}
+                className={campo}
+              />
+            </label>
+          )}
+          {erros.igreja && (
+            <span className="mt-1.5 block text-sm text-red-700">{erros.igreja}</span>
+          )}
+        </fieldset>
+
+        <button
+          type="submit"
+          disabled={enviando}
+          className="mt-1 inline-flex min-h-[52px] items-center justify-center gap-2 rounded-full bg-[color:var(--admin-vinho)] px-6 text-base font-semibold text-white transition hover:brightness-110 disabled:opacity-60"
+        >
+          {enviando ? (
+            <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
+          ) : (
+            <UserPlus className="h-5 w-5" aria-hidden="true" />
+          )}
+          Inscrever e confirmar entrada
+        </button>
+      </form>
+    </section>
   );
 }
 
